@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
+import 'package:greenpoint/views/screens/auth/daftar_page.dart';
+import 'package:greenpoint/views/screens/fitur/beranda.dart';
 import 'package:greenpoint/views/widget/input_widget.dart';
 import 'package:greenpoint/views/widget/judul_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
@@ -45,11 +48,11 @@ class _MasukPageState extends State<MasukPage> {
                 width: MediaQuery.of(context).size.width *
                     0.85, // Adjust as needed
                 child: InputWidget(
-                  hintText: 'Username',
+                  hintText: 'Email',
                   hintTextColor: Colors.white,
                   textColor: Colors.white,
                   fillColor: GreenPointColor.abu,
-                  icon: Icons.person,
+                  icon: Icons.email,
                   controller: emailController,
                 ),
               ),
@@ -121,7 +124,9 @@ class _MasukPageState extends State<MasukPage> {
                       warna: GreenPointColor.secondary,
                       warnaText: Colors.white,
                       text: "Masuk",
-                      onPressed: () {})),
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Beranda()));
+                      })),
               SizedBox(height: ScreenUtils.screenHeight(context) * 0.01),
               Center(
                 child: RichText(
@@ -133,12 +138,17 @@ class _MasukPageState extends State<MasukPage> {
                           style: GoogleFonts.inter(
                               color: GreenPointColor.abu, fontSize: 11)),
                       TextSpan(
-                        text: "Daftar",
-                        style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: GreenPointColor.primary,
-                            fontWeight: FontWeight.bold),
-                      ),
+                          text: "Daftar",
+                          mouseCursor: MaterialStateMouseCursor.clickable,
+                          style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: GreenPointColor.primary,
+                              fontWeight: FontWeight.bold),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => DaftarPage()))),
                     ],
                   ),
                 ),

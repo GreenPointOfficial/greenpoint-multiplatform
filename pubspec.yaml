@@ -66,6 +66,7 @@ flutter:
     - lib/assets/imgs/logo_edukasi1.png
     - lib/assets/imgs/logo_edukasi2.png
     - lib/assets/imgs/bg_atas.png
+    - lib/assets/imgs/bg_bawah.png
     - lib/assets/imgs/google.png
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:greenpoint/views/screens/edukasi/edukasi.dart';
+import 'package:greenpoint/views/screens/edukasi/edukasi_page.dart';
 
 class Splash extends StatefulWidget {
   const Splash({Key? key}) : super(key: key);
