@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
-import 'package:greenpoint/views/widget/judul_widget.dart';
+import 'package:greenpoint/views/widget/welcome_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 

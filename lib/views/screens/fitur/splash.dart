@@ -16,17 +16,15 @@ class _SplashState extends State<Splash> {
     Timer(
         const Duration(seconds: 3),
         () => Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (BuildContext context) =>  EdukasiPage())));
+            builder: (BuildContext context) => EdukasiPage())));
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
           backgroundColor: Colors.white,
           body: Center(
-            
             child: Hero(
               tag: "logo_edukasi1",
               child: Image.asset(
-                
                 "lib/assets/imgs/logo.png",
                 width: 355,
                 height: 372,

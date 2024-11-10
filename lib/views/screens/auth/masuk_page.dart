@@ -7,7 +7,7 @@ import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/views/screens/auth/daftar_page.dart';
 import 'package:greenpoint/views/screens/fitur/beranda.dart';
 import 'package:greenpoint/views/widget/input_widget.dart';
-import 'package:greenpoint/views/widget/judul_widget.dart';
+import 'package:greenpoint/views/widget/welcome_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 

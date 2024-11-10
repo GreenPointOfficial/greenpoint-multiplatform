@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:greenpoint/views/screens/splash.dart';
+import 'package:greenpoint/views/screens/fitur/splash.dart';
 
 void main() {
   runApp(GreenPoint());
 }
 
 class GreenPoint extends StatelessWidget {
-   GreenPoint({Key? key}) : super(key: key);
+  GreenPoint({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
