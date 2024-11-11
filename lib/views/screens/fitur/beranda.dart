@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
+import 'package:greenpoint/views/screens/fitur/artikel.dart';
 import 'package:greenpoint/views/screens/fitur/pencapaian.dart';
+import 'package:greenpoint/views/screens/fitur/peringkat_penjualan.dart';
 import 'package:greenpoint/views/screens/fitur/riwayat.dart';
 import 'package:greenpoint/views/screens/fitur/transaksi.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -39,12 +41,15 @@ class _BerandaState extends State<Beranda> {
             _buildActionsSection(),
             const SizedBox(height: 20),
             _buildSectionWithTitle(
-                "Informasi Sampah", _buildInformasiSampahGrid()),
+                "Informasi Sampah", _buildInformasiSampahGrid(), false, (){}),
             const SizedBox(height: 20),
-            _buildSectionWithTitle("Artikel", _buildCardArtikel()),
+            _buildSectionWithTitle("Artikel", _buildCardArtikel(), true, (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>Artikel()));
+            }),
             const SizedBox(height: 20),
             _buildSectionWithTitle(
-                "Peringkat Penjualan", _buildPenjualanTerbanyak())
+                "Peringkat Penjualan", _buildPenjualanTerbanyak(), true, (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>PeringkatPenjualan()));})
           ],
         ),
       ),
@@ -144,20 +149,30 @@ class _BerandaState extends State<Beranda> {
     );
   }
 
-  Widget _buildSectionWithTitle(String title, Widget content) {
+  
+  Widget _buildSectionWithTitle(String title, Widget content, bool seeMore, VoidCallback onTap) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title,
-                style:
-                    GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text("Lihat semua", style: GoogleFonts.dmSans(
-              fontSize: 14, fontWeight: FontWeight.w500,
-              color: GreenPointColor.primary
-            ),)
+            Text(
+              title,
+              style: GoogleFonts.dmSans(
+                  fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            if (seeMore)
+              GestureDetector(
+                onTap: onTap,
+                child: Text(
+                  "Lihat semua",
+                  style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: GreenPointColor.primary),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 15),
@@ -165,7 +180,6 @@ class _BerandaState extends State<Beranda> {
       ],
     );
   }
-
   Widget _buildInformasiSampahGrid() {
     return Wrap(
       spacing: 27,
@@ -246,14 +260,18 @@ class _BerandaState extends State<Beranda> {
                           fontWeight: FontWeight.bold,
                           color: Colors.white)),
                   const SizedBox(height: 10),
-                  Text(
-                    "Coba deh ini isinya apa aja si coba lihat lebih detail ini paid oi cui...",
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style:
-                        GoogleFonts.dmSans(fontSize: 12, color: Colors.white54),
+                  Padding(
+                    
+                    padding: const EdgeInsets.only(right:8.0),
+                    child: Text(
+                      "Coba deh ini isinya apa aja si coba lihat lebih detail ini paid oi cui...",
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style:
+                          GoogleFonts.dmSans(fontSize: 12, color: Colors.white54),
+                    ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 25,),
                   Text("Baca Selengkapnya",
                       style: GoogleFonts.dmSans(
                           fontSize: 12,

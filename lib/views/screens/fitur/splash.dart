@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:greenpoint/views/screens/edukasi/edukasi_page.dart';
+import 'package:greenpoint/views/screens/fitur/edukasi_page.dart';
 
 class Splash extends StatefulWidget {
   const Splash({Key? key}) : super(key: key);
@@ -25,9 +25,9 @@ class _SplashState extends State<Splash> {
             child: Hero(
               tag: "logo_edukasi1",
               child: Image.asset(
-                "lib/assets/imgs/logo.png",
-                width: 355,
-                height: 372,
+                "lib/assets/imgs/logo.gif",
+                width: 400,
+                height: 400,
               ),
             ),
           )),

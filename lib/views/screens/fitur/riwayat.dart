@@ -16,12 +16,15 @@ class _RiwayatPageState extends State<RiwayatPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const Appbar2Widget(title: "Riwayat"),
-      body: Column(
-        children: [
-          _buildTransaksiCard(),
-          _buildTransaksiCard(),
-          _buildTransaksiCard()
-        ],
+      body: Padding(
+        padding: const EdgeInsets.only(right: 25.0, left: 25, bottom: 27),
+        child: Column(
+          children: [
+            _buildTransaksiCard(),
+            _buildTransaksiCard(),
+            _buildTransaksiCard()
+          ],
+        ),
       ),
     );
   }

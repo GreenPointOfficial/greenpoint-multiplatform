@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:greenpoint/views/screens/edukasi/edukasi_1_page.dart';
-import 'package:greenpoint/views/screens/edukasi/edukasi_2_page.dart';
+import 'package:greenpoint/views/screens/edukasi_frag/edukasi_1_page.dart';
+import 'package:greenpoint/views/screens/edukasi_frag/edukasi_2_page.dart';
 
 class EdukasiPage extends StatefulWidget {
   const EdukasiPage({Key? key}) : super(key: key);

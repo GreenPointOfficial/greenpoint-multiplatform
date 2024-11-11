@@ -11,16 +11,17 @@ class Appbar2Widget extends StatelessWidget implements PreferredSizeWidget {
   }) : super(key: key);
 
   @override
-  Size get preferredSize => const Size.fromHeight(70);
+  Size get preferredSize => const Size.fromHeight(60);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white, 
+      foregroundColor: Colors.white,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.of(context).pop(),
-        iconSize: 24, // Ukuran icon lebih besar agar lebih mudah diklik
+        iconSize: 24,
       ),
       title: Padding(
         padding: EdgeInsets.only(

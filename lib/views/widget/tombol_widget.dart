@@ -23,17 +23,17 @@ class TombolWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return ElevatedButton(
-      
       style: ElevatedButton.styleFrom(
         shadowColor: Colors.grey,
-        
         backgroundColor: warna, 
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0), 
         ),
         elevation: 5,
-        fixedSize: Size(width ?? 308, 49), 
+        fixedSize: Size(width ?? screenWidth * 0.8, screenWidth * 0.12), // Responsive size
       ),
       onPressed: onPressed, 
       child: Row(
@@ -42,20 +42,20 @@ class TombolWidget extends StatelessWidget {
           if (assetIcon != null) ...[
             Image.asset(
               assetIcon!, 
-              height: 38, 
-              width: 38, 
+              height: screenWidth * 0.08, // Responsive icon height
+              width: screenWidth * 0.08, // Responsive icon width
             ),
-            const SizedBox(width: 8), 
+            SizedBox(width: screenWidth * 0.02), // Responsive spacing
           ] else if (icon != null) ...[
-            Icon(icon, color: warnaText), 
-            const SizedBox(width: 8), 
+            Icon(icon, color: warnaText, size: screenWidth * 0.06), // Responsive icon size
+            SizedBox(width: screenWidth * 0.02), // Responsive spacing
           ],
           Text(
             text,
             style: GoogleFonts.dmSans(
               color: warnaText, 
-              fontSize: 15,
-              fontWeight: FontWeight.bold
+              fontSize: screenWidth * 0.04, // Responsive font size
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
