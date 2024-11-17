@@ -3,9 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/views/screens/fitur/artikel.dart';
+import 'package:greenpoint/views/screens/fitur/informasi_sampah.dart';
 import 'package:greenpoint/views/screens/fitur/pencapaian.dart';
 import 'package:greenpoint/views/screens/fitur/peringkat_penjualan.dart';
 import 'package:greenpoint/views/screens/fitur/riwayat.dart';
+import 'package:greenpoint/views/screens/fitur/scan.dart';
 import 'package:greenpoint/views/screens/fitur/transaksi.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -41,15 +43,20 @@ class _BerandaState extends State<Beranda> {
             _buildActionsSection(),
             const SizedBox(height: 20),
             _buildSectionWithTitle(
-                "Informasi Sampah", _buildInformasiSampahGrid(), false, (){}),
+                "Informasi Sampah", _buildInformasiSampahGrid(), false, () {}),
             const SizedBox(height: 20),
-            _buildSectionWithTitle("Artikel", _buildCardArtikel(), true, (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>Artikel()));
+            _buildSectionWithTitle("Artikel", _buildCardArtikel(), true, () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Artikel()));
             }),
             const SizedBox(height: 20),
             _buildSectionWithTitle(
-                "Peringkat Penjualan", _buildPenjualanTerbanyak(), true, (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>PeringkatPenjualan()));})
+                "Peringkat Penjualan", _buildPenjualanTerbanyak(), true, () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PeringkatPenjualan()));
+            })
           ],
         ),
       ),
@@ -113,11 +120,18 @@ class _BerandaState extends State<Beranda> {
                 MaterialPageRoute(builder: (context) => PencapaianPage()));
           }),
           _buildDivider(),
-          _buildActionItem("Transaksi", "lib/assets/imgs/tukar.png", (){  Navigator.push(context,
+          _buildActionItem("Scan", "lib/assets/imgs/scan.png", () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => ScanPage()));
+          }),
+          _buildDivider(),
+          _buildActionItem("Transaksi", "lib/assets/imgs/tukar.png", () {
+            Navigator.push(context,
                 MaterialPageRoute(builder: (context) => TransaksiPage()));
           }),
           _buildDivider(),
-          _buildActionItem("Riwayat", "lib/assets/imgs/riwayat.png", () {  Navigator.push(context,
+          _buildActionItem("Riwayat", "lib/assets/imgs/riwayat.png", () {
+            Navigator.push(context,
                 MaterialPageRoute(builder: (context) => RiwayatPage()));
           }),
         ],
@@ -139,9 +153,7 @@ class _BerandaState extends State<Beranda> {
       child: Column(
         children: [
           Image.asset(assetPath, height: 35, width: 35),
-          const SizedBox(
-              height:
-                  5),
+          const SizedBox(height: 5),
           Text(label,
               style: GoogleFonts.dmSans(fontSize: 14, color: Colors.white)),
         ],
@@ -149,8 +161,8 @@ class _BerandaState extends State<Beranda> {
     );
   }
 
-  
-  Widget _buildSectionWithTitle(String title, Widget content, bool seeMore, VoidCallback onTap) {
+  Widget _buildSectionWithTitle(
+      String title, Widget content, bool seeMore, VoidCallback onTap) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -159,8 +171,8 @@ class _BerandaState extends State<Beranda> {
           children: [
             Text(
               title,
-              style: GoogleFonts.dmSans(
-                  fontSize: 18, fontWeight: FontWeight.bold),
+              style:
+                  GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             if (seeMore)
               GestureDetector(
@@ -180,14 +192,25 @@ class _BerandaState extends State<Beranda> {
       ],
     );
   }
+
   Widget _buildInformasiSampahGrid() {
     return Wrap(
       spacing: 27,
       runSpacing: 16,
       children: List.generate(
         8,
-        (index) => _buildInformasiSampahItem(
-            "lib/assets/imgs/logo.png", "Item ${index + 1}"),
+        (index) => GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => InformasiSampah()),
+            );
+          },
+          child: _buildInformasiSampahItem(
+            "lib/assets/imgs/logo.png",
+            "Item ${index + 1}",
+          ),
+        ),
       ),
     );
   }
@@ -261,17 +284,18 @@ class _BerandaState extends State<Beranda> {
                           color: Colors.white)),
                   const SizedBox(height: 10),
                   Padding(
-                    
-                    padding: const EdgeInsets.only(right:8.0),
+                    padding: const EdgeInsets.only(right: 8.0),
                     child: Text(
                       "Coba deh ini isinya apa aja si coba lihat lebih detail ini paid oi cui...",
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      style:
-                          GoogleFonts.dmSans(fontSize: 12, color: Colors.white54),
+                      style: GoogleFonts.dmSans(
+                          fontSize: 12, color: Colors.white54),
                     ),
                   ),
-                  const SizedBox(height: 25,),
+                  const SizedBox(
+                    height: 25,
+                  ),
                   Text("Baca Selengkapnya",
                       style: GoogleFonts.dmSans(
                           fontSize: 12,
