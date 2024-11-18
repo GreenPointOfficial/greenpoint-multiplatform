@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
+import 'package:greenpoint/views/screens/fitur/detail_artikel.dart';
 import 'package:greenpoint/views/widget/appbar2_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -35,7 +36,6 @@ class _ArtikelState extends State<Artikel> {
     return Card(
       color: cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      // margin: const EdgeInsets.only(bottom: 8),
       child: Padding(
         padding: const EdgeInsets.all(15),
         child: Row(
@@ -56,15 +56,27 @@ class _ArtikelState extends State<Artikel> {
                       "Coba deh ini isinya apa aja si coba lihat lebih detail ini paid oi cui...",
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.dmSans(fontSize: 12, color: Colors.white54),
+                      style: GoogleFonts.dmSans(
+                          fontSize: 12, color: Colors.white54),
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text("Baca Selengkapnya",
-                      style: GoogleFonts.dmSans(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white)),
+                  GestureDetector(
+                    child: Text("Baca Selengkapnya",
+                        style: GoogleFonts.dmSans(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white)),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              DetailArtikel(), // Replace with the target page
+                        ),
+                      );
+                    },
+                  )
                 ],
               ),
             ),

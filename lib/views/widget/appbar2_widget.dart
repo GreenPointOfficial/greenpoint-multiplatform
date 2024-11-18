@@ -11,12 +11,12 @@ class Appbar2Widget extends StatelessWidget implements PreferredSizeWidget {
   }) : super(key: key);
 
   @override
-  Size get preferredSize => const Size.fromHeight(60);
+  Size get preferredSize => const Size.fromHeight(70);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white, 
+      backgroundColor: Colors.white,
       foregroundColor: Colors.white,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -37,6 +37,10 @@ class Appbar2Widget extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+        bottom: Radius.circular(30),
+      )),
     );
   }
 }

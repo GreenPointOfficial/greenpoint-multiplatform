@@ -14,21 +14,21 @@ class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
   }) : super(key: key);
 
   @override
-  Size get preferredSize => Size.fromHeight(120); // Use a fixed height here instead of context-based height
+  Size get preferredSize => Size.fromHeight(70); // Use a fixed height here instead of context-based height
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = ScreenUtils.screenWidth(context);
     double screenHeight = ScreenUtils.screenHeight(context);
 
-    double titleFontSize = screenWidth * 0.05; 
+    double titleFontSize = screenWidth * 0.04; 
     double subtitleFontSize = screenWidth * 0.04; 
     return AppBar(
       backgroundColor: GreenPointColor.secondary,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => Navigator.of(context).pop(),
-        iconSize: screenWidth * 0.08, // Responsive icon size
+        iconSize: screenWidth * 0.06, // Responsive icon size
       ),
       title: Padding(
         padding: EdgeInsets.only(

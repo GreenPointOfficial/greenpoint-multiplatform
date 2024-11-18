@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/views/screens/fitur/artikel.dart';
+import 'package:greenpoint/views/screens/fitur/detail_artikel.dart';
 import 'package:greenpoint/views/screens/fitur/informasi_sampah.dart';
 import 'package:greenpoint/views/screens/fitur/pencapaian.dart';
 import 'package:greenpoint/views/screens/fitur/peringkat_penjualan.dart';
@@ -296,11 +297,22 @@ class _BerandaState extends State<Beranda> {
                   const SizedBox(
                     height: 25,
                   ),
-                  Text("Baca Selengkapnya",
-                      style: GoogleFonts.dmSans(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white)),
+                  GestureDetector(
+                    child: Text("Baca Selengkapnya",
+                        style: GoogleFonts.dmSans(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white)),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              DetailArtikel(), // Replace with the target page
+                        ),
+                      );
+                    },
+                  )
                 ],
               ),
             ),

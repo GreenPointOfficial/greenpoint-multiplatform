@@ -42,13 +42,13 @@ class TombolWidget extends StatelessWidget {
           if (assetIcon != null) ...[
             Image.asset(
               assetIcon!, 
-              height: screenWidth * 0.08, // Responsive icon height
-              width: screenWidth * 0.08, // Responsive icon width
+              height: screenWidth * 0.08, 
+              width: screenWidth * 0.08, 
             ),
-            SizedBox(width: screenWidth * 0.02), // Responsive spacing
+            SizedBox(width: screenWidth * 0.02), 
           ] else if (icon != null) ...[
             Icon(icon, color: warnaText, size: screenWidth * 0.06), // Responsive icon size
-            SizedBox(width: screenWidth * 0.02), // Responsive spacing
+            SizedBox(width: screenWidth * 0.02), 
           ],
           Text(
             text,

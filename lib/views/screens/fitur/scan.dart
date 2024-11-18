@@ -41,7 +41,8 @@ class _ScanPageState extends State<ScanPage> {
         children: [
           // QR Scanner area positioned at top center
           Positioned.fill(
-            bottom: MediaQuery.of(context).size.height * 0.4, // Adjust this value to move up/down
+            bottom: MediaQuery.of(context).size.height *
+                0.4, // Adjust this value to move up/down
             child: Center(
               child: Stack(
                 alignment: Alignment.center,
@@ -87,7 +88,8 @@ class _ScanPageState extends State<ScanPage> {
                         size: 40,
                       ),
                       Container(
-                        padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
+                        padding: const EdgeInsets.only(
+                            right: 10, left: 10, bottom: 10),
                         child: Column(
                           children: [
                             Text(
@@ -100,7 +102,8 @@ class _ScanPageState extends State<ScanPage> {
                             ),
                             const Divider(),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 5),
                               child: Text(
                                 "Untuk melanjutkan, harap scan barcode pada struk yang diberikan oleh petugas bank sampah.",
                                 style: GoogleFonts.dmSans(
@@ -111,13 +114,15 @@ class _ScanPageState extends State<ScanPage> {
                             const SizedBox(height: 20),
                             Container(
                               height: 43,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
                               decoration: BoxDecoration(
                                 color: const Color.fromARGB(179, 222, 221, 221),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [

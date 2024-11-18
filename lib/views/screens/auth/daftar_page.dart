@@ -23,7 +23,8 @@ class _DaftarPageState extends State<DaftarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AppbarWidget(title: "Register", title2: "Buat akun barumu"),
+      backgroundColor: Colors.white,
+      appBar: const AppbarWidget(title: "Register"),
       body: Center(
         child: Column(
           children: [
