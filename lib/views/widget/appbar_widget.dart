@@ -14,7 +14,7 @@ class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
   }) : super(key: key);
 
   @override
-  Size get preferredSize => Size.fromHeight(70); // Use a fixed height here instead of context-based height
+  Size get preferredSize => Size.fromHeight(70); 
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +28,11 @@ class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => Navigator.of(context).pop(),
-        iconSize: screenWidth * 0.06, // Responsive icon size
+        iconSize: screenWidth * 0.06, 
       ),
       title: Padding(
         padding: EdgeInsets.only(
-          top: screenHeight * 0.02, // Adjust top padding based on screen height
+          top: screenHeight * 0.02, 
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -41,7 +41,7 @@ class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
               title,
               style: GoogleFonts.dmSans(
                 color: Colors.white,
-                fontSize: titleFontSize, // Responsive title font size
+                fontSize: titleFontSize, 
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -51,7 +51,7 @@ class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
                 title2!,
                 style: GoogleFonts.dmSans(
                   color: Colors.white,
-                  fontSize: subtitleFontSize, // Responsive subtitle font size
+                  fontSize: subtitleFontSize, 
                 ),
               ),
           ],

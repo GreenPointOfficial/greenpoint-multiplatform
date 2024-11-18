@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
+import 'package:greenpoint/models/jenis_sampah_model.dart';
 import 'package:greenpoint/views/widget/appbar_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class InformasiSampah extends StatefulWidget {
-  const InformasiSampah({Key? key}) : super(key: key);
+  final JenisSampah jenisSampah;
+
+  const InformasiSampah({
+    Key? key,
+    required this.jenisSampah,
+  }) : super(key: key);
 
   @override
   _InformasiSampahState createState() => _InformasiSampahState();
@@ -15,22 +21,24 @@ class _InformasiSampahState extends State<InformasiSampah> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppbarWidget(title: "Informasi Sampah"),
+      appBar: AppbarWidget(title: "Informasi ${widget.jenisSampah.judul}"),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             customContainer(
-              imagePath: "lib/assets/imgs/logo.png",
-              title: "Sampah Kardus",
-              price: "Rp. 1000/kg",
+              imagePath: widget.jenisSampah.foto,
+
+              title: widget.jenisSampah.judul, // Menampilkan nama dinamis
+              price:
+                  "Rp. ${widget.jenisSampah.harga}/kg", // Menampilkan harga dinamis
             ),
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
                   textAlign: TextAlign.center,
-                  "Dampak Positif Daur Ulang Kardus:",
+                  "Dampak Positif Daur Ulang ${widget.jenisSampah.judul}:",
                   style: GoogleFonts.dmSans(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -81,51 +89,50 @@ class _InformasiSampahState extends State<InformasiSampah> {
     );
   }
 
-  Widget buildCustomContainer(
-    BuildContext context, String text, int index) {
-  final borderColor = index % 2 == 0
-      ? GreenPointColor.secondary // Genap
-      : GreenPointColor.primary; // Ganjil
+  Widget buildCustomContainer(BuildContext context, String text, int index) {
+    final borderColor = index % 2 == 0
+        ? GreenPointColor.secondary // Genap
+        : GreenPointColor.primary; // Ganjil
 
-  // Tentukan apakah gambar di kiri atau kanan
-  final isOdd = index % 2 != 0;
+    // Tentukan apakah gambar di kiri atau kanan
+    final isOdd = index % 2 != 0;
 
-  return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    padding: const EdgeInsets.all(16.0),
-    decoration: BoxDecoration(
-      color: Colors.white, // Background putih
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(
-        color: borderColor, // Border sesuai indeks
-        width: 2,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.3),
-          spreadRadius: 2,
-          blurRadius: 5,
-          offset: const Offset(0, 3),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white, // Background putih
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: borderColor, // Border sesuai indeks
+          width: 2,
         ),
-      ],
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Gambar kecil di kiri atau kanan berdasarkan indeks
-        if (isOdd) ...[
-          buildImageContainer(), // Gambar di kiri untuk indeks ganjil
-          const SizedBox(width: 10),
-          Expanded(child: buildTextContainer(text)),
-        ] else ...[
-          Expanded(child: buildTextContainer(text)),
-          const SizedBox(width: 10),
-          buildImageContainer(), // Gambar di kanan untuk indeks genap
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
         ],
-      ],
-    ),
-  );
-}
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Gambar kecil di kiri atau kanan berdasarkan indeks
+          if (isOdd) ...[
+            buildImageContainer(), // Gambar di kiri untuk indeks ganjil
+            const SizedBox(width: 10),
+            Expanded(child: buildTextContainer(text)),
+          ] else ...[
+            Expanded(child: buildTextContainer(text)),
+            const SizedBox(width: 10),
+            buildImageContainer(), // Gambar di kanan untuk indeks genap
+          ],
+        ],
+      ),
+    );
+  }
 
   Widget buildTextContainer(String text) {
     return Text(
@@ -173,10 +180,10 @@ class _InformasiSampahState extends State<InformasiSampah> {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => InformasiSampah()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => InformasiSampah()),
+            // );
           },
           child: _buildInformasiSampahItem(
             "lib/assets/imgs/logo.png",
@@ -238,10 +245,10 @@ class _InformasiSampahState extends State<InformasiSampah> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
+            child: Image.network(
               imagePath,
-              height: 80,
-              width: 80,
+              height: 70,
+              width: 70,
               fit: BoxFit.cover,
             ),
           ),
@@ -253,11 +260,10 @@ class _InformasiSampahState extends State<InformasiSampah> {
                 Text(
                   title,
                   style: GoogleFonts.dmSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black, 
-                    letterSpacing: 0.03
-                  ),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      letterSpacing: 0.03),
                 ),
                 const SizedBox(height: 8),
                 Text(

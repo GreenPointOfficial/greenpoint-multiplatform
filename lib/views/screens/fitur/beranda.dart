@@ -296,21 +296,21 @@ Widget _buildDivider() {
           spacing: 27,
           runSpacing: 16,
           children: jenisSampahList.map((jenisSampah) {
-            final imagePath = jenisSampah.foto?.isNotEmpty == true
-                ? jenisSampah.foto!
+            final imagePath = jenisSampah.foto.isNotEmpty == true
+                ? jenisSampah.foto
                 : "lib/assets/imgs/placeholder.png";
-            final nama = jenisSampah.judul?.isNotEmpty == true
-                ? jenisSampah.judul!
+            final nama = jenisSampah.judul.isNotEmpty == true
+                ? jenisSampah.judul
                 : "Unknown";
 
             return GestureDetector(
-              // onTap: () => Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) =>
-              //         InformasiSampah(jenisSampah: jenisSampah),
-              //   ),
-              // ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      InformasiSampah(jenisSampah: jenisSampah),
+                ),
+              ),
               child: SizedBox(
                 width: itemWidth,
                 child: _buildInformasiSampahItem(imagePath, nama),

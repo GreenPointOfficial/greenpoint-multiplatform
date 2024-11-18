@@ -1,9 +1,11 @@
+import 'package:greenpoint/assets/constants/api_url.dart';
+
 class JenisSampah {
   final String foto;
   final String judul;
   final double harga;
 
-  static const String baseImageUrl = 'https://bfdd-182-23-28-54.ngrok-free.app/storage/';
+  // static const String baseImageUrl = 'http:10.0.2.2:8000/storage/';
 
   JenisSampah({
     required this.foto,
@@ -14,7 +16,7 @@ class JenisSampah {
   factory JenisSampah.fromJson(Map<String, dynamic> json) {
     String imageUrl = json['foto'] as String;
     if (!imageUrl.startsWith('http')) {
-      imageUrl = baseImageUrl + imageUrl;
+      imageUrl = ApiUrl.baseImageUrl + imageUrl;
     }
 
     double harga = json['harga'] is int ? (json['harga'] as int).toDouble() : json['harga'] as double;
@@ -30,6 +32,6 @@ class JenisSampah {
     if (foto.startsWith('http')) {
       return foto;
     }
-    return baseImageUrl + foto;
+    return ApiUrl.baseImageUrl + foto;
   }
 }
