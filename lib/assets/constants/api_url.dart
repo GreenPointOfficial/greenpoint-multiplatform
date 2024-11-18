@@ -18,6 +18,8 @@ class ApiUrl {
   // Jenis Sampah
   static const String jenisSampah = "/jenis-sampah";
 
+  // Dampak
+  static const String dampak = "/dampak";
   // Lokasi
   static const String lokasiGreedy = "/tsp";
   static const String lokasi = "/lokasi";

@@ -4,6 +4,7 @@ import 'package:greenpoint/models/jenis_sampah_model.dart';
 import 'package:http/http.dart' as http;
 
 class JenisSampahService {
+  
   Future<List<JenisSampah>> fetchJenisSampah() async {
     final url = ApiUrl.buildUrl(ApiUrl.jenisSampah);
 

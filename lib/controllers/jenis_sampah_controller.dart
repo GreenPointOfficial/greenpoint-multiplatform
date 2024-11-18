@@ -25,26 +25,24 @@ class JenisSampahController extends ChangeNotifier {
 
     try {
       _jenisSampahList = await _apiService.fetchJenisSampah();
-      _jenisSampahStreamController.sink.add(_jenisSampahList);  // Kirimkan data baru ke Stream
+      _jenisSampahStreamController.sink.add(_jenisSampahList);  
     } catch (e) {
-      print('Error fetching data: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Ambil detail jenis sampah berdasarkan ID dan stream-kan datanya
   Future<void> fetchJenisSampahById(int id) async {
     _isLoading = true;
     notifyListeners();
 
     try {
       _jenisSampahById = await _apiService.fetchJenisSampahById(id);
-      _jenisSampahByIdStreamController.sink.add(_jenisSampahById);  // Kirimkan data berdasarkan ID ke Stream
+      _jenisSampahByIdStreamController.sink.add(_jenisSampahById);
     } catch (e) {
       print('Error fetching data for ID $id: $e');
-      _jenisSampahByIdStreamController.sink.add(null);  // Jika error, kirim null
+      _jenisSampahByIdStreamController.sink.add(null);  
     } finally {
       _isLoading = false;
       notifyListeners();
