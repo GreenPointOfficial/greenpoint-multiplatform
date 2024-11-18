@@ -41,9 +41,9 @@ class _MasukPageState extends State<MasukPage> {
                   fit: BoxFit.cover,
                 ),
               ),
-              SizedBox(height: ScreenUtils.screenHeight(context) * 0.02),
+              SizedBox(height: ScreenUtils.screenHeight(context) * 0.01),
               const JudulWidget(size: 36),
-              SizedBox(height: ScreenUtils.screenHeight(context) * 0.03),
+              SizedBox(height: ScreenUtils.screenHeight(context) * 0.02),
               SizedBox(
                 width: MediaQuery.of(context).size.width *
                     0.85, // Adjust as needed

@@ -30,18 +30,23 @@ class _BerandaState extends State<Beranda> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 27.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.06,
+          vertical: screenWidth * 0.07,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(screenWidth),
             const SizedBox(height: 5),
-            _buildPointsSection(),
+            _buildPointsSection(screenWidth),
             const SizedBox(height: 20),
-            _buildActionsSection(),
+            _buildActionsSection(screenWidth),
             const SizedBox(height: 20),
             _buildSectionWithTitle(
                 "Informasi Sampah", _buildInformasiSampahGrid(), false, () {}),
@@ -57,28 +62,28 @@ class _BerandaState extends State<Beranda> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => PeringkatPenjualan()));
-            })
+            }),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(double screenWidth) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Image.asset(
           "lib/assets/imgs/logo.png",
-          width: ScreenUtils.screenWidth(context) * 0.15,
-          height: ScreenUtils.screenHeight(context) * 0.1,
+          width: screenWidth * 0.15,
+          height: screenWidth * 0.1,
         ),
         const Icon(Icons.notifications),
       ],
     );
   }
 
-  Widget _buildPointsSection() {
+  Widget _buildPointsSection(double screenWidth) {
     return Row(
       children: [
         Column(
@@ -86,29 +91,30 @@ class _BerandaState extends State<Beranda> {
           children: [
             Text("Hello user!",
                 style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.bold, fontSize: 18)),
+                    fontWeight: FontWeight.bold, fontSize: screenWidth * 0.045)),
             Text("Poin kamu saat ini",
                 style: GoogleFonts.dmSans(
-                    fontSize: 14, color: GreenPointColor.abu)),
+                    fontSize: screenWidth * 0.035, color: GreenPointColor.abu)),
           ],
         ),
         const Spacer(),
         Row(
           children: [
-            Image.asset("lib/assets/imgs/poin.png", height: 35, width: 35),
+            Image.asset("lib/assets/imgs/poin.png",
+                height: screenWidth * 0.09, width: screenWidth * 0.09),
             const SizedBox(width: 8),
             Text("1.000.000",
                 style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.bold, fontSize: 28)),
+                    fontWeight: FontWeight.bold, fontSize: screenWidth * 0.07)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildActionsSection() {
+  Widget _buildActionsSection(double screenWidth) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(screenWidth * 0.05),
       decoration: BoxDecoration(
         color: GreenPointColor.primary,
         borderRadius: BorderRadius.circular(20),
@@ -116,51 +122,62 @@ class _BerandaState extends State<Beranda> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildActionItem("Pencapaian", "lib/assets/imgs/pencapaian.png", () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => PencapaianPage()));
-          }),
-          _buildDivider(),
+        
           _buildActionItem("Scan", "lib/assets/imgs/scan.png", () {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => ScanPage()));
           }),
-          _buildDivider(),
+          _buildDivider(screenWidth),
           _buildActionItem("Transaksi", "lib/assets/imgs/tukar.png", () {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => TransaksiPage()));
           }),
-          _buildDivider(),
+          _buildDivider(screenWidth),
           _buildActionItem("Riwayat", "lib/assets/imgs/riwayat.png", () {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => RiwayatPage()));
+          
+          }),
+          _buildDivider(screenWidth),
+           _buildActionItem("Pencapaian", "lib/assets/imgs/pencapaian.png", () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => PencapaianPage()));
           }),
         ],
       ),
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDivider(double screenWidth) {
     return Container(
       width: 2,
-      height: 40,
+      height: screenWidth * 0.1,
       color: Colors.white.withOpacity(0.5),
     );
   }
 
-  Widget _buildActionItem(String label, String assetPath, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Image.asset(assetPath, height: 35, width: 35),
-          const SizedBox(height: 5),
-          Text(label,
-              style: GoogleFonts.dmSans(fontSize: 14, color: Colors.white)),
-        ],
-      ),
-    );
-  }
+Widget _buildActionItem(String label, String assetPath, VoidCallback onTap) {
+  final screenWidth = MediaQuery.of(context).size.width;
+
+  return GestureDetector(
+    onTap: onTap,
+    child: Column(
+      children: [
+        Image.asset(
+          assetPath,
+          height: screenWidth * 0.1, // Ukuran gambar responsif
+          width: screenWidth * 0.1, // Ukuran gambar responsif
+        ),
+        const SizedBox(height: 5),
+        Text(
+          label,
+          style: GoogleFonts.dmSans(fontSize: 14, color: Colors.white),
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _buildSectionWithTitle(
       String title, Widget content, bool seeMore, VoidCallback onTap) {
@@ -194,47 +211,72 @@ class _BerandaState extends State<Beranda> {
     );
   }
 
-  Widget _buildInformasiSampahGrid() {
-    return Wrap(
-      spacing: 27,
-      runSpacing: 16,
-      children: List.generate(
-        8,
-        (index) => GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => InformasiSampah()),
-            );
-          },
-          child: _buildInformasiSampahItem(
-            "lib/assets/imgs/logo.png",
-            "Item ${index + 1}",
+Widget _buildInformasiSampahGrid() {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final availableWidth = constraints.maxWidth;
+      final itemWidth = (availableWidth - (3 * 27)) / 4; 
+
+      return Wrap(
+        spacing: 27,
+        runSpacing: 16,
+        children: List.generate(
+          8,
+          (index) => GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => InformasiSampah()),
+              );
+            },
+            child: SizedBox(
+              width: itemWidth,
+              child: _buildInformasiSampahItem(
+                "lib/assets/imgs/logo.png",
+                "Item ${index + 1}",
+              ),
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
-  Widget _buildInformasiSampahItem(String path, String name) {
-    return Column(
-      children: [
-        Container(
-          height: 65,
-          width: 65,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            color: const Color(0xFFF6FAFD),
+Widget _buildInformasiSampahItem(String path, String name) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final containerSize = constraints.maxWidth * 0.9; //
+      return Column(
+        children: [
+          Container(
+            height: containerSize,
+            width: containerSize,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: const Color(0xFFF6FAFD),
+            ),
+            child: Center(
+              child: Image.asset(
+                path,
+                width: containerSize * 0.7,
+                height: containerSize * 0.7,
+                fit: BoxFit.contain,
+              ),
+            ),
           ),
-          child: Image.asset(path, width: 20, height: 20),
-        ),
-        const SizedBox(height: 10),
-        Text(name,
-            style: GoogleFonts.dmSans(fontSize: 12, color: Colors.black)),
-      ],
-    );
-  }
-
+          const SizedBox(height: 10),
+          Text(
+            name,
+            style: GoogleFonts.dmSans(fontSize: 12, color: Colors.black),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      );
+    },
+  );
+}
   Widget _buildCardArtikel() {
     return Column(
       children: [
