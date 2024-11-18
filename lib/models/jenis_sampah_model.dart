@@ -3,7 +3,7 @@ class JenisSampah {
   final String judul;
   final double harga;
 
-  static const String baseImageUrl = 'https://1f74-182-1-38-228.ngrok-free.app/storage/';
+  static const String baseImageUrl = 'https://bfdd-182-23-28-54.ngrok-free.app/storage/';
 
   JenisSampah({
     required this.foto,

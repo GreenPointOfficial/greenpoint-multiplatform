@@ -3,8 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:greenpoint/models/artikel_model.dart';
 
 class ArtikelService {
-  // Define the base URL for the API
-  final String baseUrl = 'http://10.0.2.2:8000/api/v1/artikel';  // Adjust based on your API URL
+  final String baseUrl = 'http://10.0.2.2:8000/api/v1/artikel';
 
   // Fetch all articles
   Future<List<Artikel>> fetchAllArtikel() async {
