@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:greenpoint/controllers/dampak_controller.dart';
+import 'package:greenpoint/controllers/daur_ulang_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:greenpoint/controllers/jenis_sampah_controller.dart';
 import 'package:greenpoint/views/screens/fitur/splash.dart';
@@ -10,6 +11,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => JenisSampahController()),
         ChangeNotifierProvider(create: (_) => DampakController()),
+        ChangeNotifierProvider(create: (_) => DaurUlangController()),
       ],
       child: const GreenPoint(),
     ),

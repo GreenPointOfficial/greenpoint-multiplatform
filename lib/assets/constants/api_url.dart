@@ -20,6 +20,7 @@ class ApiUrl {
 
   // Dampak
   static const String dampak = "/dampak";
+  static const String daurUlang = "/daur-ulang";
   // Lokasi
   static const String lokasiGreedy = "/tsp";
   static const String lokasi = "/lokasi";
