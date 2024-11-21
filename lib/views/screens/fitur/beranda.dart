@@ -87,7 +87,8 @@ class _BerandaState extends State<Beranda> {
           const SizedBox(height: 20),
           _buildSectionWithTitle(
             "Informasi Sampah",
-            _buildInformasiSampahGrid(controller.jenisSampahList),
+            _buildInformasiSampahGrid(
+                controller.jenisSampahList, controller.isLoading),
             false,
             () {},
           ),
@@ -98,7 +99,7 @@ class _BerandaState extends State<Beranda> {
             true,
             () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const MasukPage()),
+              MaterialPageRoute(builder: (context) => const ArtikelPage()),
             ),
           ),
           const SizedBox(height: 20),
@@ -289,15 +290,22 @@ class _BerandaState extends State<Beranda> {
     );
   }
 
-  Widget _buildInformasiSampahGrid(List<JenisSampah> jenisSampahList) {
+  Widget _buildInformasiSampahGrid(
+      List<JenisSampah> jenisSampahList, bool isLoading) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
         final itemWidth = (availableWidth - (3 * 27)) / 4;
 
-        if (jenisSampahList.isEmpty) {
+        if (isLoading) {
           return const Center(
             child: CircularProgressIndicator(),
+          );
+        }
+
+        if (jenisSampahList.isEmpty) {
+          return const Center(
+            child: Text("Informasi sampah tidak tersedia."),
           );
         }
 
@@ -308,9 +316,8 @@ class _BerandaState extends State<Beranda> {
             final imagePath = jenisSampah.foto.isNotEmpty
                 ? jenisSampah.foto
                 : "lib/assets/imgs/placeholder.png";
-            final nama = jenisSampah.judul.isNotEmpty
-                ? jenisSampah.judul
-                : "Unknown";
+            final nama =
+                jenisSampah.judul.isNotEmpty ? jenisSampah.judul : "Unknown";
 
             return GestureDetector(
               onTap: () => Navigator.push(
@@ -394,114 +401,114 @@ class _BerandaState extends State<Beranda> {
   }
 
   Widget _buildCardArtikel() {
-  return Consumer<ArtikelController>(
-    builder: (context, artikelController, _) {
-      if (artikelController.isLoading) {
-        return const Center(child: CircularProgressIndicator());
-      }
+    return Consumer<ArtikelController>(
+      builder: (context, artikelController, _) {
+        if (artikelController.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-      if (artikelController.artikelList.isEmpty) {
-        return const Center(child: Text("Belum ada artikel."));
-      }
+        if (artikelController.artikelList.isEmpty) {
+          return const Center(child: Text("Belum ada artikel."));
+        }
 
-      return Column(
-        children: [
-          SizedBox(
-            height: 200,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: artikelController.artikelList.length,
-              padEnds: false,
-              itemBuilder: (context, index) {
-                final artikel = artikelController.artikelList[index];
-                final cardColor = index.isEven 
-                    ? GreenPointColor.secondary 
-                    : GreenPointColor.abu;
-                
-                return GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailArtikel(artikel: artikel),
-                    ),
-                  ),
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                    color: cardColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  artikel.judul,
-                                  style: GoogleFonts.dmSans(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 10),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: Text(
-                                    artikel.isi,
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.dmSans(
-                                      fontSize: 12,
-                                      color: Colors.white54,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 25),
-                                Text(
-                                  "Baca Selengkapnya",
-                                  style: GoogleFonts.dmSans(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Image.network(
-                            artikel.foto,
-                            width: ScreenUtils.screenWidth(context) * 0.3,
-                          ),
-                        ],
+        return Column(
+          children: [
+            SizedBox(
+              height: 200,
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: artikelController.artikelList.length,
+                padEnds: false,
+                itemBuilder: (context, index) {
+                  final artikel = artikelController.artikelList[index];
+                  final cardColor = index.isEven
+                      ? GreenPointColor.secondary
+                      : GreenPointColor.abu;
+
+                  return GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailArtikel(artikel: artikel),
                       ),
                     ),
-                  ),
-                );
-              },
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                      color: cardColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    artikel.judul,
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: Text(
+                                      artikel.isi,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.dmSans(
+                                        fontSize: 12,
+                                        color: Colors.white54,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 25),
+                                  Text(
+                                    "Baca Selengkapnya",
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Image.network(
+                              artikel.foto,
+                              width: ScreenUtils.screenWidth(context) * 0.3,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          const SizedBox(height: 15),
-          SmoothPageIndicator(
-            controller: _pageController,
-            count: artikelController.artikelList.length,
-            effect: ExpandingDotsEffect(
-              dotWidth: 8,
-              dotHeight: 8,
-              activeDotColor: GreenPointColor.primary,
-              dotColor: Colors.grey.shade300,
+            const SizedBox(height: 15),
+            SmoothPageIndicator(
+              controller: _pageController,
+              count: artikelController.artikelList.length,
+              effect: ExpandingDotsEffect(
+                dotWidth: 8,
+                dotHeight: 8,
+                activeDotColor: GreenPointColor.primary,
+                dotColor: Colors.grey.shade300,
+              ),
             ),
-          ),
-        ],
-      );
-    },
-  );
-}
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildPenjualanTerbanyak() {
     final List<Map<String, String>> salesData = [
       {'rank': '1', 'name': 'Agus Saputra', 'quantity': '10Kg'},
