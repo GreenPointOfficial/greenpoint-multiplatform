@@ -5,10 +5,11 @@ import 'package:greenpoint/models/artikel_model.dart';
 import 'package:greenpoint/views/widget/appbar2_widget.dart';
 
 class DetailArtikel extends StatefulWidget {
-  const DetailArtikel(
-    {Key? key,
-    required Artikel artikel,
-    }) : super(key: key);
+  final Artikel artikel;
+  const DetailArtikel({
+    Key? key,
+    required this.artikel,
+  }) : super(key: key);
 
   @override
   _DetailArtikelState createState() => _DetailArtikelState();
@@ -17,53 +18,70 @@ class DetailArtikel extends StatefulWidget {
 class _DetailArtikelState extends State<DetailArtikel> {
   @override
   Widget build(BuildContext context) {
+    final artikel = widget.artikel;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: Appbar2Widget(title: "Detail Artikel"),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // Align semua elemen ke kiri
           children: [
+            // Menampilkan gambar artikel
             Center(
               child: Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                      border: Border.all(color: GreenPointColor.abu),
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Image.network(
-                    '',
-                    fit: BoxFit.cover,
-                  )),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, ',
-                style: GoogleFonts.dmSans(
-                    fontSize: 18, fontWeight: FontWeight.bold),
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(color: GreenPointColor.abu),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: artikel.foto != null && artikel.foto!.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.network(
+                          artikel.foto!,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : const Center(
+                        child: Text("Gambar tidak tersedia"),
+                      ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Align(
-                alignment:
-                    Alignment.centerLeft, // Align the text to the start (left)
+            const SizedBox(height: 16.0),
+
+            Text(
+              artikel.judul ?? "Judul tidak tersedia",
+              style: GoogleFonts.dmSans(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+
+    
+            Text(
+              artikel.tanggal.toString() ?? "Tanggal tidak tersedia",
+              style: GoogleFonts.dmSans(
+                fontSize: 10,
+                color: GreenPointColor.primary,
+              ),
+            ),
+            const SizedBox(height: 16.0),
+
+            Expanded(
+              child: SingleChildScrollView(
                 child: Text(
-                  '24 Okt 2024',
+                  artikel.isi ?? "Isi artikel tidak tersedia",
                   style: GoogleFonts.dmSans(
-                    fontSize: 10,
-                    color: GreenPointColor.primary,
+                    fontSize: 14,
+                    color: Colors.black87,
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum lorem ."
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum lorem ."
-              ),
-            )
           ],
         ),
       ),
