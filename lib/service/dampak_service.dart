@@ -8,8 +8,6 @@ class DampakService {
       int idJenisSampah) async {
     final url = "${ApiUrl.buildUrl(ApiUrl.dampak)}/$idJenisSampah";
 
- 
-
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {

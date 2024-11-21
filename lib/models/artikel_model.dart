@@ -1,3 +1,5 @@
+import 'package:greenpoint/assets/constants/api_url.dart';
+
 class Artikel {
   final int id;
   final String judul;
@@ -5,7 +7,6 @@ class Artikel {
   final DateTime tanggal;
   final String foto;
 
-  // Constructor to create an Artikel instance
   Artikel({
     required this.id,
     required this.judul,
@@ -14,26 +15,19 @@ class Artikel {
     required this.foto,
   });
 
-  // Factory constructor to create an Artikel from a JSON object
   factory Artikel.fromJson(Map<String, dynamic> json) {
+
+    String imageUrl = json['foto'] as String;
+    if (!imageUrl.startsWith('http')) {
+      imageUrl = ApiUrl.baseImageUrl + imageUrl;
+    }
     return Artikel(
       id: json['id'],
       judul: json['judul'],
       isi: json['isi'],
       tanggal: DateTime.parse(json['tanggal']),
-      foto: json['foto'],
+      foto: imageUrl,
     );
-  }
-
-  // Method to convert an Artikel instance into a JSON object
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'judul': judul,
-      'isi': isi,
-      'tanggal': tanggal.toIso8601String(),
-      'foto': foto,
-    };
   }
 }
 

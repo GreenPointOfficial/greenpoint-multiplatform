@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
+import 'package:greenpoint/models/artikel_model.dart';
 import 'package:greenpoint/views/widget/appbar2_widget.dart';
 
 class DetailArtikel extends StatefulWidget {
-  const DetailArtikel({Key? key}) : super(key: key);
+  const DetailArtikel(
+    {Key? key,
+    required Artikel artikel,
+    }) : super(key: key);
 
   @override
   _DetailArtikelState createState() => _DetailArtikelState();
