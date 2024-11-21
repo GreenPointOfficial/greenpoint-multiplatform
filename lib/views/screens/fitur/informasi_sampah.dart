@@ -78,7 +78,7 @@ class _InformasiSampahState extends State<InformasiSampah> {
                               style: GoogleFonts.dmSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.red,
+                                color: GreenPointColor.abu,
                               ),
                             ),
                           )
@@ -190,7 +190,7 @@ class _InformasiSampahState extends State<InformasiSampah> {
           style: GoogleFonts.dmSans(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.red,
+            color: GreenPointColor.abu,
           ),
         ),
       );
