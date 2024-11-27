@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:qr_code_dart_scan/qr_code_dart_scan.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 class ScanPage extends StatefulWidget {
   const ScanPage({Key? key}) : super(key: key);
@@ -11,7 +15,102 @@ class ScanPage extends StatefulWidget {
 }
 
 class _ScanPageState extends State<ScanPage> {
-  @override
+  String? scanResult; // Hasil scan QR Code
+
+  Future<void> claimPoints(String scanResult) async {
+  final url = Uri.parse(scanResult);
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({}),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      final poin = responseData['poin'];
+      final penjualanId = responseData['penjualan_id'];
+
+      // Show success dialog with structured data
+      _showDialog(
+        'Berhasil!',
+        'Poin berhasil diklaim:\n\n'
+        '- **Jumlah Poin**: $poin\n'
+        '- **ID Penjualan**: $penjualanId\n\n'
+        'Terima kasih telah menggunakan GreenPoint.',
+        isError: false,
+      );
+    } else {
+      final responseData = json.decode(response.body);
+      _showDialog(
+        'Gagal!',
+        responseData['error'] ??
+            'Tidak dapat memproses permintaan Anda. Silakan coba lagi nanti.',
+        isError: true,
+      );
+    }
+  } catch (error) {
+    _showDialog(
+      'Koneksi Gagal',
+      'Terjadi kesalahan dalam koneksi. Pastikan Anda memiliki jaringan internet yang stabil dan coba lagi.',
+      isError: true,
+    );
+  }
+}
+
+void _showDialog(String title, String message, {bool isError = false}) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              isError ? Icons.error_outline : Icons.check_circle_outline,
+              color: isError ? Colors.red : Colors.green,
+              size: 30,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              title,
+              style: GoogleFonts.dmSans(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: isError ? Colors.red : Colors.green,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          message,
+          style: GoogleFonts.dmSans(fontSize: 16, color: Colors.black87),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'OK',
+              style: GoogleFonts.dmSans(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: isError ? Colors.red : Colors.green,
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: GreenPointColor.primary,
@@ -39,31 +138,46 @@ class _ScanPageState extends State<ScanPage> {
       ),
       body: Stack(
         children: [
-          // QR Scanner area positioned at top center
           Positioned.fill(
-            bottom: MediaQuery.of(context).size.height *
-                0.4, // Adjust this value to move up/down
-            child: Center(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
+            child: Stack(
+              children: [
+                QRCodeDartScanView(
+                  scanInvertedQRCode: true,
+                  onCapture: (result) {
+                    setState(() {
+                      scanResult = result.toString();
+                    });
+                    if (scanResult != null) {
+                      claimPoints(scanResult!);
+                    }
+                  },
+                ),
+                Container(
+                  color: Colors.black.withOpacity(0.4),
+                ),
+                Align(
+                  alignment: Alignment(0, -0.2),
+                  child: Container(
                     height: 250,
                     width: 250,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white, width: 3),
-                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.25),
+                          spreadRadius: 4,
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
                   ),
-                  const Icon(
-                    Icons.qr_code_scanner,
-                    size: 100,
-                    color: Colors.white70,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
+
           // Draggable bottom sheet
           DraggableScrollableSheet(
             initialChildSize: 0.2,
@@ -87,9 +201,8 @@ class _ScanPageState extends State<ScanPage> {
                         color: Colors.grey,
                         size: 40,
                       ),
-                      Container(
-                        padding: const EdgeInsets.only(
-                            right: 10, left: 10, bottom: 10),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
                         child: Column(
                           children: [
                             Text(
@@ -101,15 +214,10 @@ class _ScanPageState extends State<ScanPage> {
                               ),
                             ),
                             const Divider(),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 5),
-                              child: Text(
-                                "Untuk melanjutkan, harap scan barcode pada struk yang diberikan oleh petugas bank sampah.",
-                                style: GoogleFonts.dmSans(
-                                  fontSize: 14,
-                                ),
-                              ),
+                            Text(
+                              "Untuk melanjutkan, harap scan barcode pada struk yang diberikan oleh petugas bank sampah.",
+                              style: GoogleFonts.dmSans(fontSize: 14),
+                              textAlign: TextAlign.left,
                             ),
                             const SizedBox(height: 20),
                             Container(
@@ -147,13 +255,19 @@ class _ScanPageState extends State<ScanPage> {
                                       fontSize: 14,
                                       color: Colors.grey,
                                     ),
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
                             const SizedBox(height: 20),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                if (scanResult == null) {
+                                  _showDialog1("Belum ada hasil scan.");
+                                } else {
+                                  claimPoints(scanResult!);
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
                                 padding: const EdgeInsets.symmetric(
@@ -165,7 +279,7 @@ class _ScanPageState extends State<ScanPage> {
                                 ),
                               ),
                               child: Text(
-                                "Scan",
+                                "Tampilkan Hasil",
                                 style: GoogleFonts.dmSans(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -184,6 +298,26 @@ class _ScanPageState extends State<ScanPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showDialog1(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Status'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

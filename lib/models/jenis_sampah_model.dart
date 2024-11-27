@@ -31,10 +31,10 @@ class JenisSampah {
     );
   }
 
-  String get imageUrl {
-    if (foto.startsWith('http')) {
-      return foto;
-    }
-    return ApiUrl.baseImageUrl + foto;
-  }
+  // String get imageUrl {
+  //   if (foto.startsWith('http')) {
+  //     return foto;
+  //   }
+  //   return ApiUrl.baseImageUrl + foto;
+  // }
 }

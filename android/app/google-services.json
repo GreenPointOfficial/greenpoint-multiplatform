@@ -1,0 +1,47 @@
+{
+    "project_info": {
+      "project_number": "18354056717",
+      "project_id": "noble-might-435416-k7",
+      "storage_bucket": "noble-might-435416-k7.firebasestorage.app"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:18354056717:android:20ce566547a24fc7002f44",
+          "android_client_info": {
+            "package_name": "com.example.greenpoint"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "18354056717-jtod3l8egncgtjv7t5ou5g6i9f7vqo9n.apps.googleusercontent.com",
+            "client_type": 1,
+            "android_info": {
+              "package_name": "com.example.greenpoint",
+              "certificate_hash": "33109ab2dcfac4f537b869ae1959702f11fa504c"
+            }
+          },
+          {
+            "client_id": "18354056717-29nc9odt2lor7uba5ijpurslpfr6jgk4.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyDy_qUxbjkCLJ-aSQmZ8kZpOplWX-_GAbg"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "18354056717-29nc9odt2lor7uba5ijpurslpfr6jgk4.apps.googleusercontent.com",
+                "client_type": 3
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }

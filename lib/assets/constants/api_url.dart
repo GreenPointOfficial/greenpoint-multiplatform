@@ -1,7 +1,7 @@
 class ApiUrl {
 
   // Base URL and version
-  static const String baseUrl = "https://0eef-125-162-86-245.ngrok-free.app"; 
+  static const String baseUrl = "https://0d7c-180-241-237-245.ngrok-free.app"; 
   static const String apiVersion = "v1";
 
   // Full Base API URL
@@ -12,6 +12,7 @@ class ApiUrl {
   // Authentication
   static const String register = "/register";
   static const String login = "/login";
+  static const String loginGoogle = "/auth/google/callback";
   static const String logout = "/logout";
   static const String user = "/user";
 

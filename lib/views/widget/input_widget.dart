@@ -10,6 +10,7 @@ class InputWidget extends StatefulWidget {
   final IconData? icon; 
   final bool isPassword; 
   final TextEditingController? controller; 
+  final String? errorText;
 
   const InputWidget({
     Key? key,
@@ -20,6 +21,8 @@ class InputWidget extends StatefulWidget {
     this.icon,
     this.isPassword = false,
     this.controller,
+    this.errorText,
+
   }) : super(key: key);
 
   @override
@@ -40,7 +43,6 @@ class _InputWidgetState extends State<InputWidget> {
     double screenWidth = ScreenUtils.screenWidth(context);
     double screenHeight = ScreenUtils.screenHeight(context);
 
-    // Use ScreenUtils to adjust padding, icon size, etc.
     double iconSize = screenWidth * 0.06; // Adjust icon size based on screen width
     double padding = screenWidth * 0.05; // Adjust padding based on screen width
     double fontSize = screenWidth * 0.04; // Adjust font size based on screen width

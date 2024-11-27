@@ -32,12 +32,10 @@ class ArtikelController extends ChangeNotifier {
   Future<void> fetchAllArtikel() async {
     _isLoading = true;
     notifyListeners();
-      print("Hello coba");
 
     try {
       _artikelList = await _artikelService.fetchAllArtikel();
       _artikelStreamController.sink.add(_artikelList);
-      print("Hello berhasil");
     } catch (e) {
       _artikelStreamController.sink.addError('Error fetching articles: $e');
     } finally {
