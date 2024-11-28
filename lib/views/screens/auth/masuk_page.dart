@@ -2,9 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
-import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/controllers/auth_controller.dart';
+import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/service/auth_service.dart';
 import 'package:greenpoint/views/screens/auth/daftar_page.dart';
 import 'package:greenpoint/views/screens/fitur/beranda.dart';
@@ -12,6 +13,7 @@ import 'package:greenpoint/views/widget/input_widget.dart';
 import 'package:greenpoint/views/widget/welcome_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class MasukPage extends StatefulWidget {
   const MasukPage({super.key});
@@ -24,6 +26,8 @@ class _MasukPageState extends State<MasukPage> {
   final AuthController _authController = AuthController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
   bool _isRememberMe = false;
   bool isLoading = false;
   String? notificationMessage;
@@ -31,6 +35,26 @@ class _MasukPageState extends State<MasukPage> {
   Color notificationTextColor = Colors.black;
 
   final AuthService _authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkRememberMe();
+  }
+
+  Future<void> _checkRememberMe() async {
+    final rememberedEmail = await _secureStorage.read(key: 'remembered_email');
+    final rememberedPassword =
+        await _secureStorage.read(key: 'remembered_password');
+
+    if (rememberedEmail != null && rememberedPassword != null) {
+      setState(() {
+        emailController.text = rememberedEmail;
+        passwordController.text = rememberedPassword;
+        _isRememberMe = true;
+      });
+    }
+  }
 
   void showNotification(String message, Color bgColor, Color textColor) {
     setState(() {
@@ -51,11 +75,13 @@ class _MasukPageState extends State<MasukPage> {
 
   Future<void> loginUser(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
-      showNotification(
-        "Semua kolom harus diisi!",
-        Colors.white,
-        Colors.red,
-      );
+      if (mounted) {
+        setState(() {
+          notificationMessage = "Semua kolom harus diisi!";
+          notificationColor = Colors.white;
+          notificationTextColor = Colors.red;
+        });
+      }
       return;
     }
 
@@ -63,30 +89,60 @@ class _MasukPageState extends State<MasukPage> {
       isLoading = true;
     });
 
-    // Call the AuthController's login method
     final response = await _authController.loginUser(email, password);
+    print("Login response: $response"); // Log the full response for debugging
 
-    if (response['success']) {
-      showNotification(
-        "Login berhasil!",
-        Colors.white,
-        GreenPointColor.primary,
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Beranda()),
-      );
+    if (!mounted) return;
+
+    if (response != null && response['success']) {
+      String token = response['token'];
+      print(response['user_data']);
+      await _secureStorage.write(key: 'auth_token', value: token);
+
+      final userData = response['user_data'] ?? {};
+      if (userData.isNotEmpty) {
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.setUser(userData);
+      } else {
+        print("No user data found in response!");
+      }
+
+      if (_isRememberMe) {
+        await _secureStorage.write(key: 'remembered_email', value: email);
+        await _secureStorage.write(key: 'remembered_password', value: password);
+      } else {
+        await _secureStorage.delete(key: 'remembered_email');
+        await _secureStorage.delete(key: 'remembered_password');
+      }
+
+      if (mounted) {
+        setState(() {
+          notificationMessage = "Login berhasil!";
+          notificationColor = Colors.white;
+          notificationTextColor = GreenPointColor.primary;
+        });
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Beranda()),
+        );
+      }
     } else {
-      showNotification(
-        response['message'] ?? "Login gagal. Silakan coba lagi.",
-        Colors.white,
-        Colors.red,
-      );
+      if (mounted) {
+        setState(() {
+          notificationMessage =
+              response['message'] ?? "Login gagal. Silakan coba lagi.";
+          notificationColor = Colors.white;
+          notificationTextColor = Colors.red;
+        });
+      }
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> handleGoogleLogin() async {
@@ -94,21 +150,41 @@ class _MasukPageState extends State<MasukPage> {
       isLoading = true;
     });
 
-    final response = await _authController.handleGoogleLogin();
+    try {
+      final response = await _authController.handleGoogleLogin();
 
-    if (response['success']) {
+      if (response['success']) {
+        // Simpan data user dari response ke UserProvider
+        final userData = response['user_data'];
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.setUser(userData);
+
+        // Clear any stored credentials for "Remember Me"
+        await _secureStorage.delete(key: 'remembered_email');
+        await _secureStorage.delete(key: 'remembered_password');
+
+        showNotification(
+          "Google login berhasil!",
+          Colors.white,
+          GreenPointColor.primary,
+        );
+
+        // Navigasi ke halaman Beranda
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Beranda()),
+        );
+      } else {
+        showNotification(
+          response['message'] ?? "Google login gagal.",
+          Colors.white,
+          Colors.red,
+        );
+      }
+    } catch (e) {
+      print('Google login error: $e');
       showNotification(
-        "Google login berhasil!",
-        Colors.white,
-        GreenPointColor.primary,
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Beranda()),
-      );
-    } else {
-      showNotification(
-        response['message'] ?? "Google login gagal.",
+        "Google login gagal. Terjadi kesalahan.",
         Colors.white,
         Colors.red,
       );
@@ -152,7 +228,6 @@ class _MasukPageState extends State<MasukPage> {
                   controller: emailController,
                 ),
               ),
-              // SizedBox(height: screenHeight * 0.02),
               SizedBox(
                 width: screenWidth * 0.85,
                 child: InputWidget(
@@ -165,7 +240,6 @@ class _MasukPageState extends State<MasukPage> {
                   controller: passwordController,
                 ),
               ),
-              // SizedBox(height: screenHeight * 0.02),s
               Container(
                 width: screenWidth * 0.85,
                 child: Row(
@@ -215,7 +289,6 @@ class _MasukPageState extends State<MasukPage> {
                   ],
                 ),
               ),
-              // SizedBox(height: screenHeight * 0.02),
               isLoading
                   ? CircularProgressIndicator(
                       color: GreenPointColor.primary,
@@ -308,10 +381,8 @@ class _MasukPageState extends State<MasukPage> {
           // Notifikasi ditempatkan di atas layout
           if (notificationMessage != null)
             Positioned(
-              top: screenHeight *
-                  0.45, // Atur jarak dari atas (bawah JudulWidget)
-              left: (screenWidth - (screenWidth * 0.85)) /
-                  2, // Pusatkan notifikasi
+              top: screenHeight * 0.45,
+              left: (screenWidth - (screenWidth * 0.85)) / 2,
               child: Container(
                 width: screenWidth * 0.85,
                 padding:
@@ -324,7 +395,7 @@ class _MasukPageState extends State<MasukPage> {
                   notificationMessage!,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.dmSans(
-                    color: notificationTextColor, // Text color
+                    color: notificationTextColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -334,5 +405,12 @@ class _MasukPageState extends State<MasukPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 }

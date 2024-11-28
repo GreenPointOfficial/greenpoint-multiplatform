@@ -1,7 +1,7 @@
 class ApiUrl {
 
   // Base URL and version
-  static const String baseUrl = "https://0d7c-180-241-237-245.ngrok-free.app"; 
+  static const String baseUrl = "https://9a12-125-162-86-240.ngrok-free.app"; 
   static const String apiVersion = "v1";
 
   // Full Base API URL

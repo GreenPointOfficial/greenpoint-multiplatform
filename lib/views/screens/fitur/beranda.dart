@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/controllers/artikel_controller.dart';
+import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/views/screens/auth/masuk_page.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -56,6 +57,8 @@ class _BerandaState extends State<Beranda> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final user = userProvider.isTokenValid();
     return Scaffold(
       backgroundColor: Colors.white,
       body: Consumer<JenisSampahController>(
@@ -153,12 +156,17 @@ class _BerandaState extends State<Beranda> {
       fontSize: screenWidth * 0.07,
     );
 
+    final userProvider = Provider.of<UserProvider>(context);
+    final userName = userProvider.userName;
+    final point = userProvider.point;
+
     return Row(
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Hello user!", style: titleStyle),
+            // Correct syntax for user name
+            Text("Hello, ${userName}", style: titleStyle),
             Text("Poin kamu saat ini", style: subtitleStyle),
           ],
         ),
@@ -171,7 +179,7 @@ class _BerandaState extends State<Beranda> {
               width: screenWidth * 0.09,
             ),
             const SizedBox(width: 8),
-            Text("1.000.000", style: pointsStyle),
+            Text(point.toString(), style: pointsStyle),
           ],
         ),
       ],

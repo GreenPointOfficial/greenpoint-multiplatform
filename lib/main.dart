@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:greenpoint/controllers/artikel_controller.dart';
 import 'package:greenpoint/controllers/dampak_controller.dart';
 import 'package:greenpoint/controllers/daur_ulang_controller.dart';
+import 'package:greenpoint/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:greenpoint/controllers/jenis_sampah_controller.dart';
 import 'package:greenpoint/views/screens/fitur/splash.dart';
@@ -13,6 +14,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => JenisSampahController()),
         ChangeNotifierProvider(create: (_) => DampakController()),
         ChangeNotifierProvider(create: (_) => DaurUlangController()),
