@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class DampakService {
-    final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   Future<List<DampakModel>> fetchDampakByIdJenisSampah(
       int idJenisSampah, String? token) async {

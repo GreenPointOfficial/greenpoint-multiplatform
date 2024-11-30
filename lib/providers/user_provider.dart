@@ -7,15 +7,12 @@ class UserProvider with ChangeNotifier {
 
   Map<String, dynamic>? _user;
   String? _token;
-    String userName = "";
-    int poin = 0;
-
+  String userName = "";
+  int poin = 0;
 
   Map<String, dynamic>? get user => _user;
-  // String get userName => _user?['name'] ?? 'Guest';
   int get userPoints => _user?['poin'] ?? 0;
 
-  /// Save user data and token to secure storage
   Future<void> setUser(Map<String, dynamic> userData, String token) async {
     _user = userData;
     _token = token;
@@ -73,32 +70,31 @@ class UserProvider with ChangeNotifier {
 
   /// Fetch user data from secure storage
   Future<void> fetchUserData() async {
-  try {
-    // Membaca data pengguna dari Secure Storage
-    final userDataString = await _secureStorage.read(key: 'user_data');
+    try {
+      // Membaca data pengguna dari Secure Storage
+      final userDataString = await _secureStorage.read(key: 'user_data');
 
-    if (userDataString != null && userDataString.isNotEmpty) {
-      _user = json.decode(userDataString);  
-      // print("hello"+ _user.toString());
-      // Mengatur userName dari data yang sudah didecode
-      userName = _user?['name'] ?? 'Default Name'; 
-      poin = _user?['poin'] ?? 0; 
-      print('User data fetched: $_user');
-    } else {
-      print('No user data found');
-      _user = {};  // Initialize _user as an empty map if no data is found
-      userName = 'Default Name'; // Mengatur userName default jika data tidak ditemukan
+      if (userDataString != null && userDataString.isNotEmpty) {
+        _user = json.decode(userDataString);
+        // print("hello"+ _user.toString());
+        // Mengatur userName dari data yang sudah didecode
+        userName = _user?['name'] ?? 'Default Name';
+        poin = _user?['poin'] ?? 0;
+        print('User data fetched: $_user');
+      } else {
+        print('No user data found');
+        _user = {}; // Initialize _user as an empty map if no data is found
+        userName =
+            'Default Name'; // Mengatur userName default jika data tidak ditemukan
+      }
+
+      // Memanggil notifyListeners agar UI diperbarui
+      notifyListeners();
+    } catch (e) {
+      print('Error fetching user data: $e');
+      userName = 'Default Name'; // Mengatur userName default jika terjadi error
     }
-
-    // Memanggil notifyListeners agar UI diperbarui
-    notifyListeners();  
-  } catch (e) {
-    print('Error fetching user data: $e');
-    userName = 'Default Name'; // Mengatur userName default jika terjadi error
   }
-}
-
-
 
   /// Check if the token is valid
   bool isTokenValid() => _token != null && _token!.isNotEmpty;

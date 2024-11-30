@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:greenpoint/providers/user_provider.dart';
 import 'package:qr_code_dart_scan/qr_code_dart_scan.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
@@ -15,102 +17,113 @@ class ScanPage extends StatefulWidget {
 }
 
 class _ScanPageState extends State<ScanPage> {
-  String? scanResult; // Hasil scan QR Code
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
+  String? scanResult;
 
   Future<void> claimPoints(String scanResult) async {
-  final url = Uri.parse(scanResult);
+    final url = Uri.parse(scanResult);
+    print(url);
+    final token = await _secureStorage.read(key: 'auth_token');
 
-  try {
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({}),
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      final poin = responseData['poin'];
-      final penjualanId = responseData['penjualan_id'];
-
-      // Show success dialog with structured data
-      _showDialog(
-        'Berhasil!',
-        'Poin berhasil diklaim:\n\n'
-        '- **Jumlah Poin**: $poin\n'
-        '- **ID Penjualan**: $penjualanId\n\n'
-        'Terima kasih telah menggunakan GreenPoint.',
-        isError: false,
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({}),
       );
-    } else {
-      final responseData = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final poin = responseData['poin'];
+        final penjualanId = responseData['penjualan_id'];
+
+        _showDialog(
+          'Berhasil!',
+          'Poin berhasil diklaim:\n\n'
+              '- **Jumlah Poin**: $poin\n'
+              '- **ID Penjualan**: $penjualanId\n\n'
+              'Terima kasih telah menggunakan GreenPoint.',
+          isError: false,
+        );
+      } else {
+        final responseData = json.decode(response.body);
+        _showDialog(
+          'Gagal!',
+          responseData['error'] ??
+              'Tidak dapat memproses permintaan Anda. Silakan coba lagi nanti.',
+          isError: true,
+        );
+      }
+    } catch (error) {
       _showDialog(
-        'Gagal!',
-        responseData['error'] ??
-            'Tidak dapat memproses permintaan Anda. Silakan coba lagi nanti.',
+        '$url'
+            'Koneksi Gagal',
+        'Terjadi kesalahan dalam koneksi. Pastikan Anda memiliki jaringan internet yang stabil dan coba lagi.',
         isError: true,
       );
     }
-  } catch (error) {
-    _showDialog(
-      'Koneksi Gagal',
-      'Terjadi kesalahan dalam koneksi. Pastikan Anda memiliki jaringan internet yang stabil dan coba lagi.',
-      isError: true,
-    );
   }
-}
 
-void _showDialog(String title, String message, {bool isError = false}) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Row(
-          children: [
-            Icon(
-              isError ? Icons.error_outline : Icons.check_circle_outline,
-              color: isError ? Colors.red : Colors.green,
-              size: 30,
-            ),
-            const SizedBox(width: 10),
-            Text(
-              title,
-              style: GoogleFonts.dmSans(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
+  void _showDialog(String title, String message, {bool isError = false}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                isError ? Icons.error_outline : Icons.check_circle_outline,
                 color: isError ? Colors.red : Colors.green,
+                size: 30,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: GoogleFonts.dmSans(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: isError ? Colors.red : Colors.green,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            message,
+            style: GoogleFonts.dmSans(fontSize: 16, color: Colors.black87),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  'OK',
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: isError ? Colors.red : Colors.green,
+                  ),
+                ),
               ),
             ),
           ],
-        ),
-        content: Text(
-          message,
-          style: GoogleFonts.dmSans(fontSize: 16, color: Colors.black87),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              'OK',
-              style: GoogleFonts.dmSans(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: isError ? Colors.red : Colors.green,
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
-@override
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: GreenPointColor.primary,

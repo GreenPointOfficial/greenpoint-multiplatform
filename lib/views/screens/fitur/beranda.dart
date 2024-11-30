@@ -149,8 +149,6 @@ class _BerandaState extends State<Beranda> {
   }
 
   Widget _buildPointsSection() {
-    // final nama = UserProvider().user?['name'];
-    // final poin = UserProvider().user?['poin'];
     final screenWidth = MediaQuery.of(context).size.width;
     final TextStyle titleStyle = GoogleFonts.dmSans(
       fontWeight: FontWeight.bold,
