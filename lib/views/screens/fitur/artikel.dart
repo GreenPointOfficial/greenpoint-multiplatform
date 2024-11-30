@@ -18,7 +18,6 @@ class _ArtikelPageState extends State<ArtikelPage> {
   @override
   void initState() {
     super.initState();
-    // Memuat data artikel saat halaman dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ArtikelController>(context, listen: false).fetchAllArtikel();
     });

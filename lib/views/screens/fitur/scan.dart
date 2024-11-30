@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_code_dart_scan/qr_code_dart_scan.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
@@ -18,15 +18,20 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage> {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-
   String? scanResult;
+  bool isLoading = false;
+  bool canScan = true;
 
   Future<void> claimPoints(String scanResult) async {
     final url = Uri.parse(scanResult);
-    print(url);
     final token = await _secureStorage.read(key: 'auth_token');
 
     try {
+      setState(() {
+        isLoading = true;
+        canScan = false;
+      });
+
       final response = await http.post(
         url,
         headers: {
@@ -40,35 +45,64 @@ class _ScanPageState extends State<ScanPage> {
         final responseData = json.decode(response.body);
         final poin = responseData['poin'];
         final penjualanId = responseData['penjualan_id'];
+        final totalHarga = responseData['total_harga'];
 
         _showDialog(
+          totalPrice: totalHarga,
+          transactionId: penjualanId,
+          poin: poin,
           'Berhasil!',
-          'Poin berhasil diklaim:\n\n'
-              '- **Jumlah Poin**: $poin\n'
-              '- **ID Penjualan**: $penjualanId\n\n'
-              'Terima kasih telah menggunakan GreenPoint.',
+          'Terima kasih telah menggunakan GreenPoint.',
           isError: false,
         );
+
+        Provider.of<UserProvider>(context, listen: false).autoRefreshUserData({
+          'poin': poin + Provider.of<UserProvider>(context, listen: false).poin
+        });
       } else {
         final responseData = json.decode(response.body);
         _showDialog(
+          totalPrice: 0,
+          transactionId: '',
+          poin: 0,
           'Gagal!',
           responseData['error'] ??
               'Tidak dapat memproses permintaan Anda. Silakan coba lagi nanti.',
           isError: true,
         );
+
+        setState(() {
+          canScan = true;
+          scanResult = '';
+        });
       }
     } catch (error) {
+      print('Error: $error'); // Log untuk error yang terjadi
       _showDialog(
-        '$url'
-            'Koneksi Gagal',
+        totalPrice: 0,
+        transactionId: '',
+        poin: 0,
+        'Koneksi Gagal',
         'Terjadi kesalahan dalam koneksi. Pastikan Anda memiliki jaringan internet yang stabil dan coba lagi.',
         isError: true,
       );
+
+      setState(() {
+        canScan = true;
+        scanResult = '';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
-  void _showDialog(String title, String message, {bool isError = false}) {
+  void _showDialog(String title, String message,
+      {bool isError = false,
+      required int poin,
+      required int totalPrice,
+      required String transactionId}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -76,6 +110,7 @@ class _ScanPageState extends State<ScanPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
+          backgroundColor: Colors.white,
           title: Row(
             children: [
               Icon(
@@ -94,25 +129,109 @@ class _ScanPageState extends State<ScanPage> {
               ),
             ],
           ),
-          content: Text(
-            message,
-            style: GoogleFonts.dmSans(fontSize: 16, color: Colors.black87),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Point logo and points
+              Row(
+                children: [
+                  Center(
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: const Color(0xFFF6FAFD),
+                      ),
+                      child: Image.asset(
+                        'lib/assets/imgs/poin.png', // Your point logo
+                        width: 20,
+                        height: 20,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    '$poin Poin', // Display points
+                    style: GoogleFonts.dmSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              Center(
+                child: Row(
+                  children: [
+                    Text(
+                      'Total Harga: Rp. $totalPrice',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              Center(
+                child: Row(
+                  children: [
+                    Text(
+                      'ID Transaksi: $transactionId',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Divider(),
+              Text(
+                textAlign: TextAlign.center,
+                message,
+                style: GoogleFonts.dmSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w300,
+                  color: Colors.black,
+                ),
+              )
+            ],
           ),
           actions: [
-            TextButton(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
+                setState(() {
+                  canScan = true;
+                  scanResult = null;
+                });
               },
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'OK',
-                  style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: isError ? Colors.red : Colors.green,
+              child: Center(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  child: Text(
+                    'Konfirmasi',
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -125,6 +244,8 @@ class _ScanPageState extends State<ScanPage> {
 
   @override
   Widget build(BuildContext context) {
+    final poin = Provider.of<UserProvider>(context).poin;
+
     return Scaffold(
       backgroundColor: GreenPointColor.primary,
       appBar: AppBar(
@@ -157,10 +278,10 @@ class _ScanPageState extends State<ScanPage> {
                 QRCodeDartScanView(
                   scanInvertedQRCode: true,
                   onCapture: (result) {
-                    setState(() {
-                      scanResult = result.toString();
-                    });
-                    if (scanResult != null) {
+                    if (canScan && scanResult == null) {
+                      setState(() {
+                        scanResult = result.toString();
+                      });
                       claimPoints(scanResult!);
                     }
                   },
@@ -169,7 +290,7 @@ class _ScanPageState extends State<ScanPage> {
                   color: Colors.black.withOpacity(0.4),
                 ),
                 Align(
-                  alignment: Alignment(0, -0.2),
+                  alignment: const Alignment(0, -0.2),
                   child: Container(
                     height: 250,
                     width: 250,
@@ -190,12 +311,10 @@ class _ScanPageState extends State<ScanPage> {
               ],
             ),
           ),
-
-          // Draggable bottom sheet
           DraggableScrollableSheet(
             initialChildSize: 0.2,
             minChildSize: 0.2,
-            maxChildSize: 0.4,
+            maxChildSize: 0.32,
             builder: (context, scrollController) {
               return Container(
                 decoration: const BoxDecoration(
@@ -214,8 +333,9 @@ class _ScanPageState extends State<ScanPage> {
                         color: Colors.grey,
                         size: 40,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
+                      Container(
+                        padding: const EdgeInsets.only(
+                            right: 10, left: 10, bottom: 10),
                         child: Column(
                           children: [
                             Text(
@@ -227,10 +347,15 @@ class _ScanPageState extends State<ScanPage> {
                               ),
                             ),
                             const Divider(),
-                            Text(
-                              "Untuk melanjutkan, harap scan barcode pada struk yang diberikan oleh petugas bank sampah.",
-                              style: GoogleFonts.dmSans(fontSize: 14),
-                              textAlign: TextAlign.left,
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 5),
+                              child: Text(
+                                "Untuk melanjutkan, harap scan barcode pada struk yang diberikan oleh petugas bank sampah.",
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 14,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 20),
                             Container(
@@ -263,43 +388,16 @@ class _ScanPageState extends State<ScanPage> {
                                     ],
                                   ),
                                   Text(
-                                    "1.000",
+                                    poin.toString(),
                                     style: GoogleFonts.dmSans(
                                       fontSize: 14,
                                       color: Colors.grey,
                                     ),
-                                  ),
+                                  )
                                 ],
                               ),
                             ),
                             const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: () {
-                                if (scanResult == null) {
-                                  _showDialog1("Belum ada hasil scan.");
-                                } else {
-                                  claimPoints(scanResult!);
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 100,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                              ),
-                              child: Text(
-                                "Tampilkan Hasil",
-                                style: GoogleFonts.dmSans(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -309,28 +407,14 @@ class _ScanPageState extends State<ScanPage> {
               );
             },
           ),
+          if (isLoading)
+            Center(
+              child: CircularProgressIndicator(
+                color: GreenPointColor.primary,
+              ),
+            ),
         ],
       ),
-    );
-  }
-
-  void _showDialog1(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Status'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

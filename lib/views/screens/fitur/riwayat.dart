@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
+import 'package:greenpoint/controllers/penjualan_controller.dart';
+import 'package:greenpoint/models/penjualan_model.dart';
 import 'package:greenpoint/views/widget/appbar2_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class RiwayatPage extends StatefulWidget {
   const RiwayatPage({Key? key}) : super(key: key);
@@ -12,101 +15,166 @@ class RiwayatPage extends StatefulWidget {
 
 class _RiwayatPageState extends State<RiwayatPage> {
   @override
+  void initState() {
+    super.initState();
+    // Panggil fetchPenjualan setelah build selesai
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PenjualanController>(context, listen: false).fetchPenjualan();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final penjualanController = Provider.of<PenjualanController>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const Appbar2Widget(title: "Riwayat"),
-      body: Padding(
-        padding: const EdgeInsets.only(right: 25.0, left: 25, bottom: 27),
-        child: Column(
-          children: [
-            _buildTransaksiCard(),
-            _buildTransaksiCard(),
-            _buildTransaksiCard()
-          ],
-        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // Tentukan apakah layar kecil atau besar
+          bool isSmallScreen = constraints.maxWidth < 600;
+
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 16 : 32, // Padding responsif
+              vertical: 0,
+            ),
+            child: penjualanController.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : penjualanController.errorMessage != null
+                    ? Center(
+                        child: Text(
+                          "Error: ${penjualanController.errorMessage}",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.dmSans(fontSize: 14),
+                        ),
+                      )
+                    : penjualanController.penjualanList.isEmpty
+                        ? const Center(child: Text("Belum ada transaksi."))
+                        : ListView.builder(
+                            itemCount: penjualanController.penjualanList.length,
+                            itemBuilder: (context, index) {
+                              // Urutkan daftar berdasarkan tanggal (descending)
+                              final sortedList =
+                                  List<PenjualanModel>.from(penjualanController.penjualanList)
+                                    ..sort((a, b) => b.tanggal.compareTo(a.tanggal)); // Sort descending
+                              final penjualan = sortedList[index];
+                              return _buildTransaksiCard(penjualan, isSmallScreen);
+                            },
+                          ),
+          );
+        },
       ),
     );
   }
-}
 
-Widget _buildTransaksiCard() {
-  return Padding(
-    padding: const EdgeInsets.only(
-      left: 15.0, right : 15.0, bottom: 5),
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              child: Row(
+  Widget _buildTransaksiCard(PenjualanModel penjualan, bool isSmallScreen) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 5),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
                   Container(
-                    height: 40,
-                    width: 40,
+                    height: isSmallScreen ? 35 : 50, 
+                    width: isSmallScreen ? 35 : 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: const Color(0xFFF6FAFD),
                     ),
-                    child: Image.asset('lib/assets/imgs/poin.png',
-                        width: 20, height: 20),
+                    child: Image.asset(
+                      'lib/assets/imgs/poin.png',
+                      width: isSmallScreen ? 20 : 30,
+                      height: isSmallScreen ? 20 : 30,
+                    ),
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Jenis",
-                          style: GoogleFonts.dmSans(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14)),
-                      Text("Status", style: GoogleFonts.dmSans(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 10)),
-                      Text("Tanggal", style: GoogleFonts.dmSans(
-                              fontWeight: FontWeight.normal,
-                              color: GreenPointColor.abu,
-                              fontSize: 10)),
+                      Text(
+                        "Poin masuk",
+                        style: GoogleFonts.dmSans(
+                          fontWeight: FontWeight.bold,
+                          fontSize: isSmallScreen ? 12 : 16,
+                        ),
+                      ),
+                      Text(
+                        penjualan.items.isNotEmpty
+                            ? "Status: Berhasil"
+                            : "Status: Belum Ada Item",
+                        style: GoogleFonts.dmSans(
+                          fontWeight: FontWeight.normal,
+                          fontSize: isSmallScreen ? 10 : 14,
+                        ),
+                      ),
+                      Text(
+                        "Tanggal: ${penjualan.tanggal.toLocal()}",
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.dmSans(
+                          fontWeight: FontWeight.normal,
+                          color: GreenPointColor.abu,
+                          fontSize: isSmallScreen ? 10 : 14,
+                        ),
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
-            ),
-            Column(
-              children: [
-                Row(
-                  children: [
-                    Text("+",
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        "+",
                         style: GoogleFonts.dmSans(
-                            color: GreenPointColor.primary,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12)),
-                    Image.asset(
-                      'lib/assets/imgs/poin.png',
-                      height: 15,
-                      width: 15,
-                    ),
-                    Text("5.000",
+                          color: GreenPointColor.primary,
+                          fontWeight: FontWeight.w500,
+                          fontSize: isSmallScreen ? 12 : 14,
+                        ),
+                      ),
+                      Image.asset(
+                        'lib/assets/imgs/poin.png',
+                        height: isSmallScreen ? 15 : 20,
+                        width: isSmallScreen ? 15 : 20,
+                      ),
+                      Text(
+                        penjualan.items.isNotEmpty
+                            ? penjualan.items[0].totalHarga.toString()
+                            : "0",
                         style: GoogleFonts.dmSans(
-                            color: GreenPointColor.primary,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12)),
-                  ],
-                ),
-                Text("10 Kg",
+                          color: GreenPointColor.primary,
+                          fontWeight: FontWeight.w500,
+                          fontSize: isSmallScreen ? 12 : 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    penjualan.items.isNotEmpty
+                        ? "${penjualan.items[0].jumlah} Kg sampah"
+                        : "0 Kg",
                     style: GoogleFonts.dmSans(
-                        color: GreenPointColor.abu,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12))
-              ],
-            ),
-          ],
-        ),
-        SizedBox(height: 5,),
-        Divider()
-      ],
-    ),
-  );
+                      color: GreenPointColor.abu,
+                      fontWeight: FontWeight.w500,
+                      fontSize: isSmallScreen ? 10 : 14,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          const Divider(),
+        ],
+      ),
+    );
+  }
 }

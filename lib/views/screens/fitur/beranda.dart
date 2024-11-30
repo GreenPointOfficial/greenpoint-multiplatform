@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/controllers/artikel_controller.dart';
-import 'package:greenpoint/controllers/auth_controller.dart';
 import 'package:greenpoint/providers/user_provider.dart';
-import 'package:greenpoint/views/screens/auth/masuk_page.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
@@ -36,7 +34,6 @@ class Beranda extends StatefulWidget {
 
 class _BerandaState extends State<Beranda> {
   final PageController _pageController = PageController();
-  final _userProvider = UserProvider();
 
   @override
   void initState() {

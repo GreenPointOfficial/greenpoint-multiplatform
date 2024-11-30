@@ -25,7 +25,7 @@ class AuthService {
 
   // Registrasi
   Future<Map<String, dynamic>> register(
-      String username, String email, String password) async {
+    String username, String email, String password) async {
     final url = ApiUrl.buildUrl(ApiUrl.register);
     final response = await http.post(
       Uri.parse(url),

@@ -30,14 +30,15 @@ class ApiUrl {
   static const String artikel = "/artikel";
 
   // Transaksi
-  static const String transaksiTerbanyak = "/transaksi/terbanyak-bulan-ini";
-  static const String transaksiUser = "/transaksi/user";
+  // static const String transaksiTerbanyak = "/transaksi/terbanyak-bulan-ini";
+  // static const String transaksiUser = "/transaksi/user";
 
   // Penukaran Poin
   static const String poinTukar = "/poin/tukar";
 
   // Penjualan dan Klaim Struk
   static const String penjualanClaim = "/penjualan/{penjualan}/claim";
+  static const String penjualanByUser = "/penjualan/history";
 
   // Utility to build full URL
   static String buildUrl(String endpoint) => "$baseApiUrl$endpoint";

@@ -76,8 +76,6 @@ class UserProvider with ChangeNotifier {
 
       if (userDataString != null && userDataString.isNotEmpty) {
         _user = json.decode(userDataString);
-        // print("hello"+ _user.toString());
-        // Mengatur userName dari data yang sudah didecode
         userName = _user?['name'] ?? 'Default Name';
         poin = _user?['poin'] ?? 0;
         print('User data fetched: $_user');
@@ -107,6 +105,24 @@ class UserProvider with ChangeNotifier {
     } catch (e) {
       print('Token refresh error: $e');
       return false;
+    }
+  }
+
+  /// Auto refresh all user data, including points and other fields
+  Future<void> autoRefreshUserData(Map<String, dynamic> updatedUserData) async {
+    try {
+      // Update the user data with the new values
+      _user = updatedUserData;
+
+      // Save the updated data back to secure storage
+      await _saveToStorage('user_data', json.encode(updatedUserData));
+
+      // Fetch the latest user data and refresh the UI
+      await fetchUserData();
+
+      print('User data updated and UI refreshed');
+    } catch (e) {
+      print('Error during auto-refresh of user data: $e');
     }
   }
 
