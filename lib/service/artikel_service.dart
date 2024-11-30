@@ -7,9 +7,12 @@ class ArtikelService {
   final url = ApiUrl.buildUrl(ApiUrl.artikel);
 
   // Fetch all articles
-  Future<List<Artikel>> fetchAllArtikel() async {
+  Future<List<Artikel>> fetchAllArtikel(String? token) async {
 
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(url),
+     headers: {
+        'Authorization': 'Bearer $token',  
+      },);
     
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);

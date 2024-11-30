@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:greenpoint/models/daur_ulang_model.dart';
 import 'package:greenpoint/service/daur_ulang_service.dart';
 
 class DaurUlangController extends ChangeNotifier {
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
   List<DaurUlangModel> _daurUlangByIdJenisSampah = [];
   bool _isLoading = false;
 
@@ -24,13 +27,14 @@ class DaurUlangController extends ChangeNotifier {
   Future<void> fetchDaurUlangByIdJenisSampah(int idJenisSampah) async {
     _isLoading = true;
     notifyListeners();
+    final token = await _secureStorage.read(key: 'auth_token');
 
     _daurUlangByIdJenisSampah = [];
     _jenisSampahStreamController.sink.add(_daurUlangByIdJenisSampah);
 
     try {
       _daurUlangByIdJenisSampah =
-          await _apiService.fetchDaurUlangByIdJenisSampah(idJenisSampah);
+          await _apiService.fetchDaurUlangByIdJenisSampah(idJenisSampah, token);
       _jenisSampahStreamController.sink.add(_daurUlangByIdJenisSampah);
     } catch (e) {
       _daurUlangByIdJenisSampah = [];

@@ -5,10 +5,15 @@ import 'dart:convert';
 
 class DaurUlangService {
   Future<List<DaurUlangModel>> fetchDaurUlangByIdJenisSampah(
-      int idJenisSampah) async {
+      int idJenisSampah, String? token) async {
     final url = "${ApiUrl.buildUrl(ApiUrl.daurUlang)}/$idJenisSampah";
 
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);

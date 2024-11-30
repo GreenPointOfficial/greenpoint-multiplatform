@@ -5,10 +5,16 @@ import 'package:http/http.dart' as http;
 
 class JenisSampahService {
   
-  Future<List<JenisSampah>> fetchJenisSampah() async {
+
+  Future<List<JenisSampah>> fetchJenisSampah(String? token) async {
     final url = ApiUrl.buildUrl(ApiUrl.jenisSampah);
 
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',  
+      },
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -18,10 +24,15 @@ class JenisSampahService {
     }
   }
 
-  Future<JenisSampah> fetchJenisSampahById(int id) async {
+  Future<JenisSampah> fetchJenisSampahById(int id, String? token) async {
     final url = "${ApiUrl.buildUrl(ApiUrl.jenisSampah)}/$id";
 
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',  
+      },
+    );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

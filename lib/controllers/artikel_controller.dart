@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:greenpoint/models/artikel_model.dart';
 import 'package:greenpoint/service/artikel_service.dart';
 
 class ArtikelController extends ChangeNotifier {
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   List<Artikel> _artikelList = [];
   Artikel? _artikelById;
@@ -25,16 +27,17 @@ class ArtikelController extends ChangeNotifier {
 
   // Streams
   Stream<List<Artikel>> get artikelStream => _artikelStreamController.stream;
-  Stream<Artikel?> get artikelByIdStream =>
-      _artikelByIdStreamController.stream;
+  Stream<Artikel?> get artikelByIdStream => _artikelByIdStreamController.stream;
 
   // Fetch all articles
   Future<void> fetchAllArtikel() async {
+    final token = await _secureStorage.read(key: 'auth_token');
+
     _isLoading = true;
     notifyListeners();
 
     try {
-      _artikelList = await _artikelService.fetchAllArtikel();
+      _artikelList = await _artikelService.fetchAllArtikel(token);
       _artikelStreamController.sink.add(_artikelList);
     } catch (e) {
       _artikelStreamController.sink.addError('Error fetching articles: $e');

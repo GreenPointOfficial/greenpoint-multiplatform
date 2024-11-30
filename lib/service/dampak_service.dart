@@ -1,14 +1,22 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:greenpoint/assets/constants/api_url.dart';
 import 'package:greenpoint/models/dampak_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class DampakService {
+    final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
   Future<List<DampakModel>> fetchDampakByIdJenisSampah(
-      int idJenisSampah) async {
+      int idJenisSampah, String? token) async {
     final url = "${ApiUrl.buildUrl(ApiUrl.dampak)}/$idJenisSampah";
 
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);

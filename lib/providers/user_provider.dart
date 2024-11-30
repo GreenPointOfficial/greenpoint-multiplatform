@@ -4,90 +4,126 @@ import 'dart:convert';
 
 class UserProvider with ChangeNotifier {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  
+
   Map<String, dynamic>? _user;
   String? _token;
+    String userName = "";
+    int poin = 0;
 
-  // Getter for user data
+
   Map<String, dynamic>? get user => _user;
+  // String get userName => _user?['name'] ?? 'Guest';
+  int get userPoints => _user?['poin'] ?? 0;
 
-  // Getter for token
-  String? get token => _token;
-
-  // Check if user is authenticated
-  bool get isAuthenticated => _token != null;
-
-  // Constructor to load user data on initialization
-  UserProvider() {
-    _loadUserFromStorage();
-  }
-
-  // Save user data and token
-  Future<void> setUser(Map<String, dynamic> userData) async {
+  /// Save user data and token to secure storage
+  Future<void> setUser(Map<String, dynamic> userData, String token) async {
     _user = userData;
-    _token = userData['token'];
+    _token = token;
 
-    // Save token to secure storage
-    await _secureStorage.write(
-      key: 'auth_token', 
-      value: _token
-    );
-
-    // Save full user data to secure storage
-    await _secureStorage.write(
-      key: 'user_data', 
-      value: json.encode(userData)
-    );
+    await _saveToStorage('auth_token', token);
+    await _saveToStorage('user_data', json.encode(userData));
 
     notifyListeners();
   }
 
-  // Load user data from secure storage
-  Future<void> _loadUserFromStorage() async {
+  /// Save any data to secure storage
+  Future<void> _saveToStorage(String key, String value) async {
     try {
-      // Retrieve token
-      _token = await _secureStorage.read(key: 'auth_token');
-
-      // Retrieve user data
-      String? userDataString = await _secureStorage.read(key: 'user_data');
-      
-      if (userDataString != null) {
-        _user = json.decode(userDataString);
-      }
-
-      notifyListeners();
+      await _secureStorage.write(key: key, value: value);
+      print('$key saved: $value');
     } catch (e) {
-      print('Error loading user data: $e');
+      print('Error saving $key: $e');
     }
   }
 
+  /// Read token from secure storage
+  Future<void> readToken() async {
+    try {
+      _token = await _secureStorage.read(key: 'auth_token');
+      if (_token == null || _token!.isEmpty) {
+        print('No authentication token found');
+      } else {
+        print('Token fetched: $_token');
+      }
+    } catch (e) {
+      print('Error reading token: $e');
+    }
+  }
 
-
-  // Clear user data and token
+  /// Clear user data and token from secure storage
   Future<void> clearUser() async {
     _user = null;
     _token = null;
 
-    // Remove stored data
-    await _secureStorage.delete(key: 'auth_token');
-    await _secureStorage.delete(key: 'user_data');
+    await _deleteFromStorage('auth_token');
+    await _deleteFromStorage('user_data');
 
     notifyListeners();
   }
 
-  // Getters for specific user information
-  String get userName {
-    return _user?['name'] ?? 'Guest';
+  /// Delete specific data from secure storage
+  Future<void> _deleteFromStorage(String key) async {
+    try {
+      await _secureStorage.delete(key: key);
+      print('$key deleted');
+    } catch (e) {
+      print('Error deleting $key: $e');
+    }
   }
 
-  int get point {
-    return _user?['poin'] ?? 0;
+  /// Fetch user data from secure storage
+  Future<void> fetchUserData() async {
+  try {
+    // Membaca data pengguna dari Secure Storage
+    final userDataString = await _secureStorage.read(key: 'user_data');
+
+    if (userDataString != null && userDataString.isNotEmpty) {
+      _user = json.decode(userDataString);  
+      // print("hello"+ _user.toString());
+      // Mengatur userName dari data yang sudah didecode
+      userName = _user?['name'] ?? 'Default Name'; 
+      poin = _user?['poin'] ?? 0; 
+      print('User data fetched: $_user');
+    } else {
+      print('No user data found');
+      _user = {};  // Initialize _user as an empty map if no data is found
+      userName = 'Default Name'; // Mengatur userName default jika data tidak ditemukan
+    }
+
+    // Memanggil notifyListeners agar UI diperbarui
+    notifyListeners();  
+  } catch (e) {
+    print('Error fetching user data: $e');
+    userName = 'Default Name'; // Mengatur userName default jika terjadi error
+  }
+}
+
+
+
+  /// Check if the token is valid
+  bool isTokenValid() => _token != null && _token!.isNotEmpty;
+
+  /// Refresh token (currently a placeholder for future implementation)
+  Future<bool> refreshToken() async {
+    try {
+      // Token refresh logic can be added here
+      return false;
+    } catch (e) {
+      print('Token refresh error: $e');
+      return false;
+    }
   }
 
-  // Method to check token validity (optional)
-  bool isTokenValid() {
-    // Implement your token validation logic here
-    // For example, check expiration, decode JWT, etc.
-    return _token != null;
+  /// Debug: Print all data in secure storage
+  Future<void> debugSecureStorage() async {
+    try {
+      final allKeys = await _secureStorage.readAll();
+      print('All Secure Storage Data: $allKeys');
+
+      final token = await _secureStorage.read(key: 'auth_token');
+      print('Fetched auth token: $token');
+    } catch (e) {
+      print('Error while reading secure storage: $e');
+    }
   }
 }

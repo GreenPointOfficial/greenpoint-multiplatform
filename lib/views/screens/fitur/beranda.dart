@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/controllers/artikel_controller.dart';
+import 'package:greenpoint/controllers/auth_controller.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/views/screens/auth/masuk_page.dart';
 import 'package:provider/provider.dart';
@@ -35,18 +36,26 @@ class Beranda extends StatefulWidget {
 
 class _BerandaState extends State<Beranda> {
   final PageController _pageController = PageController();
+  final _userProvider = UserProvider();
 
   @override
   void initState() {
     super.initState();
+    Provider.of<UserProvider>(context, listen: false).fetchUserData();
+
+    // _jenisSampahController.init();
+    // Menambahkan post-frame callback untuk menunda pengambilan data setelah build
     _fetchInitialData();
   }
 
-  void _fetchInitialData() {
-    Future.microtask(() {
-      context.read<JenisSampahController>().fetchJenisSampah();
-      context.read<ArtikelController>().fetchAllArtikel();
-    });
+  void _fetchInitialData() async {
+    try {
+      // Mengambil data JenisSampah dan Artikel setelah build selesai
+      await context.read<JenisSampahController>().fetchJenisSampah();
+      await context.read<ArtikelController>().fetchAllArtikel();
+    } catch (e) {
+      debugPrint("Error fetching initial data: $e");
+    }
   }
 
   @override
@@ -57,8 +66,6 @@ class _BerandaState extends State<Beranda> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final user = userProvider.isTokenValid();
     return Scaffold(
       backgroundColor: Colors.white,
       body: Consumer<JenisSampahController>(
@@ -142,6 +149,8 @@ class _BerandaState extends State<Beranda> {
   }
 
   Widget _buildPointsSection() {
+    // final nama = UserProvider().user?['name'];
+    // final poin = UserProvider().user?['poin'];
     final screenWidth = MediaQuery.of(context).size.width;
     final TextStyle titleStyle = GoogleFonts.dmSans(
       fontWeight: FontWeight.bold,
@@ -156,17 +165,14 @@ class _BerandaState extends State<Beranda> {
       fontSize: screenWidth * 0.07,
     );
 
-    final userProvider = Provider.of<UserProvider>(context);
-    final userName = userProvider.userName;
-    final point = userProvider.point;
-
+    final userName = Provider.of<UserProvider>(context).userName;
+    final poin = Provider.of<UserProvider>(context).poin;
     return Row(
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Correct syntax for user name
-            Text("Hello, ${userName}", style: titleStyle),
+            Text("Hello, $userName", style: titleStyle),
             Text("Poin kamu saat ini", style: subtitleStyle),
           ],
         ),
@@ -179,7 +185,7 @@ class _BerandaState extends State<Beranda> {
               width: screenWidth * 0.09,
             ),
             const SizedBox(width: 8),
-            Text(point.toString(), style: pointsStyle),
+            Text(poin.toString(), style: pointsStyle),
           ],
         ),
       ],
