@@ -7,6 +7,7 @@ import 'package:greenpoint/controllers/auth_controller.dart';
 import 'package:greenpoint/views/screens/auth/masuk_page.dart';
 import 'package:greenpoint/views/widget/appbar_widget.dart';
 import 'package:greenpoint/views/widget/input_widget.dart';
+import 'package:greenpoint/views/widget/notifikasi_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
 
 class DaftarPage extends StatefulWidget {
@@ -15,6 +16,7 @@ class DaftarPage extends StatefulWidget {
   @override
   _DaftarPageState createState() => _DaftarPageState();
 }
+
 class _DaftarPageState extends State<DaftarPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -86,9 +88,6 @@ class _DaftarPageState extends State<DaftarPage> {
                     isPassword: true,
                   ),
                 ),
-                SizedBox(
-                  height: ScreenUtils.screenHeight(context) * 0.04,
-                ),
                 isLoading
                     ? CircularProgressIndicator(
                         color: GreenPointColor.primary,
@@ -98,53 +97,58 @@ class _DaftarPageState extends State<DaftarPage> {
                         child: TombolWidget(
                           warna: GreenPointColor.secondary,
                           warnaText: Colors.white,
-                          text: "Daftar",
+                          text: "Daftar", // Tampilkan loading state
                           onPressed: () async {
                             if (nameController.text.isEmpty ||
                                 emailController.text.isEmpty ||
                                 passwordController.text.isEmpty) {
                               showNotification(
                                 "Semua kolom harus diisi!",
-                                Colors.white,
+                                Colors.red,
                               );
                               return;
                             }
 
+                            // Validasi format email
                             if (!RegExp(
                                     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
                                 .hasMatch(emailController.text)) {
                               showNotification(
                                 "Masukkan email yang valid!",
-                                Colors.white,
+                                Colors.red,
                               );
                               return;
                             }
 
-                            // Password validation
+                            // Validasi panjang password
                             if (passwordController.text.length < 8) {
                               showNotification(
                                 "Password harus lebih dari 8 karakter!",
-                                Colors.white,
+                                Colors.red,
                               );
                               return;
                             }
 
+                            // Ubah state menjadi loading
                             setState(() {
                               isLoading = true;
                             });
 
                             try {
+                              // Panggil fungsi register
                               await authController.registerUser(
                                 nameController.text,
                                 emailController.text,
                                 passwordController.text,
                               );
 
+                              // Jika berhasil, tampilkan notifikasi sukses
                               showNotification(
                                 "Pendaftaran berhasil!",
                                 GreenPointColor.primary,
                               );
 
+                              // Arahkan ke halaman login
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
@@ -152,11 +156,21 @@ class _DaftarPageState extends State<DaftarPage> {
                                 ),
                               );
                             } catch (e) {
-                              showNotification(
-                                "Pendaftaran gagal: $e",
-                                Colors.white,
-                              );
+                              if (e.toString().contains(
+                                  "The email has already been taken")) {
+                                showNotification(
+                                  "Email sudah digunakan.",
+                                  Colors.red,
+                                );
+                              } else {
+                                // Kesalahan umum
+                                showNotification(
+                                  "Pendaftaran gagal: ${e.toString()}",
+                                  Colors.red,
+                                );
+                              }
                             } finally {
+                              // Kembalikan loading state
                               setState(() {
                                 isLoading = false;
                               });
@@ -265,33 +279,7 @@ class _DaftarPageState extends State<DaftarPage> {
           ),
           // Notifikasi yang mengambang
           if (notificationMessage != null)
-            Positioned(
-              top: 0, // Moved closer to the top
-              left: 20,
-              right: 20,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                opacity: notificationMessage != null ? 1.0 : 0.0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8, horizontal: 12), // Reduced padding
-                  decoration: BoxDecoration(
-                    color: Colors.transparent, // Slightly transparent
-                    borderRadius:
-                        BorderRadius.circular(6), // Slightly smaller radius
-                  ),
-                  child: Text(
-                    notificationMessage!,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.dmSans(
-                      color: Colors.red,
-                      fontSize: 12, // Slightly smaller font
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            NotifikasiWidget(notificationMessage: notificationMessage)
         ],
       ),
     );

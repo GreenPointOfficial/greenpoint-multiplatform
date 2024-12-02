@@ -49,7 +49,7 @@ class AuthService {
 
     try {
       final response = await http.post(
-        Uri.parse(url), // Ganti dengan URL API login Anda
+        Uri.parse(url), 
         body: {
           'email': email,
           'password': password,
@@ -62,7 +62,6 @@ class AuthService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
-        // Cek apakah token ada dalam respons
         if (data.containsKey('token') && data['token'] != null) {
           return {
             'success': true,

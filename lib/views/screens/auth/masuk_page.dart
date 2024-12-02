@@ -10,6 +10,7 @@ import 'package:greenpoint/service/auth_service.dart';
 import 'package:greenpoint/views/screens/auth/daftar_page.dart';
 import 'package:greenpoint/views/screens/fitur/beranda.dart';
 import 'package:greenpoint/views/widget/input_widget.dart';
+import 'package:greenpoint/views/widget/notifikasi_widget.dart';
 import 'package:greenpoint/views/widget/welcome_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -72,109 +73,90 @@ class _MasukPageState extends State<MasukPage> {
       });
     });
   }
-Future<void> loginUser(String email, String password) async {
-  // Validasi input
-  if (email.isEmpty || password.isEmpty) {
-    if (mounted) {
-      setState(() {
-        notificationMessage = "Semua kolom harus diisi!";
-        notificationColor = Colors.white;
-        notificationTextColor = Colors.red;
-      });
+
+  Future<void> loginUser(String email, String password) async {
+    // Validasi input untuk email dan password
+    if (email.isEmpty) {
+      showNotification("Email tidak boleh kosong!", Colors.white, Colors.red);
+      return;
+    } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+      showNotification("Format email tidak valid!", Colors.white, Colors.red);
+      return;
     }
-    return;
-  }
 
-  // Tampilkan indikator loading
-  setState(() {
-    isLoading = true;
-  });
+    if (password.isEmpty) {
+      showNotification(
+          "Password tidak boleh kosong!", Colors.white, Colors.red);
+      return;
+    }
 
-  try {
-    // Lakukan request login ke server
-    final response = await _authController.loginUser(email, password);
-    print("Login response: $response");
+    // Tampilkan indikator loading
+    setState(() {
+      isLoading = true;
+    });
 
-    if (!mounted) return; // Pastikan widget masih aktif
+    try {
+      // Kirim data login ke server
+      final response = await _authController.loginUser(email, password);
+      // print("Login response: ${response['message']}");
 
-    // Cek apakah login berhasil
-    if (response['success'] == true) {
-      // Ambil token dari response
-      String token = response['token'];
-      print("Token received: $token");
+      if (!mounted) return;
 
-      // Simpan token menggunakan UserProvider
-      // await _userProvider.saveToken(token);
-      await Future.delayed(Duration(milliseconds: 100)); // Delay opsional
-      await _userProvider.readToken();
+      // Cek apakah login berhasil
+      if (response['success'] == true) {
+        String token = response['token'];
+        // print("Token received: $token");
 
-      // Ambil data user dari response
-      final userData = response['user_data'] ?? {};
-      if (userData.isNotEmpty) {
-        // Simpan data user ke UserProvider
-        _userProvider.setUser(userData, response['token']);
-        print("User data saved: $userData");
-      } else {
-        print("No user data found in response!");
-      }
+        // Simpan token dan data pengguna
+        await _userProvider.readToken();
+        final userData = response['user_data'] ?? {};
+        if (userData.isNotEmpty) {
+          _userProvider.setUser(userData, response['token']);
+          // print("User data saved: $userData");
+        } else {
+          // print("No user data found in response!");
+        }
 
-      // Simpan email dan password jika 'Remember Me' diaktifkan
-      if (_isRememberMe) {
-        await _secureStorage.write(key: 'remembered_email', value: email);
-        await _secureStorage.write(key: 'remembered_password', value: password);
-      } else {
-        await _secureStorage.delete(key: 'remembered_email');
-        await _secureStorage.delete(key: 'remembered_password');
-      }
+        // Simpan email dan password jika 'Remember Me' diaktifkan
+        if (_isRememberMe) {
+          await _secureStorage.write(key: 'remembered_email', value: email);
+          await _secureStorage.write(
+              key: 'remembered_password', value: password);
+        } else {
+          await _secureStorage.delete(key: 'remembered_email');
+          await _secureStorage.delete(key: 'remembered_password');
+        }
 
-      // Tampilkan notifikasi keberhasilan login
-      setState(() {
-        notificationMessage = "Login berhasil!";
-        notificationColor = Colors.white;
-        notificationTextColor = GreenPointColor.primary;
-      });
+        // Tampilkan notifikasi keberhasilan login
+        showNotification(
+            "Login berhasil!", Colors.white, GreenPointColor.primary);
 
-      // Navigasi ke halaman utama (Beranda)
-      if (_authController.fetchUserProfile() != null) {
+        // Navigasi ke halaman utama (Beranda)
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => Beranda()),
         );
       } else {
-        showNotification(
-          "Autentikasi gagal. Silakan coba lagi.",
-          Colors.white,
-          Colors.red,
-        );
+        // Tampilkan notifikasi jika email atau password tidak sesuai
+        String errorMessage = "Email atau password salah.";
+        showNotification(errorMessage, Colors.white, Colors.red);
       }
-    } else {
-      // Tampilkan notifikasi kegagalan login
-      setState(() {
-        notificationMessage =
-            response['message'] ?? "Login gagal. Silakan coba lagi.";
-        notificationColor = Colors.white;
-        notificationTextColor = Colors.red;
-      });
-    }
-  } catch (e) {
-    // Tangani error jika terjadi masalah
-    print("Login error: $e");
-    if (mounted) {
-      setState(() {
-        notificationMessage = "Terjadi kesalahan. Silakan coba lagi.";
-        notificationColor = Colors.white;
-        notificationTextColor = Colors.red;
-      });
-    }
-  } finally {
-    // Sembunyikan indikator loading
-    if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
+    } catch (e) {
+      // Tangani kesalahan lainnya
+      // print("Login error: $e");
+      if (mounted) {
+        showNotification(
+            "Terjadi kesalahan. Silakan coba lagi.", Colors.white, Colors.red);
+      }
+    } finally {
+      // Sembunyikan indikator loading
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
-}
 
   Future<void> handleGoogleLogin() async {
     setState(() {
@@ -411,28 +393,8 @@ Future<void> loginUser(String email, String password) async {
           ),
           // Notifikasi ditempatkan di atas layout
           if (notificationMessage != null)
-            Positioned(
-              top: screenHeight * 0.45,
-              left: (screenWidth - (screenWidth * 0.85)) / 2,
-              child: Container(
-                width: screenWidth * 0.85,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  notificationMessage!,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.dmSans(
-                    color: notificationTextColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
+            NotifikasiWidget(
+                notificationMessage: notificationMessage, top: 0.46)
         ],
       ),
     );
