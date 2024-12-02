@@ -76,21 +76,21 @@ class UserProvider with ChangeNotifier {
 
       if (userDataString != null && userDataString.isNotEmpty) {
         _user = json.decode(userDataString);
-        userName = _user?['name'] ?? 'Default Name';
+        userName = _user?['name'] ?? '';
         poin = _user?['poin'] ?? 0;
         print('User data fetched: $_user');
       } else {
         print('No user data found');
         _user = {}; // Initialize _user as an empty map if no data is found
         userName =
-            'Default Name'; // Mengatur userName default jika data tidak ditemukan
+            ''; // Mengatur userName default jika data tidak ditemukan
       }
 
       // Memanggil notifyListeners agar UI diperbarui
       notifyListeners();
     } catch (e) {
       print('Error fetching user data: $e');
-      userName = 'Default Name'; // Mengatur userName default jika terjadi error
+      userName = ''; // Mengatur userName default jika terjadi error
     }
   }
 

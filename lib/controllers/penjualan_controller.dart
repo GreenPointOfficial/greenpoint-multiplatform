@@ -11,6 +11,8 @@ class PenjualanController extends ChangeNotifier {
   // Variables to hold fetched data
   List<TopPenjualan> topPenjualanList = [];
   List<RiwayatPenjualan> riwayatPenjualanList = [];
+  int? _userPercentage;
+  int? get userPercentage => _userPercentage;
 
   // Loading state
   bool _isLoading = false;
@@ -68,6 +70,33 @@ class PenjualanController extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> getUserPercentage() async {
+    _isLoading = true;
+    _errorMessage = null; // Reset the error message
+    notifyListeners();
+
+    final token = await _secureStorage.read(key: 'auth_token');
+    if (token == null) {
+      _errorMessage = "No authentication token found. Please log in.";
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final data = await _penjualanService.getUserPercentage(token);
+      _userPercentage =
+          data['data']['persentase']; // Perhatikan perbedaan di sini
+      print("User Percentage: $_userPercentage"); // Cek nilai yang didapat
+    } catch (e) {
+      _errorMessage = 'Error fetching percentage: $e';
+      print("Error fetching percentage: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners(); // Memastikan UI diberitahu ada perubahan
     }
   }
 }

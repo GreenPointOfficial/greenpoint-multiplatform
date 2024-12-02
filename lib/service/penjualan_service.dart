@@ -39,4 +39,29 @@ class PenjualanService {
       throw Exception('Failed to load riwayat penjualan');
     }
   }
+
+  Future<Map<String, dynamic>> getUserPercentage(String token) async {
+    final url = ApiUrl.buildUrl(ApiUrl.pencapaian);
+    print("Hello");
+
+    try {
+      final response = await http.get(
+      Uri.parse(url),
+      
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+      // Memeriksa apakah status code sukses
+      if (response.statusCode == 200) {
+        print(response.body);
+        return jsonDecode(response.body); // Mengembalikan data JSON
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
 }
