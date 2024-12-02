@@ -143,10 +143,10 @@ class _DaftarPageState extends State<DaftarPage> {
                               );
 
                               // Jika berhasil, tampilkan notifikasi sukses
-                              showNotification(
-                                "Pendaftaran berhasil!",
-                                GreenPointColor.primary,
-                              );
+                              // showNotification(
+                              //   "Pendaftaran berhasil!",
+                              //   GreenPointColor.primary,
+                              // );
 
                               // Arahkan ke halaman login
                               Navigator.pushReplacement(

@@ -64,7 +64,6 @@ class _MasukPageState extends State<MasukPage> {
       notificationTextColor = textColor;
     });
 
-    // Hide notification after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       setState(() {
         notificationMessage = null;
@@ -128,8 +127,7 @@ class _MasukPageState extends State<MasukPage> {
         }
 
         // Tampilkan notifikasi keberhasilan login
-        showNotification(
-            "Login berhasil!", Colors.white, GreenPointColor.primary);
+        // showNotification("Login berhasil!", Colors.white, Colors.green);
 
         // Navigasi ke halaman utama (Beranda)
         Navigator.pushReplacement(

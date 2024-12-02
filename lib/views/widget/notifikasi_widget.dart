@@ -3,12 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 
 class NotifikasiWidget extends StatelessWidget {
   final String? notificationMessage;
-  final double top; // Add a parameter for top position
+  final double top; 
+  final Color? textColor;
 
   const NotifikasiWidget({
     Key? key,
     this.notificationMessage,
     this.top = 0.008, // Default top position if not provided
+    this.textColor, // Default top position if not provided
   }) : super(key: key);
 
   @override
@@ -30,7 +32,7 @@ class NotifikasiWidget extends StatelessWidget {
             notificationMessage ?? '',
             textAlign: TextAlign.center,
             style: GoogleFonts.dmSans(
-              color: Colors.red,
+              color: textColor?? Colors.red,
               fontSize: 12, // Slightly smaller font
               fontWeight: FontWeight.w500,
             ),
