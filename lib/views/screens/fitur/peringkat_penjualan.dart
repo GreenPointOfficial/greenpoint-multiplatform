@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
+import 'package:greenpoint/controllers/penjualan_controller.dart';
+import 'package:greenpoint/models/top_penjualan_model.dart';
 import 'package:greenpoint/views/widget/appbar2_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class PeringkatPenjualan extends StatefulWidget {
   const PeringkatPenjualan({Key? key}) : super(key: key);
@@ -30,20 +34,23 @@ class _PeringkatPenjualanState extends State<PeringkatPenjualan> {
                 TextSpan(
                   text: "Periode: ",
                   style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
                 ),
                 TextSpan(
-                  text: "Okt 2024 ",
+                  text: DateFormat('MMM yyyy').format(DateTime
+                      .now()), // This formats the current month and year
                   style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: GreenPointColor.primary),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: GreenPointColor.primary,
+                  ),
                 )
               ])),
             ),
-            _buildPenjualanTerbanyak()
+            _buildPenjualanTerbanyakSection()
           ],
         ),
       ),
@@ -51,27 +58,35 @@ class _PeringkatPenjualanState extends State<PeringkatPenjualan> {
   }
 }
 
-Widget _buildPenjualanTerbanyak() {
-  final List<Map<String, String>> salesData = [
-    {'rank': '1', 'name': 'Agus Saputra', 'quantity': '10Kg'},
-    {'rank': '2', 'name': 'Budi Santoso', 'quantity': '8Kg'},
-    {'rank': '3', 'name': 'Charlie Li', 'quantity': '5Kg'},
-    {'rank': '4', 'name': 'Charlie Li', 'quantity': '5Kg'},
-    {'rank': '5', 'name': 'Charlie Li', 'quantity': '5Kg'},
-    {'rank': '6', 'name': 'Charlie Li', 'quantity': '5Kg'},
-    {'rank': '7', 'name': 'Charlie Li', 'quantity': '5Kg'},
-    {'rank': '8', 'name': 'Charlie Li', 'quantity': '5Kg'},
-    {'rank': '9', 'name': 'Charlie Li', 'quantity': '5Kg'},
-    {'rank': '10', 'name': 'Charlie Li', 'quantity': '5Kg'},
-  ];
+Widget _buildPenjualanTerbanyakSection() {
+  return Consumer<PenjualanController>(
+    builder: (context, penjualanController, _) {
+      if (penjualanController.isLoading) {
+        return const Center(child: CircularProgressIndicator());
+      }
 
-  return Column(
-    children: salesData.asMap().entries.map((entry) {
-      int index = entry.key;
-      var item = entry.value;
-
+      if (penjualanController.topPenjualanList.isEmpty) {
+        return const Center(child: Text("Belum ada data penjualan."));
+      }
       return Column(
+        // crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _buildPenjualanTerbanyakList(penjualanController.topPenjualanList),
+        ],
+      );
+    },
+  );
+}
+
+Widget _buildPenjualanTerbanyakList(List<TopPenjualan> penjualanList) {
+  return ListView.builder(
+      shrinkWrap: true,
+      padding: EdgeInsets.only(top: 0),
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: penjualanList.length,
+      itemBuilder: (context, index) {
+        final penjualan = penjualanList[index];
+        return Column(children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: Row(
@@ -79,14 +94,14 @@ Widget _buildPenjualanTerbanyak() {
               children: [
                 RichText(
                   text: TextSpan(
-                    text: "${item['rank']}. ",
+                    text: "${index + 1}. ",
                     style: GoogleFonts.dmSans(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: Colors.black),
                     children: [
                       TextSpan(
-                        text: item['name'],
+                        text: penjualan.userName,
                         style: GoogleFonts.dmSans(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
@@ -95,7 +110,7 @@ Widget _buildPenjualanTerbanyak() {
                     ],
                   ),
                 ),
-                Text(item['quantity']!,
+                Text(penjualan.totalBerat.toString() + "Kg"!,
                     style: GoogleFonts.dmSans(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -103,10 +118,6 @@ Widget _buildPenjualanTerbanyak() {
               ],
             ),
           ),
-          if (index < salesData.length - 1)
-            Divider(thickness: 0.5, color: Colors.grey[300]),
-        ],
-      );
-    }).toList(),
-  );
+        ]);
+      });
 }
