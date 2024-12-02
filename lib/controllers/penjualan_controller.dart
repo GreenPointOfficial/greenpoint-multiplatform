@@ -1,34 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:greenpoint/models/penjualan_model.dart';
+import 'package:greenpoint/models/top_penjualan_model.dart';
 import 'package:greenpoint/service/penjualan_service.dart';
 
-class PenjualanController with ChangeNotifier {
-    final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
-
+class PenjualanController extends ChangeNotifier {
   final PenjualanService _penjualanService = PenjualanService();
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
-  List<PenjualanModel> _penjualanList = [];
+  // Variables to hold fetched data
+  List<TopPenjualan> topPenjualanList = [];
+  List<RiwayatPenjualan> riwayatPenjualanList = [];
+
+  // Loading state
   bool _isLoading = false;
-  String? _errorMessage;
-
-  List<PenjualanModel> get penjualanList => _penjualanList;
   bool get isLoading => _isLoading;
+
+  // Error message state
+  String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  // Fetch penjualan data
-  Future<void> fetchPenjualan() async {
+  // Method to fetch top penjualan
+  Future<void> getTopPenjualan() async {
     _isLoading = true;
-    _errorMessage = null;
+    _errorMessage = null; // Reset the error message
     notifyListeners();
-        final token = await _secureStorage.read(key: 'auth_token');
+    // print("hello from controller");
 
+    final token = await _secureStorage.read(key: 'auth_token');
+    if (token == null) {
+      _errorMessage = "No authentication token found. Please log in.";
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
 
     try {
-      final data = await _penjualanService.fetchPenjualan(token);
-      _penjualanList = data;
+      topPenjualanList = await _penjualanService.fetchTopPenjualan(token);
+      print("hello from controller");
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = 'Error fetching top penjualan: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Method to fetch riwayat penjualan
+  Future<void> getRiwayatPenjualan() async {
+    _isLoading = true;
+    _errorMessage = null; // Reset the error message
+    notifyListeners();
+
+    final token = await _secureStorage.read(key: 'auth_token');
+    if (token == null) {
+      _errorMessage = "No authentication token found. Please log in.";
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      riwayatPenjualanList =
+          await _penjualanService.fetchRiwayatPenjualan(token);
+    } catch (e) {
+      _errorMessage = 'Error fetching riwayat penjualan: $e';
     } finally {
       _isLoading = false;
       notifyListeners();

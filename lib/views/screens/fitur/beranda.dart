@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/controllers/artikel_controller.dart';
+import 'package:greenpoint/controllers/penjualan_controller.dart';
+import 'package:greenpoint/models/top_penjualan_model.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -50,6 +52,7 @@ class _BerandaState extends State<Beranda> {
       // Mengambil data JenisSampah dan Artikel setelah build selesai
       await context.read<JenisSampahController>().fetchJenisSampah();
       await context.read<ArtikelController>().fetchAllArtikel();
+      await context.read<PenjualanController>().getTopPenjualan();
     } catch (e) {
       debugPrint("Error fetching initial data: $e");
     }
@@ -112,7 +115,7 @@ class _BerandaState extends State<Beranda> {
           const SizedBox(height: 20),
           _buildSectionWithTitle(
             "Peringkat Penjualan",
-            _buildPenjualanTerbanyak(),
+            _buildPenjualanTerbanyakSection(), // Tambahkan section penjualan terbanyak
             true,
             () => Navigator.push(
               context,
@@ -293,7 +296,7 @@ class _BerandaState extends State<Beranda> {
               ),
           ],
         ),
-        const SizedBox(height: 15),
+        // const SizedBox(height: 15),
         content,
       ],
     );
@@ -518,20 +521,35 @@ class _BerandaState extends State<Beranda> {
     );
   }
 
-  Widget _buildPenjualanTerbanyak() {
-    final List<Map<String, String>> salesData = [
-      {'rank': '1', 'name': 'Agus Saputra', 'quantity': '10Kg'},
-      {'rank': '2', 'name': 'Budi Santoso', 'quantity': '8Kg'},
-      {'rank': '3', 'name': 'Charlie Li', 'quantity': '5Kg'},
-    ];
+  Widget _buildPenjualanTerbanyakSection() {
+    return Consumer<PenjualanController>(
+      builder: (context, penjualanController, _) {
+        if (penjualanController.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return Column(
-      children: salesData.asMap().entries.map((entry) {
-        int index = entry.key;
-        var item = entry.value;
-
+        if (penjualanController.topPenjualanList.isEmpty) {
+          return const Center(child: Text("Belum ada data penjualan."));
+        }
         return Column(
+          // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildPenjualanTerbanyakList(penjualanController.topPenjualanList),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPenjualanTerbanyakList(List<TopPenjualan> penjualanList) {
+    return ListView.builder(
+        shrinkWrap: true,
+        padding: EdgeInsets.only(top: 0),
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: penjualanList.length,
+        itemBuilder: (context, index) {
+          final penjualan = penjualanList[index];
+          return Column(children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 5),
               child: Row(
@@ -539,14 +557,14 @@ class _BerandaState extends State<Beranda> {
                 children: [
                   RichText(
                     text: TextSpan(
-                      text: "${item['rank']}. ",
+                      text: "${index + 1}. ",
                       style: GoogleFonts.dmSans(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: Colors.black),
                       children: [
                         TextSpan(
-                          text: item['name'],
+                          text: penjualan.userName,
                           style: GoogleFonts.dmSans(
                               fontSize: 14,
                               fontWeight: FontWeight.normal,
@@ -555,7 +573,7 @@ class _BerandaState extends State<Beranda> {
                       ],
                     ),
                   ),
-                  Text(item['quantity']!,
+                  Text(penjualan.totalBerat.toString() + "Kg"!,
                       style: GoogleFonts.dmSans(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -563,11 +581,7 @@ class _BerandaState extends State<Beranda> {
                 ],
               ),
             ),
-            if (index < salesData.length - 1)
-              Divider(thickness: 0.5, color: Colors.grey[300]),
-          ],
-        );
-      }).toList(),
-    );
+          ]);
+        });
   }
 }

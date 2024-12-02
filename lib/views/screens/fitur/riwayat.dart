@@ -17,9 +17,9 @@ class _RiwayatPageState extends State<RiwayatPage> {
   @override
   void initState() {
     super.initState();
-    // Panggil fetchPenjualan setelah build selesai
+    // Panggil fetchRiwayatPenjualan setelah build selesai
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<PenjualanController>(context, listen: false).fetchPenjualan();
+      Provider.of<PenjualanController>(context, listen: false).getRiwayatPenjualan();
     });
   }
 
@@ -45,22 +45,37 @@ class _RiwayatPageState extends State<RiwayatPage> {
                 : penjualanController.errorMessage != null
                     ? Center(
                         child: Text(
-                          "Error: ${penjualanController.errorMessage}",
+                          penjualanController.errorMessage.toString(),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(fontSize: 14),
+                          style: GoogleFonts.dmSans(
+                              fontSize: 14, color: GreenPointColor.secondary),
                         ),
                       )
-                    : penjualanController.penjualanList.isEmpty
-                        ? const Center(child: Text("Belum ada transaksi."))
+                    : penjualanController.riwayatPenjualanList.isEmpty
+                        // Center widget to display the "No transaction history" message
+                        ? Center(
+                            child: Text(
+                              "Belum ada riwayat transaksi.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: GreenPointColor
+                                    .primary, // Or any color you like
+                              ),
+                            ),
+                          )
                         : ListView.builder(
-                            itemCount: penjualanController.penjualanList.length,
+                            itemCount: penjualanController.riwayatPenjualanList.length,
                             itemBuilder: (context, index) {
                               // Urutkan daftar berdasarkan tanggal (descending)
-                              final sortedList =
-                                  List<PenjualanModel>.from(penjualanController.penjualanList)
-                                    ..sort((a, b) => b.tanggal.compareTo(a.tanggal)); // Sort descending
-                              final penjualan = sortedList[index];
-                              return _buildTransaksiCard(penjualan, isSmallScreen);
+                              final sortedList = List<RiwayatPenjualan>.from(
+                                  penjualanController.riwayatPenjualanList)
+                                ..sort((a, b) => b.tanggal
+                                    .compareTo(a.tanggal)); // Sort descending
+                              final riwayatPenjualan = sortedList[index];
+                              return _buildTransaksiCard(
+                                  riwayatPenjualan, isSmallScreen);
                             },
                           ),
           );
@@ -69,7 +84,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
     );
   }
 
-  Widget _buildTransaksiCard(PenjualanModel penjualan, bool isSmallScreen) {
+  Widget _buildTransaksiCard(RiwayatPenjualan riwayatPenjualan, bool isSmallScreen) {
     return Padding(
       padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 5),
       child: Column(
@@ -81,7 +96,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
               Row(
                 children: [
                   Container(
-                    height: isSmallScreen ? 35 : 50, 
+                    height: isSmallScreen ? 35 : 50,
                     width: isSmallScreen ? 35 : 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
@@ -105,7 +120,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                         ),
                       ),
                       Text(
-                        penjualan.items.isNotEmpty
+                        riwayatPenjualan.items.isNotEmpty
                             ? "Status: Berhasil"
                             : "Status: Belum Ada Item",
                         style: GoogleFonts.dmSans(
@@ -114,7 +129,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                         ),
                       ),
                       Text(
-                        "Tanggal: ${penjualan.tanggal.toLocal()}",
+                        "Tanggal: ${riwayatPenjualan.tanggal}",
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.dmSans(
                           fontWeight: FontWeight.normal,
@@ -145,8 +160,8 @@ class _RiwayatPageState extends State<RiwayatPage> {
                         width: isSmallScreen ? 15 : 20,
                       ),
                       Text(
-                        penjualan.items.isNotEmpty
-                            ? penjualan.items[0].totalHarga.toString()
+                        riwayatPenjualan.items.isNotEmpty
+                            ? riwayatPenjualan.items[0].totalHarga.toString()
                             : "0",
                         style: GoogleFonts.dmSans(
                           color: GreenPointColor.primary,
@@ -158,8 +173,8 @@ class _RiwayatPageState extends State<RiwayatPage> {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    penjualan.items.isNotEmpty
-                        ? "${penjualan.items[0].jumlah} Kg sampah"
+                    riwayatPenjualan.items.isNotEmpty
+                        ? "${riwayatPenjualan.items[0].jumlah} Kg sampah"
                         : "0 Kg",
                     style: GoogleFonts.dmSans(
                       color: GreenPointColor.abu,

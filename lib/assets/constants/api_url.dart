@@ -30,7 +30,6 @@ class ApiUrl {
   static const String artikel = "/artikel";
 
   // Transaksi
-  // static const String transaksiTerbanyak = "/transaksi/terbanyak-bulan-ini";
   // static const String transaksiUser = "/transaksi/user";
 
   // Penukaran Poin
@@ -38,6 +37,7 @@ class ApiUrl {
 
   // Penjualan dan Klaim Struk
   static const String penjualanClaim = "/penjualan/{penjualan}/claim";
+  static const String penjualanTop = "/penjualan/top-history";
   static const String penjualanByUser = "/penjualan/history";
 
   // Utility to build full URL
