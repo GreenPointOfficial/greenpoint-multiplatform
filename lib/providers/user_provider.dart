@@ -82,8 +82,7 @@ class UserProvider with ChangeNotifier {
       } else {
         print('No user data found');
         _user = {}; // Initialize _user as an empty map if no data is found
-        userName =
-            ''; // Mengatur userName default jika data tidak ditemukan
+        userName = ''; // Mengatur userName default jika data tidak ditemukan
       }
 
       // Memanggil notifyListeners agar UI diperbarui
@@ -108,19 +107,21 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  /// Auto refresh all user data, including points and other fields
   Future<void> autoRefreshUserData(Map<String, dynamic> updatedUserData) async {
     try {
-      // Update the user data with the new values
-      _user = updatedUserData;
+      // Gabungkan data lama dengan data baru
+      _user = {
+        ...?_user, // Data lama
+        ...updatedUserData, // Data baru
+      };
 
-      // Save the updated data back to secure storage
-      await _saveToStorage('user_data', json.encode(updatedUserData));
+      // Simpan data yang telah diperbarui ke Secure Storage
+      await _saveToStorage('user_data', json.encode(_user));
 
-      // Fetch the latest user data and refresh the UI
+      // Fetch data pengguna untuk memastikan UI diperbarui
       await fetchUserData();
 
-      print('User data updated and UI refreshed');
+      print('User data updated and UI refreshed: $_user');
     } catch (e) {
       print('Error during auto-refresh of user data: $e');
     }

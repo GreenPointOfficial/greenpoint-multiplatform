@@ -13,6 +13,8 @@ class PenjualanController extends ChangeNotifier {
   List<RiwayatPenjualan> riwayatPenjualanList = [];
   int? _userPercentage;
   int? get userPercentage => _userPercentage;
+  int? _bonus;
+  int? get bonus => _bonus;
 
   // Loading state
   bool _isLoading = false;
@@ -89,7 +91,9 @@ class PenjualanController extends ChangeNotifier {
     try {
       final data = await _penjualanService.getUserPercentage(token);
       _userPercentage =
-          data['data']['persentase']; // Perhatikan perbedaan di sini
+          data['data']['persentase']; 
+      _bonus =
+          data['data']['bonus']; 
       print("User Percentage: $_userPercentage"); // Cek nilai yang didapat
     } catch (e) {
       _errorMessage = 'Error fetching percentage: $e';

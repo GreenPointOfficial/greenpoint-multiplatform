@@ -19,13 +19,15 @@ class _RiwayatPageState extends State<RiwayatPage> {
     super.initState();
     // Panggil fetchRiwayatPenjualan setelah build selesai
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<PenjualanController>(context, listen: false).getRiwayatPenjualan();
+      Provider.of<PenjualanController>(context, listen: false)
+          .getRiwayatPenjualan();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final penjualanController = Provider.of<PenjualanController>(context);
+    List<RiwayatPenjualan> riwayat = [];
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -35,6 +37,8 @@ class _RiwayatPageState extends State<RiwayatPage> {
           // Tentukan apakah layar kecil atau besar
           bool isSmallScreen = constraints.maxWidth < 600;
 
+          riwayat = penjualanController.riwayatPenjualanList;
+          print(riwayat);
           return Padding(
             padding: EdgeInsets.symmetric(
               horizontal: isSmallScreen ? 16 : 32, // Padding responsif
@@ -42,15 +46,15 @@ class _RiwayatPageState extends State<RiwayatPage> {
             ),
             child: penjualanController.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : penjualanController.errorMessage != null
-                    ? Center(
-                        child: Text(
-                          penjualanController.errorMessage.toString(),
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(
-                              fontSize: 14, color: GreenPointColor.secondary),
-                        ),
-                      )
+                // : penjualanController.errorMessage != null
+                //     ? Center(
+                //         child: Text(
+                //           penjualanController.errorMessage.toString(),
+                //           textAlign: TextAlign.center,
+                //           style: GoogleFonts.dmSans(
+                //               fontSize: 14, color: GreenPointColor.secondary),
+                //         ),
+                //       )
                     : penjualanController.riwayatPenjualanList.isEmpty
                         // Center widget to display the "No transaction history" message
                         ? Center(
@@ -61,12 +65,13 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 color: GreenPointColor
-                                    .primary, // Or any color you like
+                                    .abu, // Or any color you like
                               ),
                             ),
                           )
                         : ListView.builder(
-                            itemCount: penjualanController.riwayatPenjualanList.length,
+                            itemCount:
+                                penjualanController.riwayatPenjualanList.length,
                             itemBuilder: (context, index) {
                               // Urutkan daftar berdasarkan tanggal (descending)
                               final sortedList = List<RiwayatPenjualan>.from(
@@ -84,7 +89,8 @@ class _RiwayatPageState extends State<RiwayatPage> {
     );
   }
 
-  Widget _buildTransaksiCard(RiwayatPenjualan riwayatPenjualan, bool isSmallScreen) {
+  Widget _buildTransaksiCard(
+      RiwayatPenjualan riwayatPenjualan, bool isSmallScreen) {
     return Padding(
       padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 5),
       child: Column(
