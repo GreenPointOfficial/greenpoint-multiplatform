@@ -40,6 +40,7 @@ class ApiUrl {
   static const String penjualanTop = "/penjualan/top-history";
   static const String penjualanByUser = "/penjualan/history";
   static const String pencapaian = "/penjualan/pencapaian";
+  static const String klaimBonus = "/penjualan/pencapaian/claim";
 
   // Utility to build full URL
   static String buildUrl(String endpoint) => "$baseApiUrl$endpoint";

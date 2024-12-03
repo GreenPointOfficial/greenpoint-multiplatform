@@ -20,22 +20,24 @@ class _PencapaianPageState extends State<PencapaianPage> {
   int? bonus;
   final _storage = const FlutterSecureStorage();
 
-  // Milestone configurations
   final List<Map<String, dynamic>> _milestones = [
     {
       'weight': 10,
+      'progres': 20,
       'bonus': 100000,
       'message':
           'Selamat! Anda mendapatkan bonus karena telah menyelesaikan penjualan 10Kg sampah.'
     },
     {
       'weight': 30,
+      'progres': 60,
       'bonus': 150000,
       'message':
           'Selamat! Anda mendapatkan bonus karena telah menyelesaikan penjualan 30Kg sampah.'
     },
     {
       'weight': 50,
+      'progres': 100,
       'bonus': 200000,
       'message':
           'Selamat! Anda mendapatkan bonus karena telah menyelesaikan penjualan 50Kg sampah.'
@@ -54,7 +56,6 @@ class _PencapaianPageState extends State<PencapaianPage> {
   }
 
   Future<void> _checkAndResetMilestones() async {
-    // Get the last reset date
     String? lastResetDateString =
         await _storage.read(key: 'milestones_reset_date');
 
@@ -62,20 +63,16 @@ class _PencapaianPageState extends State<PencapaianPage> {
       DateTime lastResetDate = DateTime.parse(lastResetDateString);
       DateTime now = DateTime.now();
 
-      // If it's been more than a month, reset all milestone claims
       if (now.difference(lastResetDate).inDays >= 30) {
-        // Remove all existing milestone claim records
         for (var milestone in _milestones) {
           await _storage.delete(
               key: 'milestone_${milestone['weight']}kg_claimed');
         }
 
-        // Update reset date
         await _storage.write(
             key: 'milestones_reset_date', value: now.toIso8601String());
       }
     } else {
-      // If no reset date exists, set it to current date
       await _storage.write(
           key: 'milestones_reset_date',
           value: DateTime.now().toIso8601String());
@@ -98,11 +95,8 @@ class _PencapaianPageState extends State<PencapaianPage> {
     final penjualanController = Provider.of<PenjualanController>(context);
     bonus = penjualanController.bonus;
 
-    // Update user points
-
     currentProgress = penjualanController.userPercentage;
 
-    // Check and potentially show milestone dialogs
     _checkMilestones(currentProgress);
 
     return Scaffold(
@@ -141,36 +135,41 @@ class _PencapaianPageState extends State<PencapaianPage> {
     );
   }
 
-Future<void> _checkMilestones(int? progress) async {
-  // Pastikan progress tidak null dan minimal 10
-  if (progress == null || progress < 10) return;
+  Future<void> _checkMilestones(int? progress) async {
+    if (progress == null || progress < 10) return;
 
-  // Cek setiap milestone
-  for (var milestone in _milestones) {
-    if (progress >= milestone['weight']) {
-      bool isEligible = await _checkMilestoneEligibility(milestone['weight']);
-      if (isEligible) {
-        // Tambahkan bonus ke poin pengguna
-        int currentPoin = Provider.of<UserProvider>(context, listen: false).poin;
-        Provider.of<UserProvider>(context, listen: false)
-            .autoRefreshUserData({
-          'poin': currentPoin + milestone['bonus'],
-        });
+    for (var milestone in _milestones) {
+      if (progress >= milestone['progres'] && progress <= 100) {
+        bool isEligible = await _checkMilestoneEligibility(milestone['progres']);
 
-        // Tampilkan dialog
-        _showDialog(
-          "Selamat!",
-          milestone['message'],
-          achievedWeight: milestone['weight'],
-          bonus: milestone['bonus'],
-        );
+        if (isEligible) {
+          _showDialog(
+            "Selamat!",
+            milestone['message'],
+            achievedWeight: milestone['weight'],
+            bonus: milestone['bonus'],
+            onPressed: () async {
+              Provider.of<PenjualanController>(context, listen: false)
+                  .claimBonus();
 
-        // Tandai milestone telah dicapai
-        await _markMilestoneClaimed(milestone['weight']);
+              int currentPoin =
+                  Provider.of<UserProvider>(context, listen: false).poin;
+
+              Provider.of<UserProvider>(context, listen: false)
+                  .autoRefreshUserData({
+                'poin': currentPoin + milestone['bonus'],
+              });
+
+              // Tandai milestone telah dicapai
+              await _markMilestoneClaimed(milestone['progres']);
+            },
+          );
+          break; // Tambahkan break untuk menghentikan iterasi setelah dialog ditampilkan
+        }
       }
     }
   }
-}
+
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -376,7 +375,9 @@ Future<void> _checkMilestones(int? progress) async {
   }
 
   void _showDialog(String title, String message,
-      {required int achievedWeight, required int bonus}) {
+      {required int achievedWeight,
+      required int bonus,
+      VoidCallback? onPressed}) {
     Future.microtask(() {
       showDialog(
         context: context,
@@ -406,7 +407,6 @@ Future<void> _checkMilestones(int? progress) async {
                 ),
               ],
             ),
-            
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -461,13 +461,14 @@ Future<void> _checkMilestones(int? progress) async {
                 ),
                 onPressed: () {
                   Navigator.of(dialogContext).pop();
+                  onPressed?.call();
                 },
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 12),
                     child: Text(
-                      'Tutup',
+                      'Claim',
                       style: GoogleFonts.dmSans(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,

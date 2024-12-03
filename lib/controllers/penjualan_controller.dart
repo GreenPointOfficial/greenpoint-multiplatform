@@ -90,11 +90,34 @@ class PenjualanController extends ChangeNotifier {
 
     try {
       final data = await _penjualanService.getUserPercentage(token);
-      _userPercentage =
-          data['data']['persentase']; 
-      _bonus =
-          data['data']['bonus']; 
+      _userPercentage = data['data']['persentase'];
       print("User Percentage: $_userPercentage"); // Cek nilai yang didapat
+    } catch (e) {
+      _errorMessage = 'Error fetching percentage: $e';
+      print("Error fetching percentage: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners(); // Memastikan UI diberitahu ada perubahan
+    }
+  }
+
+  Future<void> claimBonus() async {
+    _isLoading = true;
+    _errorMessage = null; // Reset the error message
+    notifyListeners();
+
+    final token = await _secureStorage.read(key: 'auth_token');
+    if (token == null) {
+      _errorMessage = "No authentication token found. Please log in.";
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final data = await _penjualanService.claimBonus(token);
+      _bonus = data['data']['bonus'];
+      print("User Bonus+: $_bonus"); // Cek nilai yang didapat
     } catch (e) {
       _errorMessage = 'Error fetching percentage: $e';
       print("Error fetching percentage: $e");

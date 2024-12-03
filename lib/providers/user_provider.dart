@@ -81,25 +81,21 @@ class UserProvider with ChangeNotifier {
         print('User data fetched: $_user');
       } else {
         print('No user data found');
-        _user = {}; // Initialize _user as an empty map if no data is found
-        userName = ''; // Mengatur userName default jika data tidak ditemukan
+        _user = {}; 
+        userName = ''; 
       }
 
-      // Memanggil notifyListeners agar UI diperbarui
       notifyListeners();
     } catch (e) {
       print('Error fetching user data: $e');
-      userName = ''; // Mengatur userName default jika terjadi error
+      userName = ''; 
     }
   }
 
-  /// Check if the token is valid
   bool isTokenValid() => _token != null && _token!.isNotEmpty;
 
-  /// Refresh token (currently a placeholder for future implementation)
   Future<bool> refreshToken() async {
     try {
-      // Token refresh logic can be added here
       return false;
     } catch (e) {
       print('Token refresh error: $e');

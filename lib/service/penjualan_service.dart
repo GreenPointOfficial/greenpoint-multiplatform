@@ -46,17 +46,40 @@ class PenjualanService {
 
     try {
       final response = await http.get(
-      Uri.parse(url),
-      
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       // Memeriksa apakah status code sukses
       if (response.statusCode == 200) {
         print(response.body);
         return jsonDecode(response.body); // Mengembalikan data JSON
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> claimBonus(String token) async {
+    final url = ApiUrl.buildUrl(ApiUrl.klaimBonus);
+    print("Hello claim");
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      // Memeriksa apakah status code sukses
+      if (response.statusCode == 200) {
+        print(response.body);
+        return jsonDecode(response.body); 
       } else {
         throw Exception('Failed to load data');
       }
