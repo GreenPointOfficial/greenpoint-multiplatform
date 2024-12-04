@@ -1,4 +1,3 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:greenpoint/assets/constants/api_url.dart';
 import 'package:greenpoint/models/dampak_model.dart';
 import 'package:http/http.dart' as http;

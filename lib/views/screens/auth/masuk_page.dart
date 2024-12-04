@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/controllers/auth_controller.dart';
@@ -10,6 +8,7 @@ import 'package:greenpoint/service/auth_service.dart';
 import 'package:greenpoint/views/screens/auth/daftar_page.dart';
 import 'package:greenpoint/views/screens/fitur/beranda.dart';
 import 'package:greenpoint/views/widget/input_widget.dart';
+import 'package:greenpoint/views/widget/navbar_widget.dart';
 import 'package:greenpoint/views/widget/notifikasi_widget.dart';
 import 'package:greenpoint/views/widget/welcome_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
@@ -35,7 +34,7 @@ class _MasukPageState extends State<MasukPage> {
   Color notificationColor = Colors.transparent;
   Color notificationTextColor = Colors.black;
 
-  final AuthService _authService = AuthService();
+  // final AuthService _authService = AuthService();
   final UserProvider _userProvider = UserProvider();
   @override
   void initState() {
@@ -132,7 +131,7 @@ class _MasukPageState extends State<MasukPage> {
         // Navigasi ke halaman utama (Beranda)
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => Beranda()),
+          MaterialPageRoute(builder: (context) => navBottom()),
         );
       } else {
         // Tampilkan notifikasi jika email atau password tidak sesuai

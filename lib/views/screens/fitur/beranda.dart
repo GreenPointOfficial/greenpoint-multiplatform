@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
@@ -542,46 +544,52 @@ class _BerandaState extends State<Beranda> {
   }
 
   Widget _buildPenjualanTerbanyakList(List<TopPenjualan> penjualanList) {
-    return ListView.builder(
-        shrinkWrap: true,
-        padding: EdgeInsets.only(top: 0),
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: penjualanList.length,
-        itemBuilder: (context, index) {
-          final penjualan = penjualanList[index];
-          return Column(children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      text: "${index + 1}. ",
-                      style: GoogleFonts.dmSans(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black),
-                      children: [
-                        TextSpan(
-                          text: penjualan.userName,
-                          style: GoogleFonts.dmSans(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                              color: Colors.black),
-                        ),
-                      ],
-                    ),
+  final int itemCount = min(penjualanList.length, 5);
+
+  return ListView.builder(
+    shrinkWrap: true,
+    padding: EdgeInsets.only(top: 0),
+    physics: NeverScrollableScrollPhysics(),
+    itemCount: itemCount, // Hanya menampilkan maksimal 5 item
+    itemBuilder: (context, index) {
+      final penjualan = penjualanList[index];
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    text: "${index + 1}. ",
+                    style: GoogleFonts.dmSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black),
+                    children: [
+                      TextSpan(
+                        text: penjualan.userName,
+                        style: GoogleFonts.dmSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black),
+                      ),
+                    ],
                   ),
-                  Text(penjualan.totalBerat.toString() + "Kg"!,
-                      style: GoogleFonts.dmSans(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: GreenPointColor.primary)),
-                ],
-              ),
+                ),
+                Text(
+                  "${penjualan.totalBerat} Kg",
+                  style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: GreenPointColor.primary),
+                ),
+              ],
             ),
-          ]);
-        });
-  }
-}
+          ),
+        ],
+      );
+    },
+  );
+}}  

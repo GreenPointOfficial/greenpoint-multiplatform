@@ -1,13 +1,11 @@
 class ApiUrl {
-
   // Base URL and version
-  static const String baseUrl = "https://9a12-125-162-86-240.ngrok-free.app"; 
+  static const String baseUrl = "https://3453-110-137-79-83.ngrok-free.app";
   static const String apiVersion = "v1";
 
   // Full Base API URL
   static String get baseApiUrl => "$baseUrl/api/$apiVersion";
   static String get baseImageUrl => "$baseUrl/storage/";
-
 
   // Authentication
   static const String register = "/register";
