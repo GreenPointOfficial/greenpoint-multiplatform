@@ -45,7 +45,9 @@ class _RiwayatPageState extends State<RiwayatPage> {
               vertical: 0,
             ),
             child: penjualanController.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ?  Center(child: CircularProgressIndicator(
+                   color: GreenPointColor.secondary,
+                ))
                 // : penjualanController.errorMessage != null
                 //     ? Center(
                 //         child: Text(

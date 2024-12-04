@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: GreenPointColor.primary,
       body: Screens[currentScreen],
       bottomNavigationBar: CurvedNavigationBar(
+        height: 50,
           color: Colors.grey.shade50,
           // buttonBackgroundColor: Colors.amber,
           animationCurve: Curves.easeIn,

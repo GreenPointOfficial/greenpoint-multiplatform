@@ -23,30 +23,24 @@ class _LokasiPageState extends State<LokasiPage> {
     _getCurrentLocation();
   }
 
-  // Function to get the user's current location
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Handle if location service is not enabled
       return;
     }
 
-    // Check and request permission
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Handle permission denied
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // Handle permanently denied permission
       return;
     }
 
@@ -62,7 +56,6 @@ class _LokasiPageState extends State<LokasiPage> {
         zoom: 14.0,
       );
 
-      // Add the current location marker
       _markers = {
         Marker(
           markerId: MarkerId('current_location'),
@@ -86,14 +79,14 @@ class _LokasiPageState extends State<LokasiPage> {
         hideLeading: true,
       ),
       body: _currentPosition == null
-          ? Center(child: CircularProgressIndicator(
-            color: GreenPointColor.secondary,
-          )) // Show a loading indicator while fetching location
+          ? Center(
+              child: CircularProgressIndicator(
+              color: GreenPointColor.secondary,
+            )) 
           : GoogleMap(
               initialCameraPosition: _initialCameraPosition,
               markers: _markers,
               onMapCreated: (GoogleMapController controller) {
-                // Add additional logic if needed
               },
             ),
     );

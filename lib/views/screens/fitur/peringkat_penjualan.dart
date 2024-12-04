@@ -62,7 +62,9 @@ Widget _buildPenjualanTerbanyakSection() {
   return Consumer<PenjualanController>(
     builder: (context, penjualanController, _) {
       if (penjualanController.isLoading) {
-        return const Center(child: CircularProgressIndicator());
+        return  Center(child: CircularProgressIndicator(
+           color: GreenPointColor.secondary,
+        ));
       }
 
       if (penjualanController.topPenjualanList.isEmpty) {

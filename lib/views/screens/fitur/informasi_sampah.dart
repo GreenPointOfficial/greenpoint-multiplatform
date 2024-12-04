@@ -43,7 +43,9 @@ class _InformasiSampahState extends State<InformasiSampah> {
       backgroundColor: Colors.white,
       appBar: AppbarWidget(title: "Informasi ${widget.jenisSampah.judul}"),
       body: dampakController.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ?  Center(child: CircularProgressIndicator(
+            color: GreenPointColor.secondary,
+          ))
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -180,7 +182,9 @@ class _InformasiSampahState extends State<InformasiSampah> {
     final daurUlangController = Provider.of<DaurUlangController>(context);
 
     if (daurUlangController.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator( 
+         color: GreenPointColor.secondary,
+      ));
     }
 
     if (daurUlangController.daurUlangByIdJenisSampah.isEmpty) {

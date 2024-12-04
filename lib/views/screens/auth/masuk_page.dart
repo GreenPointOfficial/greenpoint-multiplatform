@@ -164,12 +164,10 @@ class _MasukPageState extends State<MasukPage> {
       final response = await _authController.handleGoogleLogin();
 
       if (response['success']) {
-        // Simpan data user dari response ke UserProvider
         final userData = response['user_data'];
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         userProvider.setUser(userData, response['token']);
 
-        // Clear any stored credentials for "Remember Me"
         await _secureStorage.delete(key: 'remembered_email');
         await _secureStorage.delete(key: 'remembered_password');
 
@@ -179,7 +177,6 @@ class _MasukPageState extends State<MasukPage> {
           GreenPointColor.primary,
         );
 
-        // Navigasi ke halaman Beranda
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => Beranda()),
@@ -268,6 +265,7 @@ class _MasukPageState extends State<MasukPage> {
                               });
                             },
                             shape: RoundedRectangleBorder(
+                              
                               borderRadius: BorderRadius.circular(50),
                             ),
                             side: BorderSide(color: Colors.grey),
@@ -391,7 +389,7 @@ class _MasukPageState extends State<MasukPage> {
           // Notifikasi ditempatkan di atas layout
           if (notificationMessage != null)
             NotifikasiWidget(
-                notificationMessage: notificationMessage, top: 0.46)
+                notificationMessage: notificationMessage, top: 0.43)
         ],
       ),
     );

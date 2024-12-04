@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
+import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/views/screens/auth/masuk_page.dart';
+import 'package:greenpoint/views/screens/fitur/beranda.dart';
+import 'package:greenpoint/views/widget/navbar_widget.dart';
 import 'package:greenpoint/views/widget/welcome_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
 class Edukasi2Page extends StatelessWidget {
   final PageController pageController;
 
@@ -39,11 +42,11 @@ class Edukasi2Page extends StatelessWidget {
               tag: 'logo_edukasi1',
               child: Image.asset(
                 "lib/assets/imgs/logo_edukasi2.png",
-                width: screenWidth * 0.6, 
+                width: screenWidth * 0.6,
                 height: screenHeight * 0.3,
               ),
             ),
-            SizedBox(height: screenHeight * 0.02), // Additional spacing
+            SizedBox(height: screenHeight * 0.02),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               child: Text(
@@ -70,22 +73,42 @@ class Edukasi2Page extends StatelessWidget {
                 activeDotColor: GreenPointColor.abu,
               ),
             ),
-            SizedBox(
-                height: screenHeight * 0.03),
+            SizedBox(height: screenHeight * 0.03),
             TombolWidget(
               warna: GreenPointColor.secondary,
               warnaText: Colors.white,
               text: "Masuk",
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MasukPage()),
-                );
+                _checkAuthAndNavigate(context); // Call the function directly
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _checkAuthAndNavigate(BuildContext context) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    await userProvider.readToken(); // Ensure token is read
+
+    print("hello");
+
+    if (userProvider.isTokenValid()) {
+      print("hello bener");
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => navBottom()), // Navigate to Beranda if token is valid
+      );
+    } else {
+      print("hello salah");
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MasukPage()), // Navigate to login page if no token
+      );
+    }
   }
 }

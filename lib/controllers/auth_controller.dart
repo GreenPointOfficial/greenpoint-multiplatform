@@ -8,76 +8,74 @@ class AuthController {
   final AuthService _authService = AuthService();
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
-Future<bool> registerUser(String name, String email, String password) async {
-  try {
-    // Validasi input awal
-    if (name.isEmpty) {
-      throw Exception('Nama tidak boleh kosong');
-    }
-    if (email.isEmpty) {
-      throw Exception('Email tidak boleh kosong');
-    }
-    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
-      throw Exception('Format email tidak valid');
-    }
-    if (password.isEmpty) {
-      throw Exception('Password tidak boleh kosong');
-    }
-    if (password.length < 8) {
-      throw Exception('Password harus memiliki minimal 8 karakter');
-    }
-
-    // Panggil API untuk registrasi
-    final response = await _authService.register(name, email, password);
-
-    if (response['success']) {
-      // Jika registrasi berhasil
-      print('User successfully registered: ${response['message']}');
-      return true;
-    } else {
-      // Jika ada kesalahan dalam proses registrasi
-      final errorMessage = response['message'] ?? 'Registrasi gagal';
-      if (response['error_code'] == 'EMAIL_ALREADY_EXISTS') {
-        throw Exception('Email sudah digunakan. Silakan gunakan email lain.');
-      } else {
-        throw Exception(errorMessage);
+  Future<bool> registerUser(String name, String email, String password) async {
+    try {
+      // Validasi input awal
+      if (name.isEmpty) {
+        throw Exception('Nama tidak boleh kosong');
       }
-    }
-  } catch (e) {
-    // Log error untuk debugging
-    print('Error in AuthController: $e');
-    // Lempar error ke pemanggil fungsi agar UI bisa menangani
-    throw Exception(e.toString());
-  }
-}
+      if (email.isEmpty) {
+        throw Exception('Email tidak boleh kosong');
+      }
+      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+        throw Exception('Format email tidak valid');
+      }
+      if (password.isEmpty) {
+        throw Exception('Password tidak boleh kosong');
+      }
+      if (password.length < 8) {
+        throw Exception('Password harus memiliki minimal 8 karakter');
+      }
 
+      // Panggil API untuk registrasi
+      final response = await _authService.register(name, email, password);
+
+      if (response['success']) {
+        // Jika registrasi berhasil
+        print('User successfully registered: ${response['message']}');
+        return true;
+      } else {
+        // Jika ada kesalahan dalam proses registrasi
+        final errorMessage = response['message'] ?? 'Registrasi gagal';
+        if (response['error_code'] == 'EMAIL_ALREADY_EXISTS') {
+          throw Exception('Email sudah digunakan. Silakan gunakan email lain.');
+        } else {
+          throw Exception(errorMessage);
+        }
+      }
+    } catch (e) {
+      // Log error untuk debugging
+      print('Error in AuthController: $e');
+      // Lempar error ke pemanggil fungsi agar UI bisa menangani
+      throw Exception(e.toString());
+    }
+  }
 
   Future<Map<String, dynamic>> loginUser(String email, String password) async {
-  try {
-    // Panggil service login
-    final response = await _authService.login(email, password);
+    try {
+      // Panggil service login
+      final response = await _authService.login(email, password);
 
-    if (response['success']) {
-      return {
-        'success': true,
-        'message': response['message'], 
-        'user_data': response['user_data'],
-        'token': response['token'],
-      };
-    } else {
+      if (response['success']) {
+        return {
+          'success': true,
+          'message': response['message'],
+          'user_data': response['user_data'],
+          'token': response['token'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response['message'],
+        };
+      }
+    } catch (e) {
       return {
         'success': false,
-        'message': response['message'], 
+        'message': 'Terjadi kesalahan saat login: $e',
       };
     }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'Terjadi kesalahan saat login: $e',
-    };
   }
-}
-
 
   // Handle Google login
   Future<Map<String, dynamic>> handleGoogleLogin() async {

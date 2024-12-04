@@ -64,6 +64,9 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation "androidx.activity:activity:1.6.0-alpha05"
+
+}
 
 apply plugin: 'com.google.gms.google-services'  

@@ -9,16 +9,16 @@ class NotifikasiWidget extends StatelessWidget {
   const NotifikasiWidget({
     Key? key,
     this.notificationMessage,
-    this.top = 0.008, // Default top position if not provided
-    this.textColor, // Default top position if not provided
+    this.top = 0.008, 
+    this.textColor, 
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: MediaQuery.of(context).size.height * top, // Use the provided top parameter
-      left: MediaQuery.of(context).size.width * 0.05, // Adjust based on screen width
-      right: MediaQuery.of(context).size.width * 0.05, // Adjust based on screen width
+      top: MediaQuery.of(context).size.height * top, 
+      left: MediaQuery.of(context).size.width * 0.05, 
+      right: MediaQuery.of(context).size.width * 0.05, 
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 300),
         opacity: notificationMessage != null ? 1.0 : 0.0,

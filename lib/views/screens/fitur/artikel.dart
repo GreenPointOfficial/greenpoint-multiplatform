@@ -31,7 +31,9 @@ class _ArtikelPageState extends State<ArtikelPage> {
       body: Consumer<ArtikelController>(
         builder: (context, artikelController, _) {
           if (artikelController.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return  Center(child: CircularProgressIndicator(
+              color: GreenPointColor.secondary,
+            ));
           }
 
           if (artikelController.artikelList.isEmpty) {

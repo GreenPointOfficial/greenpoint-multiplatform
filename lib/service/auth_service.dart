@@ -91,7 +91,6 @@ class AuthService {
 
       GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      // Kirim Google ID token ke API untuk login
       final url = ApiUrl.buildUrl(ApiUrl.loginGoogle);
       final response = await http.post(
         Uri.parse(url),
@@ -112,7 +111,6 @@ class AuthService {
     }
   }
 
-  // Mendapatkan resource yang dilindungi menggunakan token
   Future<Map<String, dynamic>> fetchProtectedResource(String endpoint) async {
     final token = await getToken();
     if (token == null) throw Exception('User is not authenticated.');
@@ -122,7 +120,7 @@ class AuthService {
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token', // Menambahkan token ke header
+        'Authorization': 'Bearer $token', 
       },
     );
 

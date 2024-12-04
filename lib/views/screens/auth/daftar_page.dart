@@ -23,8 +23,8 @@ class _DaftarPageState extends State<DaftarPage> {
   final TextEditingController passwordController = TextEditingController();
   final AuthController authController = AuthController();
   bool isLoading = false;
-  String? notificationMessage; // Untuk menyimpan pesan notifikasi
-  Color notificationColor = Colors.transparent; // Warna notifikasi
+  String? notificationMessage;
+  Color notificationColor = Colors.transparent;
 
   void showNotification(String message, Color color) {
     setState(() {

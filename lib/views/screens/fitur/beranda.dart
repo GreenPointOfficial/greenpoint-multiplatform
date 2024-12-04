@@ -418,7 +418,9 @@ class _BerandaState extends State<Beranda> {
     return Consumer<ArtikelController>(
       builder: (context, artikelController, _) {
         if (artikelController.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return  Center(child: CircularProgressIndicator(
+            color: GreenPointColor.secondary,
+          ));
         }
 
         if (artikelController.artikelList.isEmpty) {
@@ -527,7 +529,9 @@ class _BerandaState extends State<Beranda> {
     return Consumer<PenjualanController>(
       builder: (context, penjualanController, _) {
         if (penjualanController.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return  Center(child: CircularProgressIndicator(
+            color: GreenPointColor.secondary,
+          ));
         }
 
         if (penjualanController.topPenjualanList.isEmpty) {

@@ -20,7 +20,14 @@ class _DetailArtikelState extends State<DetailArtikel> {
   Widget build(BuildContext context) {
     final artikel = widget.artikel;
 
-    return Scaffold(
+    return  PopScope(
+      canPop: false, // Prevents default back behavior
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        // Custom back navigation logic
+        Navigator.of(context).pop(); // Or your custom back navigation
+      },
+    child: Scaffold(
       backgroundColor: Colors.white,
       appBar: Appbar2Widget(title: "Detail Artikel"),
       body: Padding(
@@ -85,6 +92,6 @@ class _DetailArtikelState extends State<DetailArtikel> {
           ],
         ),
       ),
-    );
+    ));
   }
 }
