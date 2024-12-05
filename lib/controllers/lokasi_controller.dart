@@ -14,13 +14,15 @@ class LokasiController with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<void> fetchLokasi() async {
+  Future<void> fetchLokasi(double startLat, double startLon) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
     final token = await _secureStorage.read(key: 'auth_token');
     try {
-      _lokasiList = await LokasiService.fetchLokasi(token);
+      // Memanggil service dengan parameter startLat dan startLon
+      _lokasiList = await LokasiService.fetchLokasi(token, startLat, startLon);
     } catch (error) {
       _errorMessage = error.toString();
     } finally {

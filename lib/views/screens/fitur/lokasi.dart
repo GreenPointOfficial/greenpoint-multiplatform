@@ -3,13 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
-import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/controllers/lokasi_controller.dart';
 import 'package:greenpoint/models/lokasi_model.dart';
 import 'package:greenpoint/views/widget/appbar_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:url_launcher/url_launcher.dart'; // Tambahkan import untuk url_launcher
+import 'package:url_launcher/url_launcher.dart';
 
 class LokasiPage extends StatefulWidget {
   const LokasiPage({Key? key}) : super(key: key);
@@ -20,9 +18,8 @@ class LokasiPage extends StatefulWidget {
 
 class _LokasiPageState extends State<LokasiPage> {
   final PageController _pageController = PageController();
-
   late CameraPosition _initialCameraPosition;
-  late Set<Marker> _markers;
+  Set<Marker> _markers = {};
   Position? _currentPosition;
 
   @override
@@ -30,63 +27,90 @@ class _LokasiPageState extends State<LokasiPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _getCurrentLocation();
-      _fetchLokasiData();
     });
   }
 
   Future<void> _fetchLokasiData() async {
-    final lokasiController =
-        Provider.of<LokasiController>(context, listen: false);
-    await lokasiController.fetchLokasi(); // Fetch lokasi data
-    if (_currentPosition != null) {
-      _updateMarkers(lokasiController
-          .lokasiList); // Update markers after fetching lokasi data
+    try {
+      final lokasiController =
+          Provider.of<LokasiController>(context, listen: false);
+      if (_currentPosition != null) {
+        await lokasiController.fetchLokasi(
+          _currentPosition!.latitude,
+          _currentPosition!.longitude,
+        );
+
+        if (mounted) {
+          _updateMarkers(lokasiController.lokasiList);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Gagal memuat data lokasi: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return;
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return;
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw Exception("Layanan lokasi tidak aktif");
       }
-    }
 
-    if (permission == LocationPermission.deniedForever) {
-      return;
-    }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception("Izin lokasi ditolak");
+        }
+      }
 
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception("Izin lokasi ditolak secara permanen");
+      }
 
-    setState(() {
-      _currentPosition = position;
-      _initialCameraPosition = CameraPosition(
-        target: LatLng(position.latitude, position.longitude),
-        zoom: 14.0,
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
       );
 
-      _markers = {
-        Marker(
-          markerId: const MarkerId('current_location'),
-          position: LatLng(position.latitude, position.longitude),
-          infoWindow: const InfoWindow(
-            title: 'Lokasi anda',
-            snippet: 'Lokasi anda saat ini!',
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+          _initialCameraPosition = CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 14.0,
+          );
+
+          _markers.add(
+            Marker(
+              markerId: const MarkerId('current_location'),
+              position: LatLng(position.latitude, position.longitude),
+              infoWindow: const InfoWindow(
+                title: 'Lokasi anda',
+                snippet: 'Lokasi anda saat ini!',
+              ),
+            ),
+          );
+        });
+
+        _fetchLokasiData();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Gagal mendapatkan lokasi: $e"),
+            backgroundColor: Colors.red,
           ),
-        ),
-      };
-    });
+        );
+      }
+    }
   }
 
   void _updateMarkers(List<LokasiModel> lokasiList) {
@@ -95,16 +119,13 @@ class _LokasiPageState extends State<LokasiPage> {
         lokasiList.map((lokasi) {
           return Marker(
             markerId: MarkerId(lokasi.id.toString()),
-            position: LatLng(
-              lokasi.latitude, // Convert from string to double
-              lokasi.longitude, // Convert from string to double
-            ),
+            position: LatLng(lokasi.latitude, lokasi.longitude),
             infoWindow: InfoWindow(
               title: lokasi.namaLokasi,
               snippet: lokasi.keterangan ?? '',
             ),
           );
-        }),
+        }).toSet(),
       );
     });
   }
@@ -118,7 +139,12 @@ class _LokasiPageState extends State<LokasiPage> {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri);
       } else {
-        throw 'Could not open the maps.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Tidak dapat membuka Google Maps"),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -140,14 +166,13 @@ class _LokasiPageState extends State<LokasiPage> {
           _currentPosition == null
               ? Center(
                   child: CircularProgressIndicator(
-                  color: GreenPointColor.secondary,
-                ))
+                    color: GreenPointColor.secondary,
+                  ),
+                )
               : GoogleMap(
                   initialCameraPosition: _initialCameraPosition,
                   markers: _markers,
-                  onMapCreated: (GoogleMapController controller) {},
                 ),
-
           // Floating Card
           Positioned(
             left: 16.0,
@@ -159,90 +184,51 @@ class _LokasiPageState extends State<LokasiPage> {
                       color: GreenPointColor.secondary,
                     ),
                   )
-                : lokasiController.errorMessage != null
-                    ? Center(child: Text(lokasiController.errorMessage!))
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: lokasiController.lokasiList.length,
-                        itemBuilder: (context, index) {
-                          final lokasi = lokasiController.lokasiList[index];
-                          return _buildCardLokasi(context, lokasi);
-                        },
+                : SingleChildScrollView(
+                    child: Card(
+                      color: Colors.white,
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCardLokasi(BuildContext context, LokasiModel lokasi) {
-    return GestureDetector(
-      onTap: () {
-        _launchRoute(lokasi); // Panggil fungsi untuk membuka rute
-      },
-      child: Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Row(
-            children: [
-              Image.asset(
-                'lib/assets/imgs/logo_edukasi1.png',
-                width: ScreenUtils.screenWidth(context) * 0.3,
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      lokasi.namaLokasi,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                        lokasi.alamat,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 12,
-                          color: Colors.black54,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Lokasi bank sampah terdekat.',
+                              style: GoogleFonts.dmSans(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 14,
+                                color: GreenPointColor.secondary,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            ...lokasiController.lokasiList.map((lokasi) {
+                              return ListTile(
+                                title: Text(
+                                  lokasi.namaLokasi,
+                                  style:  TextStyle(color: GreenPointColor.secondary),
+                                ),
+                                subtitle: Text(
+                                  lokasi.alamat ?? '',
+                                  style:  TextStyle(color: GreenPointColor.secondary),
+                                ),
+                                trailing: IconButton(
+                                  icon:  Icon(Icons.directions),
+                                  color: GreenPointColor.secondary,
+                                  onPressed: () => _launchRoute(lokasi),
+                                ),
+                              );
+                            }).toList(),
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      lokasi.keterangan ?? '',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 15),
-              SmoothPageIndicator(
-                count: 2,
-                controller: _pageController,
-                effect: ExpandingDotsEffect(
-                  dotWidth: 8,
-                  dotHeight: 8,
-                  activeDotColor: GreenPointColor.secondary,
-                  dotColor: Colors.grey.shade300,
-                ),
-              ),
-            ],
+                  ),
           ),
-        ),
+        ],
       ),
     );
   }
