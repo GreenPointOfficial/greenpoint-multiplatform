@@ -515,7 +515,7 @@ class _BerandaState extends State<Beranda> {
               effect: ExpandingDotsEffect(
                 dotWidth: 8,
                 dotHeight: 8,
-                activeDotColor: GreenPointColor.primary,
+                activeDotColor: GreenPointColor.secondary,
                 dotColor: Colors.grey.shade300,
               ),
             ),

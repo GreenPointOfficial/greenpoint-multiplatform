@@ -47,6 +47,7 @@ dependencies:
   curved_navigation_bar: ^1.0.6
   google_maps_flutter: ^2.10.0
   geolocator: ^13.0.2
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
