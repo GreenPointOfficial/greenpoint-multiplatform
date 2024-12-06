@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
-import 'package:greenpoint/views/widget/welcome_widget.dart';
+// import 'package:greenpoint/views/widget/welcome_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -27,10 +27,10 @@ class Edukasi1Page extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Hero(
-              tag: 'judul',
-              child: JudulWidget(size: 24), 
-            ),
+            // const Hero(
+            //   tag: 'judul',
+            //   child: JudulWidget(size: 24), 
+            // ),
             SizedBox(height: screenHeight * 0.02), 
             Hero(
               tag: 'logo_edukasi1',

@@ -87,6 +87,7 @@ flutter:
     - lib/assets/imgs/step3.png
     - lib/assets/imgs/scan.png
     - lib/assets/imgs/placeholder.png
+    - lib/assets/imgs/profile_placeholder.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

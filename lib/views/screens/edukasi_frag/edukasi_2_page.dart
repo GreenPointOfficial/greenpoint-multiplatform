@@ -33,10 +33,10 @@ class Edukasi2Page extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Hero(
-              tag: 'judul',
-              child: JudulWidget(size: 24),
-            ),
+            // const Hero(
+            //   tag: 'judul',
+            //   child: JudulWidget(size: 24),
+            // ),
             SizedBox(height: screenHeight * 0.02),
             Hero(
               tag: 'logo_edukasi1',
@@ -100,7 +100,7 @@ class Edukasi2Page extends StatelessWidget {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => navBottom()), // Navigate to Beranda if token is valid
+        MaterialPageRoute(builder: (context) => NavBottom()), // Navigate to Beranda if token is valid
       );
     } else {
       print("hello salah");

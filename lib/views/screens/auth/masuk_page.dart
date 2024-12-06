@@ -131,7 +131,7 @@ class _MasukPageState extends State<MasukPage> {
         // Navigasi ke halaman utama (Beranda)
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => navBottom()),
+          MaterialPageRoute(builder: (context) => NavBottom()),
         );
       } else {
         // Tampilkan notifikasi jika email atau password tidak sesuai

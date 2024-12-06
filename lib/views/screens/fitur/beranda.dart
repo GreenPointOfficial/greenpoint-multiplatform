@@ -312,8 +312,10 @@ class _BerandaState extends State<Beranda> {
         final itemWidth = (availableWidth - (3 * 27)) / 4;
 
         if (isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return  Center(
+            child: CircularProgressIndicator(
+              color: GreenPointColor.secondary,
+            ),
           );
         }
 

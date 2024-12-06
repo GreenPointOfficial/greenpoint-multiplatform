@@ -29,7 +29,7 @@ class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: GreenPointColor.secondary,
       leading: hideLeading
-          ? null // Jika `hideLeading` true, leading tidak ditampilkan
+          ? null 
           : IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),

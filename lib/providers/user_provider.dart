@@ -8,6 +8,7 @@ class UserProvider with ChangeNotifier {
   Map<String, dynamic>? _user;
   String? _token;
   String userName = "";
+  String email = "";
   int poin = 0;
 
   Map<String, dynamic>? get user => _user;
@@ -23,31 +24,33 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Save any data to secure storage
+  Future<void> logout() async {
+    await clearUser(); // Clear the user data and token
+    // Optionally, redirect to the login page or perform any additional logout actions.
+  }
+
   Future<void> _saveToStorage(String key, String value) async {
     try {
       await _secureStorage.write(key: key, value: value);
-      print('$key saved: $value');
+      // print('$key saved: $value');
     } catch (e) {
-      print('Error saving $key: $e');
+      // print('Error saving $key: $e');
     }
   }
 
-  /// Read token from secure storage
   Future<void> readToken() async {
     try {
       _token = await _secureStorage.read(key: 'auth_token');
       if (_token == null || _token!.isEmpty) {
-        print('No authentication token found');
+        // print('No authentication token found');
       } else {
-        print('Token fetched: $_token');
+        // print('Token fetched: $_token');
       }
     } catch (e) {
-      print('Error reading token: $e');
+      // print('Error reading token: $e');
     }
   }
 
-  /// Clear user data and token from secure storage
   Future<void> clearUser() async {
     _user = null;
     _token = null;
@@ -58,37 +61,37 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Delete specific data from secure storage
   Future<void> _deleteFromStorage(String key) async {
     try {
       await _secureStorage.delete(key: key);
-      print('$key deleted');
+      // print('$key deleted');
     } catch (e) {
-      print('Error deleting $key: $e');
+      // print('Error deleting $key: $e');
     }
   }
 
-  /// Fetch user data from secure storage
   Future<void> fetchUserData() async {
     try {
-      // Membaca data pengguna dari Secure Storage
       final userDataString = await _secureStorage.read(key: 'user_data');
 
       if (userDataString != null && userDataString.isNotEmpty) {
         _user = json.decode(userDataString);
         userName = _user?['name'] ?? '';
+        email = _user?['email'] ?? '';
         poin = _user?['poin'] ?? 0;
-        print('User data fetched: $_user');
+        // print('User data fetched: $_user');
       } else {
-        print('No user data found');
-        _user = {}; 
-        userName = ''; 
+        // print('No user data found');
+        _user = {};
+        userName = '';
+        email = '';
       }
 
       notifyListeners();
     } catch (e) {
-      print('Error fetching user data: $e');
-      userName = ''; 
+      // print('Error fetching user data: $e');
+      userName = '';
+      email = '';
     }
   }
 
@@ -98,41 +101,37 @@ class UserProvider with ChangeNotifier {
     try {
       return false;
     } catch (e) {
-      print('Token refresh error: $e');
+      // print('Token refresh error: $e');
       return false;
     }
   }
 
   Future<void> autoRefreshUserData(Map<String, dynamic> updatedUserData) async {
     try {
-      // Gabungkan data lama dengan data baru
       _user = {
-        ...?_user, // Data lama
-        ...updatedUserData, // Data baru
+        ...?_user,
+        ...updatedUserData,
       };
 
-      // Simpan data yang telah diperbarui ke Secure Storage
       await _saveToStorage('user_data', json.encode(_user));
 
-      // Fetch data pengguna untuk memastikan UI diperbarui
       await fetchUserData();
 
-      print('User data updated and UI refreshed: $_user');
+      // print('User data updated and UI refreshed: $_user');
     } catch (e) {
-      print('Error during auto-refresh of user data: $e');
+      // print('Error during auto-refresh of user data: $e');
     }
   }
 
-  /// Debug: Print all data in secure storage
-  Future<void> debugSecureStorage() async {
-    try {
-      final allKeys = await _secureStorage.readAll();
-      print('All Secure Storage Data: $allKeys');
+  // Future<void> debugSecureStorage() async {
+  //   try {
+  //     final allKeys = await _secureStorage.readAll();
+  //     // print('All Secure Storage Data: $allKeys');
 
-      final token = await _secureStorage.read(key: 'auth_token');
-      print('Fetched auth token: $token');
-    } catch (e) {
-      print('Error while reading secure storage: $e');
-    }
-  }
+  //     final token = await _secureStorage.read(key: 'auth_token');
+  //     print('Fetched auth token: $token');
+  //   } catch (e) {
+  //     print('Error while reading secure storage: $e');
+  //   }
+  // }
 }

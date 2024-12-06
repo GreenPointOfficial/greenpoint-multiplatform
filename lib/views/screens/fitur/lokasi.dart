@@ -17,7 +17,7 @@ class LokasiPage extends StatefulWidget {
 }
 
 class _LokasiPageState extends State<LokasiPage> {
-  final PageController _pageController = PageController();
+  // final PageController _pageController = PageController();
   late CameraPosition _initialCameraPosition;
   Set<Marker> _markers = {};
   Position? _currentPosition;
