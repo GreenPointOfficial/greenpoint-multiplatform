@@ -4,6 +4,7 @@ import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/views/screens/auth/masuk_page.dart';
 import 'package:greenpoint/views/screens/fitur/kelola_profile.dart';
+import 'package:greenpoint/views/screens/fitur/pengaturan.dart';
 import 'package:greenpoint/views/widget/appbar_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -47,11 +48,14 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               Divider(),
               _buildProfileOption(
-                "Pengaturan",
-                Icons.settings_outlined,
-                Colors.black,
-                () => {},
-              ),
+                  "Pengaturan",
+                  Icons.settings_outlined,
+                  Colors.black,
+                  () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PengaturanPage()),
+                      )),
               if (!isAboutExpanded) Divider(),
               _buildExpandableAbout(
                 "Tentang kami",
@@ -102,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(userName,
-                style: GoogleFonts.dmSans(fontWeight: FontWeight.w500)),
+                style: GoogleFonts.dmSans(fontWeight: FontWeight.w400)),
             Text(email, style: GoogleFonts.dmSans(fontWeight: FontWeight.w300)),
           ],
         )
@@ -129,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: GoogleFonts.dmSans(
                     fontSize: 14,
                     color: color,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ],
@@ -158,7 +162,7 @@ class _ProfilePageState extends State<ProfilePage> {
         style: GoogleFonts.dmSans(
           fontSize: 14,
           color: Colors.black,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
         ),
       ),
       children: [
@@ -221,7 +225,7 @@ class _ProfilePageState extends State<ProfilePage> {
         style: GoogleFonts.dmSans(
           fontSize: 14,
           color: Colors.black,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
         ),
       ),
       trailing: Icon(
@@ -269,7 +273,7 @@ class _ProfilePageState extends State<ProfilePage> {
         style: GoogleFonts.dmSans(
           fontSize: 12,
           color: Colors.black,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
         ),
       ),
       leading: Icon(Icons.question_mark_sharp, color: Colors.black),
@@ -278,7 +282,8 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Text(
             answer,
-            style: GoogleFonts.dmSans(fontSize: 12, color: Colors.black, fontWeight: FontWeight.w300),
+            style: GoogleFonts.dmSans(
+                fontSize: 12, color: Colors.black, fontWeight: FontWeight.w300),
           ),
         ),
       ],

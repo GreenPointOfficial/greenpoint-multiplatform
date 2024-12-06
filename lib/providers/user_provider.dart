@@ -9,9 +9,11 @@ class UserProvider with ChangeNotifier {
   String? _token;
   String userName = "";
   String email = "";
+  String bergabungSejak = "";
   int poin = 0;
 
   Map<String, dynamic>? get user => _user;
+  
   int get userPoints => _user?['poin'] ?? 0;
 
   Future<void> setUser(Map<String, dynamic> userData, String token) async {
@@ -25,30 +27,21 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    await clearUser(); // Clear the user data and token
-    // Optionally, redirect to the login page or perform any additional logout actions.
+    await clearUser();
   }
 
   Future<void> _saveToStorage(String key, String value) async {
     try {
       await _secureStorage.write(key: key, value: value);
-      // print('$key saved: $value');
-    } catch (e) {
-      // print('Error saving $key: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> readToken() async {
     try {
       _token = await _secureStorage.read(key: 'auth_token');
       if (_token == null || _token!.isEmpty) {
-        // print('No authentication token found');
-      } else {
-        // print('Token fetched: $_token');
-      }
-    } catch (e) {
-      // print('Error reading token: $e');
-    }
+      } else {}
+    } catch (e) {}
   }
 
   Future<void> clearUser() async {
@@ -64,10 +57,7 @@ class UserProvider with ChangeNotifier {
   Future<void> _deleteFromStorage(String key) async {
     try {
       await _secureStorage.delete(key: key);
-      // print('$key deleted');
-    } catch (e) {
-      // print('Error deleting $key: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> fetchUserData() async {
@@ -79,7 +69,8 @@ class UserProvider with ChangeNotifier {
         userName = _user?['name'] ?? '';
         email = _user?['email'] ?? '';
         poin = _user?['poin'] ?? 0;
-        // print('User data fetched: $_user');
+        bergabungSejak = _user?['created_at'] ?? '';
+        print("Hello $bergabungSejak");
       } else {
         // print('No user data found');
         _user = {};

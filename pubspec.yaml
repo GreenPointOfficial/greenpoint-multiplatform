@@ -39,6 +39,7 @@ dependencies:
   http: ^1.2.2
   provider: ^6.1.2
   intl: ^0.20.0
+  flutter_localization: ^0.2.3
   google_fonts: ^6.2.1
   qr_code_dart_scan: ^0.9.3
   fluttertoast: ^8.2.8
