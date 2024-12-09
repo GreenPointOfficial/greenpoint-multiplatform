@@ -312,7 +312,7 @@ class _BerandaState extends State<Beranda> {
         final itemWidth = (availableWidth - (3 * 27)) / 4;
 
         if (isLoading) {
-          return  Center(
+          return Center(
             child: CircularProgressIndicator(
               color: GreenPointColor.secondary,
             ),
@@ -420,7 +420,8 @@ class _BerandaState extends State<Beranda> {
     return Consumer<ArtikelController>(
       builder: (context, artikelController, _) {
         if (artikelController.isLoading) {
-          return  Center(child: CircularProgressIndicator(
+          return Center(
+              child: CircularProgressIndicator(
             color: GreenPointColor.secondary,
           ));
         }
@@ -498,10 +499,18 @@ class _BerandaState extends State<Beranda> {
                                 ],
                               ),
                             ),
-                            Image.network(
-                              artikel.foto,
-                              width: ScreenUtils.screenWidth(context) * 0.3,
-                            ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                artikel.foto,
+                                fit: BoxFit.cover,
+                                width: ScreenUtils.screenWidth(context) * 0.3,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return _buildPlaceholderImage(
+                                      ScreenUtils.screenWidth(context) * 0.3);
+                                },
+                              ),
+                            )
                           ],
                         ),
                       ),
@@ -531,7 +540,8 @@ class _BerandaState extends State<Beranda> {
     return Consumer<PenjualanController>(
       builder: (context, penjualanController, _) {
         if (penjualanController.isLoading) {
-          return  Center(child: CircularProgressIndicator(
+          return Center(
+              child: CircularProgressIndicator(
             color: GreenPointColor.secondary,
           ));
         }
@@ -550,52 +560,53 @@ class _BerandaState extends State<Beranda> {
   }
 
   Widget _buildPenjualanTerbanyakList(List<TopPenjualan> penjualanList) {
-  final int itemCount = min(penjualanList.length, 5);
+    final int itemCount = min(penjualanList.length, 5);
 
-  return ListView.builder(
-    shrinkWrap: true,
-    padding: EdgeInsets.only(top: 0),
-    physics: NeverScrollableScrollPhysics(),
-    itemCount: itemCount, // Hanya menampilkan maksimal 5 item
-    itemBuilder: (context, index) {
-      final penjualan = penjualanList[index];
-      return Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: "${index + 1}. ",
+    return ListView.builder(
+      shrinkWrap: true,
+      padding: EdgeInsets.only(top: 0),
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: itemCount, // Hanya menampilkan maksimal 5 item
+      itemBuilder: (context, index) {
+        final penjualan = penjualanList[index];
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      text: "${index + 1}. ",
+                      style: GoogleFonts.dmSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black),
+                      children: [
+                        TextSpan(
+                          text: penjualan.userName,
+                          style: GoogleFonts.dmSans(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.black),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    "${penjualan.totalBerat} Kg",
                     style: GoogleFonts.dmSans(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black),
-                    children: [
-                      TextSpan(
-                        text: penjualan.userName,
-                        style: GoogleFonts.dmSans(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black),
-                      ),
-                    ],
+                        color: GreenPointColor.primary),
                   ),
-                ),
-                Text(
-                  "${penjualan.totalBerat} Kg",
-                  style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: GreenPointColor.primary),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      );
-    },
-  );
-}}  
+          ],
+        );
+      },
+    );
+  }
+}

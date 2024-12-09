@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 class UserProvider with ChangeNotifier {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
@@ -61,30 +63,44 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> fetchUserData() async {
-    try {
-      final userDataString = await _secureStorage.read(key: 'user_data');
+  try {
+    final userDataString = await _secureStorage.read(key: 'user_data');
 
-      if (userDataString != null && userDataString.isNotEmpty) {
-        _user = json.decode(userDataString);
-        userName = _user?['name'] ?? '';
-        email = _user?['email'] ?? '';
-        poin = _user?['poin'] ?? 0;
-        bergabungSejak = _user?['created_at'] ?? '';
-        print("Hello $bergabungSejak");
-      } else {
-        // print('No user data found');
-        _user = {};
-        userName = '';
-        email = '';
+    if (userDataString != null && userDataString.isNotEmpty) {
+      _user = json.decode(userDataString);
+
+      // Assign user fields
+      userName = _user?['name'] ?? '';
+      email = _user?['email'] ?? '';
+      poin = _user?['poin'] ?? 0;
+      bergabungSejak = _user?['created_at'] ?? '';
+
+      if (bergabungSejak.isNotEmpty) {
+        DateTime? joinDate = DateTime.tryParse(bergabungSejak);
+        if (joinDate != null) {
+          bergabungSejak = DateFormat('yyyy-MM-dd').format(joinDate);
+        }
       }
 
-      notifyListeners();
-    } catch (e) {
-      // print('Error fetching user data: $e');
+      print("Hello $bergabungSejak");
+    } else {
+      _user = {};
       userName = '';
       email = '';
+      bergabungSejak = '';
     }
+
+    // Notify listeners to update the UI with the new data
+    notifyListeners();
+  } catch (e) {
+    // Handle any errors that occur during the process
+    print('Error fetching user data: $e');
+    userName = '';
+    email = '';
+    bergabungSejak = '';
+    poin = 0;  // Reset poin or any other default values as necessary
   }
+}
 
   bool isTokenValid() => _token != null && _token!.isNotEmpty;
 

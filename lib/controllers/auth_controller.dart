@@ -1,11 +1,14 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:greenpoint/assets/constants/api_url.dart';
+import 'package:greenpoint/models/user_model.dart';
 import 'package:greenpoint/service/auth_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class AuthController {
   final AuthService _authService = AuthService();
+  UserModel? _userData;
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   Future<bool> registerUser(String name, String email, String password) async {
@@ -116,43 +119,98 @@ class AuthController {
     }
   }
 
-  Future<Map<String, dynamic>?> fetchUserProfile() async {
+  // Future<Map<String, dynamic>?> fetchUserProfile() async {
+  //   try {
+  //     String? token = await _secureStorage.read(key: 'auth_token');
+  //     print('Fetched auth token: $token');
+
+  //     if (token == null) {
+  //       print('No authentication token found');
+  //       return null;
+  //     }
+
+  //     final url = ApiUrl.buildUrl(ApiUrl.user);
+  //     final response = await http.get(Uri.parse(url), headers: {
+  //       'Authorization': 'Bearer $token',
+  //       'Accept': 'application/json'
+  //     });
+
+  //     if (response.statusCode == 200) {
+  //       final responseBody = json.decode(response.body);
+
+  //       if (responseBody['success'] == true) {
+  //         return responseBody['user'];
+  //       } else {
+  //         print('Failed to fetch user profile');
+  //         return null;
+  //       }
+  //     } else if (response.statusCode == 401) {
+  //       // Token tidak valid, mungkin perlu logout
+  //       await _secureStorage.delete(key: 'auth_token');
+  //       print('Token expired or invalid');
+  //       return null;
+  //     } else {
+  //       print('Error fetching user profile: ${response.statusCode}');
+  //       return null;
+  //     }
+  //   } catch (e) {
+  //     print('Exception in fetchUserProfile: $e');
+  //     return null;
+  //   }
+  // }
+
+  UserModel? get userData => _userData;
+
+  /// Mengambil data pengguna dan menyimpannya ke dalam _userData
+  Future<void> fetchUserData() async {
     try {
-      String? token = await _secureStorage.read(key: 'auth_token');
-      print('Fetched auth token: $token');
-
-      if (token == null) {
-        print('No authentication token found');
-        return null;
+      final token = await _secureStorage.read(key: 'auth_token');
+      if (token == null || token.isEmpty) {
+        print("Token tidak ditemukan atau kosong.");
+        return;
       }
 
-      final url = ApiUrl.buildUrl(ApiUrl.user);
-      final response = await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json'
-      });
+      // Memanggil data user
+      final userData = await _authService.userData(token);
 
-      if (response.statusCode == 200) {
-        final responseBody = json.decode(response.body);
-
-        if (responseBody['success'] == true) {
-          return responseBody['user'];
-        } else {
-          print('Failed to fetch user profile');
-          return null;
-        }
-      } else if (response.statusCode == 401) {
-        // Token tidak valid, mungkin perlu logout
-        await _secureStorage.delete(key: 'auth_token');
-        print('Token expired or invalid');
-        return null;
-      } else {
-        print('Error fetching user profile: ${response.statusCode}');
-        return null;
+      if (userData == null) {
+        print("Data user kosong.");
+        return;
       }
+
+      _userData = userData; // Tetapkan data hanya jika valid
+      print("Data user berhasil diambil: $_userData");
     } catch (e) {
-      print('Exception in fetchUserProfile: $e');
-      return null;
+      print("Error saat mengambil data user: $e");
     }
   }
 }
+
+
+
+  // Future<void> updateUserProfile(
+  //     String? name, String? password, String? imagePath) async {
+  //   String? token = await _secureStorage.read(key: 'auth_token');
+  //   print(token);
+
+  //   try {
+  //     var response = await _authService.updateUserData(
+  //       token: token,
+  //       name: name,
+  //       password: password,
+  //       imagePath: imagePath,
+  //     );
+
+  //     print('Response from backend: ${response.toString()}');
+  //     Fluttertoast.showToast(
+  //       msg: "Profil berhasil diperbarui",
+  //       toastLength: Toast.LENGTH_SHORT,
+  //     );
+  //   } catch (e) {
+  //     print('Error: $e');
+  //     Fluttertoast.showToast(
+  //       msg: "Terjadi kesalahan: $e",
+  //       toastLength: Toast.LENGTH_SHORT,
+  //     );
+  //   }
+  // }

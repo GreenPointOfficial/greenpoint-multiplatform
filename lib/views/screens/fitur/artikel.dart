@@ -31,7 +31,8 @@ class _ArtikelPageState extends State<ArtikelPage> {
       body: Consumer<ArtikelController>(
         builder: (context, artikelController, _) {
           if (artikelController.isLoading) {
-            return  Center(child: CircularProgressIndicator(
+            return Center(
+                child: CircularProgressIndicator(
               color: GreenPointColor.secondary,
             ));
           }
@@ -106,12 +107,15 @@ class _ArtikelPageState extends State<ArtikelPage> {
                           ],
                         ),
                       ),
-                      SizedBox(width: 15,),
+                      SizedBox(
+                        width: 15,
+                      ),
                       SizedBox(
                         width: ScreenUtils.screenWidth(context) * 0.3,
                         child: Image.network(
                           artikel.foto,
                           fit: BoxFit.cover,
+                          width: ScreenUtils.screenWidth(context) * 0.3,
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) {
                               return child; // Gambar selesai dimuat

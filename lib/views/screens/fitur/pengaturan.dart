@@ -26,9 +26,9 @@ class _PengaturanPageState extends State<PengaturanPage> {
           children: [
             _buildProfileHeader(),
             _buildProfileOption(
-              "Mengubah Sandi", 
-              Icons.key, 
-              Colors.black, 
+              "Mengubah Sandi",
+              Icons.key,
+              Colors.black,
               () => {},
             ),
             _buildLanguageSwitchOption(),
@@ -77,7 +77,8 @@ class _PengaturanPageState extends State<PengaturanPage> {
   Widget _buildProfileOption(
       String title, IconData icon, Color color, VoidCallback callback) {
     return Padding(
-      padding: const EdgeInsets.only(top: 16, bottom: 16, right: 25.0, left: 15),
+      padding:
+          const EdgeInsets.only(top: 16, bottom: 16, right: 25.0, left: 15),
       child: GestureDetector(
         onTap: callback,
         child: Row(
@@ -107,7 +108,8 @@ class _PengaturanPageState extends State<PengaturanPage> {
   // Widget untuk opsi beralih bahasa
   Widget _buildLanguageSwitchOption() {
     return Padding(
-      padding: const EdgeInsets.only(top: 16, bottom: 16, right: 25.0, left: 15),
+      padding:
+          const EdgeInsets.only(top: 16, bottom: 16, right: 25.0, left: 15),
       child: GestureDetector(
         onTap: () {
           _showLanguageDialog();
@@ -134,17 +136,48 @@ class _PengaturanPageState extends State<PengaturanPage> {
               ],
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.language,
-                  color: _selectedLanguage == 'id' ? GreenPointColor.primary : GreenPointColor.abu,
-                  size: 24.0,
+                // Tombol untuk bahasa Indonesia (ID)
+                Container(
+                  height: 30,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: GreenPointColor.primary, // Warna aktif untuk ID
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        bottomLeft: Radius.circular(10)),
+                  ),
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'ID',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 10,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 12),
-                Icon(
-                  Icons.language,
-                  color: _selectedLanguage == 'en' ? GreenPointColor.primary : GreenPointColor.abu,
-                  size: 24.0,
+                Container(
+                  height: 30,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300], // Warna non-aktif untuk EN
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(10),
+                        bottomRight: Radius.circular(10)),
+                  ),
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'EN',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 10,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -160,12 +193,23 @@ class _PengaturanPageState extends State<PengaturanPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Pilih Bahasa"),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: Colors.white,
+          title: Text(
+            "Pilih Bahasa",
+            style:
+                GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: Text("Bahasa Indonesia"),
+                title: Text(
+                  "Bahasa Indonesia",
+                  style: GoogleFonts.dmSans(fontSize: 14),
+                ),
                 leading: Icon(Icons.language),
                 onTap: () {
                   setState(() {
@@ -175,7 +219,10 @@ class _PengaturanPageState extends State<PengaturanPage> {
                 },
               ),
               ListTile(
-                title: Text("English"),
+                title: Text(
+                  "English",
+                  style: GoogleFonts.dmSans(fontSize: 14),
+                ),
                 leading: Icon(Icons.language),
                 onTap: () {
                   setState(() {

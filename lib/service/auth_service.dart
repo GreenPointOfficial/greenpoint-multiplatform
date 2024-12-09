@@ -2,18 +2,17 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:greenpoint/assets/constants/api_url.dart';
+import 'package:greenpoint/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
-  // Menyimpan token ke secure storage
   Future<void> _saveToken(String token) async {
     await _secureStorage.write(key: 'auth_token', value: token);
   }
 
-  // Mengambil token dari secure storage
   Future<String?> getToken() async {
     return await _secureStorage.read(key: 'auth_token');
   }
@@ -25,7 +24,7 @@ class AuthService {
 
   // Registrasi
   Future<Map<String, dynamic>> register(
-    String username, String email, String password) async {
+      String username, String email, String password) async {
     final url = ApiUrl.buildUrl(ApiUrl.register);
     final response = await http.post(
       Uri.parse(url),
@@ -49,7 +48,7 @@ class AuthService {
 
     try {
       final response = await http.post(
-        Uri.parse(url), 
+        Uri.parse(url),
         body: {
           'email': email,
           'password': password,
@@ -111,23 +110,129 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> fetchProtectedResource(String endpoint) async {
-    final token = await getToken();
-    if (token == null) throw Exception('User is not authenticated.');
+  // Future<Map<String, dynamic>> fetchProtectedResource(String endpoint) async {
+  //   final token = await getToken();
+  //   if (token == null) throw Exception('User is not authenticated.');
 
-    final url = ApiUrl.buildUrl(endpoint);
+  //   final url = ApiUrl.buildUrl(endpoint);
+  //   final response = await http.get(
+  //     Uri.parse(url),
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization': 'Bearer $token',
+  //     },
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     return json.decode(response.body);
+  //   } else {
+  //     throw Exception('Failed to fetch resource: ${response.body}');
+  //   }
+  // }
+
+  Future<UserModel> userData(String? token) async {
+    final url = ApiUrl.buildUrl(ApiUrl.user);
     final response = await http.get(
       Uri.parse(url),
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token', 
+        'Authorization': 'Bearer $token',
       },
     );
-
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final data = json.decode(response.body);
+      return UserModel.fromJson(data);
     } else {
-      throw Exception('Failed to fetch resource: ${response.body}');
+      throw Exception('Failed to load data user ');
     }
   }
-}
+  }
+
+  // Future<UserModel> updateUserData({
+  //   required String? token,
+  //   String? name,
+  //   String? password,
+  //   String? imagePath,
+  // }) async {
+  //   final url = ApiUrl.buildUrl(ApiUrl.updateUser);
+  //   try {
+  //     // Validate token
+  //     if (token == null || token.isEmpty) {
+  //       throw Exception('Token tidak valid atau kosong.');
+  //     }
+
+  //     // Create multipart request
+  //     var request = http.MultipartRequest('PUT', Uri.parse(url))
+  //       ..headers.addAll({
+  //         'Authorization': 'Bearer $token',
+  //       });
+
+  //     // Add name if provided
+  //     if (name != null && name.isNotEmpty) {
+  //       request.fields['name'] = name;
+  //       print('Sending name: $name'); // Debug print
+  //     }
+
+  //     // Add password if provided
+  //     if (password != null && password.isNotEmpty) {
+  //       request.fields['password'] = password;
+  //     }
+
+  //     // Add image if provided
+  //     if (imagePath != null && imagePath.isNotEmpty) {
+  //       try {
+  //         request.files.add(await http.MultipartFile.fromPath(
+  //           'foto_profil',
+  //           imagePath,
+  //         ));
+  //       } catch (e) {
+  //         throw Exception('Gagal menambahkan file gambar: $e');
+  //       }
+  //     }
+
+  //     // Log request details
+  //     print('Request URL: $url');
+  //     print('Headers: ${request.headers}');
+  //     print('Fields: ${request.fields}');
+  //     print('ImagePath: $imagePath');
+
+  //     // Send request
+  //     var response = await request.send();
+
+  //     // Process response
+  //     if (response.statusCode == 200) {
+  //       final responseBody = await response.stream.bytesToString();
+  //       print('Response Body: $responseBody');
+
+  //       final jsonResponse = jsonDecode(responseBody);
+
+  //       if (jsonResponse['success'] == true &&
+  //           jsonResponse.containsKey('user')) {
+  //         // Update secure storage with latest data
+  //         await _secureStorage.write(
+  //           key: 'user_data',
+  //           value: json.encode({
+  //             'name': jsonResponse['user']['name'],
+  //             'email': jsonResponse['user']['email'],
+  //             'poin': jsonResponse['user']['poin'] ?? 'N/A',
+  //             'foto_profile':
+  //                 jsonResponse['user']['foto_profil'] ?? 'default_image',
+  //             'created_at': jsonResponse['user']['created_at'],
+  //           }),
+  //         );
+
+  //         // Return updated user model
+  //         return UserModel.fromJson(jsonResponse['user']);
+  //       } else {
+  //         throw Exception(
+  //             jsonResponse['message'] ?? 'Gagal memperbarui profil.');
+  //       }
+  //     } else {
+  //       throw Exception(
+  //           'Gagal memperbarui profil. Status Code: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Terjadi kesalahan: $e');
+  //     throw Exception('Terjadi kesalahan saat memperbarui profil: $e');
+  //   }
+  // }
+
