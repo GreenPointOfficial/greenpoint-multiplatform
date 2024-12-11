@@ -3,6 +3,7 @@ import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:greenpoint/controllers/payout_controller.dart'; // Import your controller
 
@@ -104,23 +105,24 @@ class _TransaksiPageState extends State<TransaksiPage> {
                                 (amount.toInt() * 10)
                       });
 
-                      // Display a custom dialog with transaction details
                       showDialog(
                         context: context,
                         builder: (_) => AlertDialog(
-                          backgroundColor: GreenPointColor.secondary,
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           title: Text(
                             'Transaksi Sukses!',
                             style: GoogleFonts.dmSans(
-                              color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: 15,
                             ),
                             textAlign: TextAlign.center,
                           ),
                           content: ConstrainedBox(
                             constraints: const BoxConstraints(
-                                maxHeight: 200), // Maksimal tinggi
+                                maxHeight: 300), // Maksimal tinggi
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
@@ -128,13 +130,12 @@ class _TransaksiPageState extends State<TransaksiPage> {
                                 Text(
                                   'Provider: Xendit',
                                   style: GoogleFonts.dmSans(
-                                    color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 const SizedBox(height: 10),
-                                Divider(color: Colors.white),
+                                Divider(color: GreenPointColor.secondary),
                                 _buildReceiptDetailRow(
                                     'Nama',
                                     Provider.of<UserProvider>(context,
@@ -146,12 +147,11 @@ class _TransaksiPageState extends State<TransaksiPage> {
                                 _buildReceiptDetailRow(
                                     'E-wallet', ewalletChannel.toUpperCase()),
                                 const SizedBox(height: 10),
-                                Divider(color: Colors.white),
+                                Divider(color: GreenPointColor.secondary),
                                 Center(
                                   child: Text(
-                                    'Terima kasih telah melakukan penukaran!',
+                                    'Terima kasih telah mengunakan GreenPoint.',
                                     style: GoogleFonts.dmSans(
-                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
                                     ),
@@ -162,55 +162,150 @@ class _TransaksiPageState extends State<TransaksiPage> {
                             ),
                           ),
                           actions: [
-                            TextButton(
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                    vertical: 10.0), // Explicit padding
+                                maximumSize: Size(100, 42),
+                                minimumSize: Size(100,
+                                    42), // Ensure both buttons have the same size
+                                backgroundColor: GreenPointColor.secondary,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                              ),
                               onPressed: () {
-                                Navigator.of(context).pop(); // Tutup dialog
+                                Navigator.of(context).pop();
                               },
                               child: Text(
                                 'Tutup',
-                                style: GoogleFonts.dmSans(color: Colors.white),
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.white),
                               ),
                             ),
                           ],
                         ),
                       );
 
-                      // Show success message
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Poin berhasil ditukar")),
                       );
                     } else {
-                      // If payout failed, show a failure message
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text("Terjadi kesalahan atau poin anda tidak mencukupi. Coba lagi.")),
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          title: Column(
+                            children: [
+                              Text(
+                                'Terjadi Kesalahan',
+                                style: GoogleFonts.dmSans(
+                                  color: Colors.red,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Divider(color: Colors.red),
+                            ],
+                          ),
+                          content: Text(
+                            'Poin anda tidak mencukupi utntuk melakukan penukaran.',
+                            style: GoogleFonts.dmSans(fontSize: 14),
+                          ),
+                          actions: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                side: BorderSide(
+                                  // width: 3.0,
+                                  color: Colors.red,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                    vertical: 10.0), // Explicit padding
+                                // backgroundColor: Colors.red,
+
+                                maximumSize: Size(100, 42),
+                                minimumSize: Size(100, 42),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                'Tutup',
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     }
                   } else {
-                    // Show an alert if the required fields are missing
                     showDialog(
                       context: context,
                       builder: (_) => AlertDialog(
-                        backgroundColor: Colors.red,
-                        title: Text(
-                          'Form Tidak Lengkap',
-                          style: GoogleFonts.dmSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        title: Column(
+                          children: [
+                            Text(
+                              'Form Tidak Lengkap',
+                              style: GoogleFonts.dmSans(
+                                color: Colors.red,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Divider(color: Colors.red),
+                          ],
                         ),
                         content: Text(
                           'Pastikan semua informasi yang dibutuhkan sudah terisi.',
-                          style: GoogleFonts.dmSans(color: Colors.white),
+                          style: GoogleFonts.dmSans(fontSize: 14),
                         ),
                         actions: [
-                          TextButton(
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              side: BorderSide(
+                                // width: 3.0,
+                                color: Colors.red,
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 10.0), // Explicit padding
+                              // backgroundColor: Colors.red,
+
+                              maximumSize: Size(100, 42),
+                              minimumSize: Size(100, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
                             onPressed: () {
-                              Navigator.of(context).pop(); // Close dialog
+                              Navigator.of(context).pop();
                             },
                             child: Text(
                               'Tutup',
-                              style: GoogleFonts.dmSans(color: Colors.white),
+                              style: GoogleFonts.dmSans(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.red),
                             ),
                           ),
                         ],
@@ -218,8 +313,6 @@ class _TransaksiPageState extends State<TransaksiPage> {
                     );
                   }
                 },
-
-// Helper method to create a row for receipt details
               ),
             ],
           ),
@@ -238,7 +331,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
             '$label:',
             style: GoogleFonts.dmSans(
               fontSize: 14,
-              color: Colors.white,
+              // color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -246,7 +339,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
             value,
             style: GoogleFonts.dmSans(
               fontSize: 14,
-              color: Colors.white,
+              // color: Colors.white,
             ),
           ),
         ],
@@ -314,16 +407,22 @@ class _TransaksiPageState extends State<TransaksiPage> {
           ],
         ),
         Text(
-          " =Rp.$saldo",
+          "${formatter.format(saldo)}", // Format saldo
           style: GoogleFonts.dmSans(
             fontWeight: FontWeight.bold,
             fontSize: 14,
             color: Colors.white,
           ),
-        ),
+        )
       ],
     );
   }
+
+  final NumberFormat formatter = NumberFormat.currency(
+    locale: 'id', // Locale Indonesia
+    symbol: 'Rp', // Simbol mata uang
+    decimalDigits: 0, // Jumlah desimal
+  );
 
   // Ewallet options
   Widget _buildEwalletOptions() {

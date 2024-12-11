@@ -31,7 +31,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const Appbar2Widget(title: "Riwayat"),
+      appBar: const Appbar2Widget(title: "Riwayat Penjualan"),
       body: LayoutBuilder(
         builder: (context, constraints) {
           // Tentukan apakah layar kecil atau besar
