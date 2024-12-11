@@ -1,5 +1,5 @@
 name: greenpoint
-description: "Platform penukaran sampah menjadi poin."
+description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -49,13 +49,6 @@ dependencies:
   geolocator: ^13.0.2
   url_launcher: ^6.3.1
   image_picker: ^1.1.2
-  flutter_launcher_icons: ^0.14.2
-
-flutter_icons:
-  android: true
-  ios: true
-  image_path: "lib/assets/imgs/icon.png"
-  min_sdk_android: 21 # (Opsional) jika minSdkVersion Anda memerlukan ini.
 
 dev_dependencies:
   flutter_test:
@@ -87,7 +80,6 @@ flutter:
     - lib/assets/imgs/logo_ovo.png
     - lib/assets/imgs/logo_edukasi1.png
     - lib/assets/imgs/logo_edukasi2.png
-    - lib/assets/imgs/icon.png
     - lib/assets/imgs/bg_atas.png
     - lib/assets/imgs/bg_bawah.png
     - lib/assets/imgs/google.png
