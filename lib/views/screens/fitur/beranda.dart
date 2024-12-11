@@ -43,15 +43,11 @@ class _BerandaState extends State<Beranda> {
   void initState() {
     super.initState();
     Provider.of<UserProvider>(context, listen: false).fetchUserData();
-
-    // _jenisSampahController.init();
-    // Menambahkan post-frame callback untuk menunda pengambilan data setelah build
     _fetchInitialData();
   }
 
   void _fetchInitialData() async {
     try {
-      // Mengambil data JenisSampah dan Artikel setelah build selesai
       await context.read<JenisSampahController>().fetchJenisSampah();
       await context.read<ArtikelController>().fetchAllArtikel();
       await context.read<PenjualanController>().getTopPenjualan();
@@ -117,7 +113,7 @@ class _BerandaState extends State<Beranda> {
           const SizedBox(height: 20),
           _buildSectionWithTitle(
             "Peringkat Penjualan",
-            _buildPenjualanTerbanyakSection(), // Tambahkan section penjualan terbanyak
+            _buildPenjualanTerbanyakSection(), 
             true,
             () => Navigator.push(
               context,

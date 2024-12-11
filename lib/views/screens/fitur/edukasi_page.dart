@@ -26,7 +26,6 @@ class _EdukasiPageState extends State<EdukasiPage> {
               ],
             ),
           ),
-          // SmoothPageIndicator is removed since it's included in the pages
         ],
       ),
     );
