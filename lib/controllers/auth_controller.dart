@@ -1,10 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:greenpoint/assets/constants/api_url.dart';
 import 'package:greenpoint/models/user_model.dart';
 import 'package:greenpoint/service/auth_service.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class AuthController {
   final AuthService _authService = AuthService();
@@ -178,39 +175,37 @@ class AuthController {
         return;
       }
 
-      _userData = userData; // Tetapkan data hanya jika valid
+      _userData = userData; 
       print("Data user berhasil diambil: $_userData");
     } catch (e) {
       print("Error saat mengambil data user: $e");
     }
   }
+
+  Future<void> updateUserProfile(
+      String? name, String? password, String? imagePath) async {
+    String? token = await _secureStorage.read(key: 'auth_token');
+    print(token);
+
+    try {
+      var response = await _authService.updateUserData(
+        token: token,
+        name: name,
+        password: password,
+        imagePath: imagePath,
+      );
+
+      print('Response from backend: ${response.toString()}');
+      Fluttertoast.showToast(
+        msg: "Profil berhasil diperbarui",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+    } catch (e) {
+      print('Error: $e');
+      Fluttertoast.showToast(
+        msg: "Terjadi kesalahan: $e",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+    }
+  }
 }
-
-
-
-  // Future<void> updateUserProfile(
-  //     String? name, String? password, String? imagePath) async {
-  //   String? token = await _secureStorage.read(key: 'auth_token');
-  //   print(token);
-
-  //   try {
-  //     var response = await _authService.updateUserData(
-  //       token: token,
-  //       name: name,
-  //       password: password,
-  //       imagePath: imagePath,
-  //     );
-
-  //     print('Response from backend: ${response.toString()}');
-  //     Fluttertoast.showToast(
-  //       msg: "Profil berhasil diperbarui",
-  //       toastLength: Toast.LENGTH_SHORT,
-  //     );
-  //   } catch (e) {
-  //     print('Error: $e');
-  //     Fluttertoast.showToast(
-  //       msg: "Terjadi kesalahan: $e",
-  //       toastLength: Toast.LENGTH_SHORT,
-  //     );
-  //   }
-  // }

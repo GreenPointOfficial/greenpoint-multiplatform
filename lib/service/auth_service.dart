@@ -129,110 +129,84 @@ class AuthService {
   //     throw Exception('Failed to fetch resource: ${response.body}');
   //   }
   // }
-
-  Future<UserModel> userData(String? token) async {
+  Future<UserModel?> userData(String? token) async {
     final url = ApiUrl.buildUrl(ApiUrl.user);
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return UserModel.fromJson(data);
-    } else {
-      throw Exception('Failed to load data user ');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('API Response Status Code: ${response.statusCode}');
+      print('API Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        print('Decoded JSON Data: $data');
+        print('Data Type: ${data.runtimeType}');
+
+        // Check if the data is a Map and has a 'data' or 'user' key
+        if (data is Map) {
+          final userData = data['data'] ?? data['user'] ?? data;
+          print('User Data to Parse: $userData');
+
+          return UserModel.fromJson(userData);
+        }
+
+        return UserModel.fromJson(data);
+      } else {
+        print('Failed to load user data. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+      return null;
     }
   }
+Future<UserModel?> updateUserData({
+  required String? token,
+  String? name,
+  String? password,
+  String? imagePath,
+}) async {
+  final url = ApiUrl.buildUrl(ApiUrl.updateUser);
+  try {
+    print('Sending update request with name: $name');
+    
+    var request = http.MultipartRequest('PUT', Uri.parse(url))
+      ..headers.addAll({
+        'Authorization': 'Bearer $token',
+      });
+
+    if (name != null && name.isNotEmpty) {
+      request.fields['name'] = name;
+      print('Name field added: $name');
+    }
+
+    var response = await request.send();
+    
+    if (response.statusCode == 200) {
+      final responseBody = await response.stream.bytesToString();
+      print('Full Response Body: $responseBody');
+      
+      final jsonResponse = jsonDecode(responseBody);
+      print('Parsed Response: $jsonResponse');
+      
+      if (jsonResponse['success'] == true && jsonResponse.containsKey('user')) {
+        print('Updated User Name: ${jsonResponse['user']['name']}');
+        return UserModel.fromJson(jsonResponse['user']);
+      }
+    }
+
+    throw Exception('Update failed');
+  } catch (e) {
+    print('Update error: $e');
+    rethrow;
   }
+}
 
-  // Future<UserModel> updateUserData({
-  //   required String? token,
-  //   String? name,
-  //   String? password,
-  //   String? imagePath,
-  // }) async {
-  //   final url = ApiUrl.buildUrl(ApiUrl.updateUser);
-  //   try {
-  //     // Validate token
-  //     if (token == null || token.isEmpty) {
-  //       throw Exception('Token tidak valid atau kosong.');
-  //     }
-
-  //     // Create multipart request
-  //     var request = http.MultipartRequest('PUT', Uri.parse(url))
-  //       ..headers.addAll({
-  //         'Authorization': 'Bearer $token',
-  //       });
-
-  //     // Add name if provided
-  //     if (name != null && name.isNotEmpty) {
-  //       request.fields['name'] = name;
-  //       print('Sending name: $name'); // Debug print
-  //     }
-
-  //     // Add password if provided
-  //     if (password != null && password.isNotEmpty) {
-  //       request.fields['password'] = password;
-  //     }
-
-  //     // Add image if provided
-  //     if (imagePath != null && imagePath.isNotEmpty) {
-  //       try {
-  //         request.files.add(await http.MultipartFile.fromPath(
-  //           'foto_profil',
-  //           imagePath,
-  //         ));
-  //       } catch (e) {
-  //         throw Exception('Gagal menambahkan file gambar: $e');
-  //       }
-  //     }
-
-  //     // Log request details
-  //     print('Request URL: $url');
-  //     print('Headers: ${request.headers}');
-  //     print('Fields: ${request.fields}');
-  //     print('ImagePath: $imagePath');
-
-  //     // Send request
-  //     var response = await request.send();
-
-  //     // Process response
-  //     if (response.statusCode == 200) {
-  //       final responseBody = await response.stream.bytesToString();
-  //       print('Response Body: $responseBody');
-
-  //       final jsonResponse = jsonDecode(responseBody);
-
-  //       if (jsonResponse['success'] == true &&
-  //           jsonResponse.containsKey('user')) {
-  //         // Update secure storage with latest data
-  //         await _secureStorage.write(
-  //           key: 'user_data',
-  //           value: json.encode({
-  //             'name': jsonResponse['user']['name'],
-  //             'email': jsonResponse['user']['email'],
-  //             'poin': jsonResponse['user']['poin'] ?? 'N/A',
-  //             'foto_profile':
-  //                 jsonResponse['user']['foto_profil'] ?? 'default_image',
-  //             'created_at': jsonResponse['user']['created_at'],
-  //           }),
-  //         );
-
-  //         // Return updated user model
-  //         return UserModel.fromJson(jsonResponse['user']);
-  //       } else {
-  //         throw Exception(
-  //             jsonResponse['message'] ?? 'Gagal memperbarui profil.');
-  //       }
-  //     } else {
-  //       throw Exception(
-  //           'Gagal memperbarui profil. Status Code: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Terjadi kesalahan: $e');
-  //     throw Exception('Terjadi kesalahan saat memperbarui profil: $e');
-  //   }
-  // }
-
+}

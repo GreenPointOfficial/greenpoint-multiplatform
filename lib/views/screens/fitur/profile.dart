@@ -106,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(userName,
-                style: GoogleFonts.dmSans(fontWeight: FontWeight.w400)),
+                style: GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 16)),
             Text(email, style: GoogleFonts.dmSans(fontWeight: FontWeight.w300)),
           ],
         )

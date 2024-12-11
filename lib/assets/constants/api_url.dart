@@ -29,10 +29,10 @@ class ApiUrl {
   static const String artikel = "/artikel";
 
   // Transaksi
-  // static const String transaksiUser = "/transaksi/user";
+  // static const String tukarPoin = "/create-payout";
 
   // Penukaran Poin
-  static const String poinTukar = "/poin/tukar";
+  static const String poinTukar = "/create-payout";
 
   // Penjualan dan Klaim Struk
   static const String penjualanClaim = "/penjualan/{penjualan}/claim";

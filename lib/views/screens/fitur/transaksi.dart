@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:greenpoint/providers/user_provider.dart';
+import 'package:greenpoint/views/widget/tombol_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:greenpoint/controllers/payout_controller.dart'; // Import your controller
 
 class TransaksiPage extends StatefulWidget {
   const TransaksiPage({Key? key}) : super(key: key);
@@ -10,8 +14,33 @@ class TransaksiPage extends StatefulWidget {
 }
 
 class _TransaksiPageState extends State<TransaksiPage> {
+  String? _selectedEwallet;
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  void _selectEwallet(String ewallet) {
+    setState(() {
+      _selectedEwallet = ewallet;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<UserProvider>(context, listen: false).fetchUserData();
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final payoutController = Provider.of<PayoutController>(context);
+
     return Scaffold(
       backgroundColor: GreenPointColor.secondary,
       appBar: AppBar(
@@ -31,303 +60,422 @@ class _TransaksiPageState extends State<TransaksiPage> {
         ),
         centerTitle: true,
       ),
-      body: Stack(
-        children: [
-          Column(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(25.0),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Logo Container
-                      Container(
-                        height: 120,
-                        width: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Image.asset(
-                            'lib/assets/imgs/logo.png',
-                            height: 80,
-                            width: 80,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 15),
-                      // Title Text
-                      Text(
-                        "Penukaran Poin",
-                        style: GoogleFonts.dmSans(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      // Saldo Anda Text
-                      Text(
-                        "Saldo Anda",
-                        style: GoogleFonts.dmSans(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
-                      ),
-                      // Poin Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            "lib/assets/imgs/poin.png",
-                            height: 35,
-                            width: 35,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            "1.000.000",
+              _buildHeaderSection(),
+              const SizedBox(height: 20),
+              _buildEwalletOptions(),
+              const SizedBox(height: 10),
+              _buildAmountInput(),
+              const SizedBox(height: 10),
+              _buildPhoneNumberInput(),
+              const SizedBox(height: 10),
+              _buildDisclaimer(),
+              const SizedBox(height: 20),
+              TombolWidget(
+                warna: GreenPointColor.primary,
+                warnaText: Colors.white,
+                text: "Tukar",
+                onPressed: () async {
+                  double amount =
+                      double.tryParse(_amountController.text) ?? 0.0;
+                  String phone = _phoneController.text;
+                  String? ewalletChannel = _selectedEwallet;
+
+                  // Ensure all required fields are filled
+                  if (amount > 0 &&
+                      phone.isNotEmpty &&
+                      ewalletChannel != null) {
+                    final success = await payoutController.createPayout(
+                      amount: amount,
+                      accountNumber: phone,
+                    );
+
+                    if (success) {
+                      // Update user data after successful transaction
+                      Provider.of<UserProvider>(context, listen: false)
+                          .autoRefreshUserData({
+                        'poin':
+                            Provider.of<UserProvider>(context, listen: false)
+                                    .poin -
+                                (amount.toInt() * 10)
+                      });
+
+                      // Display a custom dialog with transaction details
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          backgroundColor: GreenPointColor.secondary,
+                          title: Text(
+                            'Transaksi Sukses!',
                             style: GoogleFonts.dmSans(
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 28,
-                              color: GreenPointColor.orange,
+                              fontSize: 18,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          content: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                                maxHeight: 200), // Maksimal tinggi
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Provider: Xendit',
+                                  style: GoogleFonts.dmSans(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Divider(color: Colors.white),
+                                _buildReceiptDetailRow(
+                                    'Nama',
+                                    Provider.of<UserProvider>(context,
+                                            listen: false)
+                                        .userName),
+                                _buildReceiptDetailRow('Nomor HP', phone),
+                                _buildReceiptDetailRow('Jumlah Tarik',
+                                    'Rp.${amount.toStringAsFixed(2)}'),
+                                _buildReceiptDetailRow(
+                                    'E-wallet', ewalletChannel.toUpperCase()),
+                                const SizedBox(height: 10),
+                                Divider(color: Colors.white),
+                                Center(
+                                  child: Text(
+                                    'Terima kasih telah melakukan penukaran!',
+                                    style: GoogleFonts.dmSans(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Tutup dialog
+                              },
+                              child: Text(
+                                'Tutup',
+                                style: GoogleFonts.dmSans(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      // Show success message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Poin berhasil ditukar")),
+                      );
+                    } else {
+                      // If payout failed, show a failure message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text("Terjadi kesalahan atau poin anda tidak mencukupi. Coba lagi.")),
+                      );
+                    }
+                  } else {
+                    // Show an alert if the required fields are missing
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        backgroundColor: Colors.red,
+                        title: Text(
+                          'Form Tidak Lengkap',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        content: Text(
+                          'Pastikan semua informasi yang dibutuhkan sudah terisi.',
+                          style: GoogleFonts.dmSans(color: Colors.white),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close dialog
+                            },
+                            child: Text(
+                              'Tutup',
+                              style: GoogleFonts.dmSans(color: Colors.white),
                             ),
                           ),
                         ],
                       ),
-                      // Rupiah Conversion
-                      Text(
-                        "= Rp. 100.000",
-                        style: GoogleFonts.dmSans(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: 30),
-                      Container(
-                        height: 90,
-                        width: 310,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            // Add your image assets here
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                        height: 90,
-                        width: 310,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Tukar poin",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  _buildPointOption("10.000"),
-                                  _buildPointOption("20.000"),
-                                  _buildPointOption("30.000"),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      // Disclaimer Text
-                      Container(
-                        padding: EdgeInsets.symmetric(vertical: 5),
-                        width: 310,
-                        alignment: Alignment.center,
-                        child: Text(
-                          "*Untuk menarik tunai, Anda memerlukan akumulasi saldo minimum Rp.10.000",
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(
-                            fontSize: 11,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                    );
+                  }
+                },
+
+// Helper method to create a row for receipt details
               ),
             ],
           ),
-          DraggableScrollableSheet(
-            initialChildSize: 0.2,
-            minChildSize: 0.2,
-            maxChildSize: 0.4,
-            builder: (context, scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.horizontal_rule,
-                        color: Colors.grey,
-                        size: 40,
-                      ),
-                      Container(
-                        padding:
-                            EdgeInsets.only(right: 10, left: 10, bottom: 10),
-                        child: Column(
-                          children: [
-                            Text(
-                              "e-wallet",
-                              style: GoogleFonts.dmSans(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            _buildEwalletDetail(
-                                "DANA", "0318-1608-2105", "Rp.30.000"),
-                            SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 100, vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                              ),
-                              child: Text(
-                                "Lanjutkan Penukaran",
-                                style: GoogleFonts.dmSans(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReceiptDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '$label:',
+            style: GoogleFonts.dmSans(
+              fontSize: 14,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.dmSans(
+              fontSize: 14,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPointOption(String pointValue) {
-    return Material(
-      elevation: 4,
-      borderRadius: BorderRadius.circular(5),
-      shadowColor: Colors.black.withOpacity(0.5),
-      child: Container(
-        height: 50,
-        width: 90,
-        decoration: BoxDecoration(
-          // color: Colors.white,
-          color: Colors.white.withOpacity(0.8),
-          border: Border.all(width: 1.0, color: Colors.black),
-          borderRadius: BorderRadius.circular(5),
+  // Section Header
+  Widget _buildHeaderSection() {
+    final poin = Provider.of<UserProvider>(context).poin;
+    final saldo = poin / 10;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 120,
+          width: 120,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Image.asset(
+              'lib/assets/imgs/logo.png',
+              height: 80,
+              width: 80,
+            ),
+          ),
         ),
-        alignment: Alignment.center,
-        child: Text(
-          "Rp." + pointValue,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 16,
+        const SizedBox(height: 15),
+        Text(
+          "Penukaran Poin",
+          style: GoogleFonts.dmSans(
+            color: Colors.white,
+            fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          "Saldo Anda",
+          style: GoogleFonts.dmSans(
+            color: Colors.white,
+            fontSize: 12,
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              "lib/assets/imgs/poin.png",
+              height: 35,
+              width: 35,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              poin.toString(),
+              style: GoogleFonts.dmSans(
+                fontWeight: FontWeight.bold,
+                fontSize: 28,
+                color: GreenPointColor.orange,
+              ),
+            ),
+          ],
+        ),
+        Text(
+          " =Rp.$saldo",
+          style: GoogleFonts.dmSans(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Ewallet options
+  Widget _buildEwalletOptions() {
+    return Container(
+      height: 90,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildEwalletItem('lib/assets/imgs/logo_ovo.png', 'OVO', 'ovo'),
+          _buildEwalletItem('lib/assets/imgs/logo_gopay.png', 'GoPay', 'gopay'),
+          _buildEwalletItem('lib/assets/imgs/logo_dana.png', 'Dana', 'dana'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEwalletItem(String imagePath, String name, String type) {
+    bool isSelected = _selectedEwallet == type;
+
+    return GestureDetector(
+      onTap: () => _selectEwallet(type),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Column(
+          children: [
+            Container(
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: isSelected
+                    ? Border.all(color: Colors.white, width: 3)
+                    : null,
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: GreenPointColor.primary.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                        )
+                      ]
+                    : [],
+              ),
+              child: Image.asset(
+                imagePath,
+                width: 50,
+                height: 50,
+                color: isSelected ? null : Colors.grey.withOpacity(0.5),
+                colorBlendMode: isSelected ? null : BlendMode.saturation,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              name,
+              style: GoogleFonts.dmSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? GreenPointColor.secondary : Colors.black,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildEwalletDetail(
-      String walletName, String accountNumber, String amount) {
-    return Material(
-      elevation: 4,
-      borderRadius: BorderRadius.circular(15),
-      shadowColor: Colors.black.withOpacity(0.5),
-      child: Container(
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.8),
-          border: Border.all(width: 1.0, color: Colors.black),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  // Amount input
+  Widget _buildAmountInput() {
+    return Container(
+      height: 90,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                // Add your image assets here
-                SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      walletName,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      accountNumber,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 12,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
             Text(
-              amount,
+              "Jumlah uang",
               style: GoogleFonts.dmSans(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
                 color: Colors.black,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            TextField(
+              controller: _amountController, // Assign controller
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                prefixText: 'Rp.',
+                border: UnderlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Phone number input
+  Widget _buildPhoneNumberInput() {
+    return Container(
+      height: 90,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Nomor hp",
+              style: GoogleFonts.dmSans(
+                color: Colors.black,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            TextField(
+              controller: _phoneController, // Assign controller
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                prefixText: '+62',
+                border: UnderlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Disclaimer Text
+  Widget _buildDisclaimer() {
+    return Text(
+      "Untuk penarikan tunai, Pastikan poin anda mencukupi.",
+      style: GoogleFonts.dmSans(
+        color: Colors.white,
+        fontSize: 10,
       ),
     );
   }
