@@ -6,13 +6,13 @@ import 'package:greenpoint/assets/constants/screen_utils.dart';
 class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? title2;
-  final bool hideLeading; // Properti untuk mengontrol apakah leading dihilangkan atau tidak
+  final bool hideLeading; 
 
   const AppbarWidget({
     Key? key,
     required this.title,
     this.title2,
-    this.hideLeading = false, // Default-nya adalah `false`, leading akan ditampilkan
+    this.hideLeading = false,
   }) : super(key: key);
 
   @override
