@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:greenpoint/assets/constants/api_url.dart';
@@ -167,42 +168,54 @@ class AuthService {
       return null;
     }
   }
-Future<UserModel?> updateUserData({
-  required String? token,
-  String? name,
-  String? password,
-  String? imagePath,
+
+  Future<UserModel?> updateUserData({
+    required String? token,
+    String? name,
+    String? password,
+    String? imagePath,
 }) async {
   final url = ApiUrl.buildUrl(ApiUrl.updateUser);
   try {
-    print('Sending update request with name: $name');
-    
-    var request = http.MultipartRequest('PUT', Uri.parse(url))
-      ..headers.addAll({
-        'Authorization': 'Bearer $token',
+    print('Update Request:');
+    print('Token: $token');
+    print('Name: $name');
+    print('Image Path: $imagePath');
+
+    var headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json', // Mengatur header untuk mengirimkan JSON
+    };
+
+    // Membuat payload JSON
+    var body = jsonEncode({
+      'name': name,
+      // 'password': password,
+    });
+
+    // Jika ada gambar, tambahkan URL atau path gambar sebagai string
+    if (imagePath != null && imagePath.isNotEmpty) {
+      body = jsonEncode({
+        'name': name,
+        // 'password': password,
+        'foto_profil': imagePath,  // Menambahkan path gambar di JSON
       });
-
-    if (name != null && name.isNotEmpty) {
-      request.fields['name'] = name;
-      print('Name field added: $name');
     }
 
-    var response = await request.send();
-    
-    if (response.statusCode == 200) {
-      final responseBody = await response.stream.bytesToString();
-      print('Full Response Body: $responseBody');
-      
-      final jsonResponse = jsonDecode(responseBody);
-      print('Parsed Response: $jsonResponse');
-      
-      if (jsonResponse['success'] == true && jsonResponse.containsKey('user')) {
-        print('Updated User Name: ${jsonResponse['user']['name']}');
-        return UserModel.fromJson(jsonResponse['user']);
-      }
+    // Kirim request dengan PUT dan body JSON
+    var response = await http.put(Uri.parse(url), headers: headers, body: body);
+
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    final jsonResponse = jsonDecode(response.body);
+    if (response.statusCode == 200 &&
+        jsonResponse['success'] == true &&
+        jsonResponse.containsKey('user')) {
+      return UserModel.fromJson(jsonResponse['user']);
     }
 
-    throw Exception('Update failed');
+    throw Exception('Update failed: ${jsonResponse['message']}');
   } catch (e) {
     print('Update error: $e');
     rethrow;

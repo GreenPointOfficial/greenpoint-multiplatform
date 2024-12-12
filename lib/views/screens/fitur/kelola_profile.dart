@@ -25,6 +25,7 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
 
   UserModel? _userData;
   bool _isLoading = true;
+  bool _hasChanges = false;
   File? _imageFile;
 
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
@@ -37,6 +38,7 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _joinController = TextEditingController();
+
     _fetchUserData();
   }
 
@@ -58,19 +60,24 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
       }
 
       setState(() {
-        _userData = userData;
-        _nameController.text = userData.name ?? 'Not Available';
-        _emailController.text = userData.email ?? 'Not Available';
+      _userData = userData;
+      _nameController.text = userData.name ?? 'Not Available';
+      _emailController.text = userData.email ?? 'Not Available';
 
-        DateTime? joinDate = userData.createdAt != null
-            ? DateTime.tryParse(userData.createdAt!)
-            : null;
+      DateTime? joinDate = userData.createdAt != null
+          ? DateTime.tryParse(userData.createdAt!)
+          : null;
 
-        _joinController.text = joinDate != null
-            ? DateFormat('yyyy-MM-dd').format(joinDate)
-            : 'Not Available';
+      _joinController.text = joinDate != null
+          ? DateFormat('yyyy-MM-dd').format(joinDate)
+          : 'Not Available';
 
-        _isLoading = false;
+      _isLoading = false;
+    });
+
+      // Tambahkan listener untuk mendeteksi perubahan pada nama
+      _nameController.addListener(() {
+        _checkChanges();
       });
     } catch (e) {
       print("Error saat mengambil data user: $e");
@@ -78,72 +85,11 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
     }
   }
 
-  Future<void> _updateUserProfile({String? imagePath}) async {
-    try {
-      String? token = await _secureStorage.read(key: 'auth_token');
-      String updatedName = _nameController.text;
-
-      if (_userData?.name == updatedName) {
-        Fluttertoast.showToast(
-          msg: "Nama tidak berubah, tidak ada perubahan yang disimpan.",
-          toastLength: Toast.LENGTH_SHORT,
-        );
-        return;
-      }
-
-      var response = await _authService.updateUserData(
-        token: token,
-        name: updatedName,
-        password: null,
-        imagePath: imagePath,
-      );
-
-      if (response != null) {
-        // Update the state with new user data
-        setState(() {
-          _userData = response;
-          _nameController.text = _userData?.name ?? '';
-        });
-
-        // Optional: Fetch the updated profile data from the server
-        _fetchUserProfile(); // This will get the latest user profile data from the server
-
-        Fluttertoast.showToast(
-          msg: "Profil berhasil diperbarui",
-          toastLength: Toast.LENGTH_SHORT,
-        );
-      } else {
-        Fluttertoast.showToast(
-          msg: "Gagal memperbarui profil",
-          toastLength: Toast.LENGTH_LONG,
-          backgroundColor: Colors.red,
-        );
-      }
-    } catch (e) {
-      print('Error updating profile: $e');
-      Fluttertoast.showToast(
-        msg: "Gagal memperbarui profil: $e",
-        toastLength: Toast.LENGTH_LONG,
-        backgroundColor: Colors.red,
-      );
-    }
-  }
-
-  Future<void> _fetchUserProfile() async {
-    try {
-      String? token = await _secureStorage.read(key: 'auth_token');
-      var response = await _authService.userData(token);
-
-      if (response != null) {
-        setState(() {
-          _userData =
-              response; // Update the user data with the latest from the server
-          _nameController.text = _userData?.name ?? '';
-        });
-      }
-    } catch (e) {
-      print('Error fetching profile: $e');
-    }
+  void _checkChanges() {
+    bool nameChanged = _nameController.text != (_userData?.name ?? '');
+    setState(() {
+      _hasChanges = nameChanged || _imageFile != null;
+    });
   }
 
   void _showImagePickerBottomSheet() {
@@ -177,19 +123,89 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
+  try {
+    // Pick an image from the gallery or camera
+    final pickedFile = await _imagePicker.pickImage(source: source);
+
+    // Check if an image is picked
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);  // Save the picked image to _imageFile
+        _checkChanges();  // Your function to handle any logic after the image is picked
+      });
+    } else {
+      // Toast message if no image is selected
+      Fluttertoast.showToast(
+        msg: "No image selected",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+    }
+  } catch (e) {
+    // Catch any errors during image picking
+    print('Error picking image: $e');
+    Fluttertoast.showToast(
+      msg: "Failed to pick image. Please try again.",
+      toastLength: Toast.LENGTH_SHORT,
+    );
+  }
+}
+
+  Future<void> _updateUserProfile({String? imagePath}) async {
     try {
-      final pickedFile = await _imagePicker.pickImage(source: source);
-      if (pickedFile != null) {
+      String? token = await _secureStorage.read(key: 'auth_token');
+      String updatedName = _nameController.text;
+      print('ini $updatedName');
+
+      if (updatedName.isEmpty) {
+        Fluttertoast.showToast(
+          msg: "Nama tidak boleh kosong",
+          toastLength: Toast.LENGTH_SHORT,
+        );
+        return;
+      }
+
+      // Only proceed if there are changes
+      if (!_hasChanges) {
+        Fluttertoast.showToast(
+          msg: "Tidak ada perubahan untuk disimpan",
+          toastLength: Toast.LENGTH_SHORT,
+        );
+        return;
+      }
+
+      var response = await _authService.updateUserData(
+        token: token,
+        name: updatedName,
+        password: null, 
+        imagePath: imagePath,
+      );
+
+      if (response != null) {
         setState(() {
-          _imageFile = File(pickedFile.path);
+          _userData = response;
+          _nameController.text = _userData?.name ?? '';
+          
+          _imageFile = null; 
+          _hasChanges = false;
         });
-        await _updateUserProfile(imagePath: pickedFile.path);
+
+        Fluttertoast.showToast(
+          msg: "Profil berhasil diperbarui",
+          toastLength: Toast.LENGTH_SHORT,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: "Gagal memperbarui profil",
+          toastLength: Toast.LENGTH_LONG,
+          backgroundColor: Colors.red,
+        );
       }
     } catch (e) {
-      print('Error picking image: $e');
+      print('Error updating profile: $e');
       Fluttertoast.showToast(
-        msg: "Gagal memilih gambar",
-        toastLength: Toast.LENGTH_SHORT,
+        msg: "Gagal memperbarui profil: $e",
+        toastLength: Toast.LENGTH_LONG,
+        backgroundColor: Colors.red,
       );
     }
   }
@@ -210,7 +226,10 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
         title: "Kelola Profile",
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: GreenPointColor.secondary,))
+          ? Center(
+              child: CircularProgressIndicator(
+              color: GreenPointColor.secondary,
+            ))
           : Padding(
               padding: const EdgeInsets.all(16),
               child: SingleChildScrollView(
@@ -223,13 +242,25 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
                       _buildText("Email", _emailController, false),
                       _buildText("Bergabung Sejak", _joinController, false),
                       const SizedBox(height: 50),
-                      TombolWidget(
-                        warna: GreenPointColor.secondary,
-                        warnaText: Colors.white,
-                        text: "Simpan perubahan",
-                        onPressed: () {
-                          _updateUserProfile(imagePath: _imageFile?.path);
-                        },
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _hasChanges
+                              ? GreenPointColor.secondary
+                              : GreenPointColor.abu,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: Colors.grey,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                        ),
+                        onPressed: _hasChanges
+                            ? () {
+                                _updateUserProfile(imagePath: _imageFile?.path);
+                              }
+                            : null,
+                        child: const Text(
+                          "Simpan perubahan",
+                          style: TextStyle(fontSize: 16),
+                        ),
                       ),
                       const SizedBox(height: 50),
                       Text(

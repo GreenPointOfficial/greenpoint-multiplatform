@@ -4,7 +4,7 @@ class UserModel {
   final int id;
   final String name;
   final String email;
-  final String? fotoProfil; // Bisa null
+  final String? fotoProfil;
   final int poin;
   final String createdAt;
 
@@ -33,13 +33,12 @@ class UserModel {
     );
   }
 
-  // Method to convert UserModel to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
       'email': email,
-      'foto_profil': fotoProfil, // Optional, can be null
+      'foto_profil': fotoProfil, 
       'poin': poin,
       'created_at': createdAt,
     };

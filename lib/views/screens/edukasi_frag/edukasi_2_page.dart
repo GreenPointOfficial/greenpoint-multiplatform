@@ -16,7 +16,6 @@ class Edukasi2Page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get screen dimensions using ScreenUtils
     final double screenWidth = ScreenUtils.screenWidth(context);
     final double screenHeight = ScreenUtils.screenHeight(context);
 

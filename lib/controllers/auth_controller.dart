@@ -175,7 +175,7 @@ class AuthController {
         return;
       }
 
-      _userData = userData; 
+      _userData = userData;
       print("Data user berhasil diambil: $_userData");
     } catch (e) {
       print("Error saat mengambil data user: $e");
@@ -185,7 +185,15 @@ class AuthController {
   Future<void> updateUserProfile(
       String? name, String? password, String? imagePath) async {
     String? token = await _secureStorage.read(key: 'auth_token');
-    print(token);
+    print('Token: $token');
+
+    if (token == null || token.isEmpty) {
+      Fluttertoast.showToast(
+        msg: "Token tidak ditemukan, silakan login ulang.",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+      return;
+    }
 
     try {
       var response = await _authService.updateUserData(
@@ -195,11 +203,18 @@ class AuthController {
         imagePath: imagePath,
       );
 
-      print('Response from backend: ${response.toString()}');
-      Fluttertoast.showToast(
-        msg: "Profil berhasil diperbarui",
-        toastLength: Toast.LENGTH_SHORT,
-      );
+      if (response != null) {
+        print('Response from backend: ${response.toString()}');
+        Fluttertoast.showToast(
+          msg: "Profil berhasil diperbarui",
+          toastLength: Toast.LENGTH_SHORT,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: "Pembaruan profil gagal",
+          toastLength: Toast.LENGTH_SHORT,
+        );
+      }
     } catch (e) {
       print('Error: $e');
       Fluttertoast.showToast(
