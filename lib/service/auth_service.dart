@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:greenpoint/assets/constants/api_url.dart';
@@ -169,7 +168,7 @@ class AuthService {
     }
   }
 
-  Future<UserModel?> updateUserData({
+   Future<UserModel?> updateUserData({
     required String? token,
     String? name,
     String? password,
@@ -184,7 +183,7 @@ class AuthService {
 
     var headers = {
       'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json', // Mengatur header untuk mengirimkan JSON
+      'Content-Type': 'application/json', 
     };
 
     // Membuat payload JSON
@@ -193,16 +192,15 @@ class AuthService {
       // 'password': password,
     });
 
-    // Jika ada gambar, tambahkan URL atau path gambar sebagai string
     if (imagePath != null && imagePath.isNotEmpty) {
+      
       body = jsonEncode({
         'name': name,
         // 'password': password,
-        'foto_profil': imagePath,  // Menambahkan path gambar di JSON
+        'foto_profil': ApiUrl.baseUrl+ imagePath,  // Menambahkan path gambar di JSON
       });
     }
 
-    // Kirim request dengan PUT dan body JSON
     var response = await http.put(Uri.parse(url), headers: headers, body: body);
 
     print('Response Status Code: ${response.statusCode}');

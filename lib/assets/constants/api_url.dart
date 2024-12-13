@@ -14,6 +14,7 @@ class ApiUrl {
   static const String logout = "/logout";
   static const String user = "/user";
   static const String updateUser = "/user/update";
+  static const String uploadImage = "/upload-image";
 
   // Jenis Sampah
   static const String jenisSampah = "/jenis-sampah";

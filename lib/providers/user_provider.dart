@@ -12,10 +12,11 @@ class UserProvider with ChangeNotifier {
   String userName = "";
   String email = "";
   String bergabungSejak = "";
+  String foto = "";
   int poin = 0;
 
   Map<String, dynamic>? get user => _user;
-  
+
   int get userPoints => _user?['poin'] ?? 0;
 
   Future<void> setUser(Map<String, dynamic> userData, String token) async {
@@ -59,12 +60,9 @@ class UserProvider with ChangeNotifier {
   Future<void> _deleteFromStorage(String key) async {
     try {
       await _secureStorage.delete(key: key);
-    } catch (e) {
-      
-    }
+    } catch (e) {}
   }
-
-  Future<void> fetchUserData() async {
+Future<void> fetchUserData() async {
   try {
     final userDataString = await _secureStorage.read(key: 'user_data');
 
@@ -74,6 +72,7 @@ class UserProvider with ChangeNotifier {
       userName = _user?['name'] ?? '';
       email = _user?['email'] ?? '';
       poin = _user?['poin'] ?? 0;
+      foto = _user?['foto'] ?? ''; 
       bergabungSejak = _user?['created_at'] ?? '';
 
       if (bergabungSejak.isNotEmpty) {
@@ -83,21 +82,21 @@ class UserProvider with ChangeNotifier {
         }
       }
 
-      print("Hello $bergabungSejak");
+      notifyListeners(); 
     } else {
       _user = {};
       userName = '';
       email = '';
       bergabungSejak = '';
+      foto = ''; // Reset the photo if data not found
     }
-
-    notifyListeners();
   } catch (e) {
     print('Error fetching user data: $e');
     userName = '';
     email = '';
     bergabungSejak = '';
-    poin = 0;  
+    poin = 0;
+    foto = ''; // Reset photo on error
   }
 }
 
@@ -121,22 +120,6 @@ class UserProvider with ChangeNotifier {
       await _saveToStorage('user_data', json.encode(_user));
 
       await fetchUserData();
-
-      // print('User data updated and UI refreshed: $_user');
-    } catch (e) {
-      // print('Error during auto-refresh of user data: $e');
-    }
+    } catch (e) {}
   }
-
-  // Future<void> debugSecureStorage() async {
-  //   try {
-  //     final allKeys = await _secureStorage.readAll();
-  //     // print('All Secure Storage Data: $allKeys');
-
-  //     final token = await _secureStorage.read(key: 'auth_token');
-  //     print('Fetched auth token: $token');
-  //   } catch (e) {
-  //     print('Error while reading secure storage: $e');
-  //   }
-  // }
 }

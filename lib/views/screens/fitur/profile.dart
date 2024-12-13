@@ -86,33 +86,39 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileHeader() {
-    final userName = Provider.of<UserProvider>(context).userName;
-    final email = Provider.of<UserProvider>(context).email;
+  final userName = Provider.of<UserProvider>(context).userName;
+  final email = Provider.of<UserProvider>(context).email;
+  final foto = Provider.of<UserProvider>(context).foto;
 
-    return Row(
-      children: [
-        Container(
-          height: 70,
-          width: 70,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50),
-            image: const DecorationImage(
-              image: AssetImage("lib/assets/imgs/profile_placeholder.jpg"),
-            ),
+  return Row(
+    children: [
+      Container(
+        height: 70,
+        width: 70,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          image: DecorationImage(
+            image: foto.isNotEmpty
+                ? NetworkImage(foto) 
+                : AssetImage("lib/assets/imgs/profile_placeholder.jpg") as ImageProvider, // Default placeholder if no profile image
+            fit: BoxFit.cover,
           ),
         ),
-        const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(userName,
-                style: GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 16)),
-            Text(email, style: GoogleFonts.dmSans(fontWeight: FontWeight.w300)),
-          ],
-        )
-      ],
-    );
-  }
+      ),
+      const SizedBox(width: 10),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(userName,
+              style: GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 16)),
+          Text(email, style: GoogleFonts.dmSans(fontWeight: FontWeight.w300)),
+        ],
+      )
+    ],
+  );
+}
+
+
 
   Widget _buildProfileOption(
       String title, IconData icon, Color color, VoidCallback callback) {

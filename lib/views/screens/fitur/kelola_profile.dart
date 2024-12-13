@@ -1,17 +1,19 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:greenpoint/assets/constants/api_url.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/models/user_model.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/service/auth_service.dart';
 import 'package:greenpoint/views/widget/appbar_widget.dart';
-import 'package:greenpoint/views/widget/tombol_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class KelolaProfilePage extends StatefulWidget {
   const KelolaProfilePage({Key? key}) : super(key: key);
@@ -62,20 +64,20 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
       }
 
       setState(() {
-      _userData = userData;
-      _nameController.text = userData.name ?? 'Not Available';
-      _emailController.text = userData.email ?? 'Not Available';
+        _userData = userData;
+        _nameController.text = userData.name ?? 'Not Available';
+        _emailController.text = userData.email ?? 'Not Available';
 
-      DateTime? joinDate = userData.createdAt != null
-          ? DateTime.tryParse(userData.createdAt!)
-          : null;
+        DateTime? joinDate = userData.createdAt != null
+            ? DateTime.tryParse(userData.createdAt!)
+            : null;
 
-      _joinController.text = joinDate != null
-          ? DateFormat('yyyy-MM-dd').format(joinDate)
-          : 'Not Available';
+        _joinController.text = joinDate != null
+            ? DateFormat('yyyy-MM-dd').format(joinDate)
+            : 'Not Available';
 
-      _isLoading = false;
-    });
+        _isLoading = false;
+      });
 
       // Tambahkan listener untuk mendeteksi perubahan pada nama
       _nameController.addListener(() {
@@ -123,48 +125,66 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
       },
     );
   }
-Future<void> _pickImage(ImageSource source) async {
-  try {
-    // Pick an image from the gallery or camera
-    final pickedFile = await _imagePicker.pickImage(source: source);
 
-    if (pickedFile != null) {
-      // Check if the selected file is an image
-      String filePath = pickedFile.path;
-      String fileExtension = filePath.split('.').last.toLowerCase();
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final pickedFile = await _imagePicker.pickImage(source: source);
 
-      // Validate file extension
-      if (['jpeg', 'jpg', 'png', 'gif', 'svg'].contains(fileExtension)) {
-        setState(() {
-          _imageFile = File(pickedFile.path);  // Save the picked image to _imageFile
-          _checkChanges();  // Your function to handle any logic after the image is picked
-        });
+      if (pickedFile != null) {
+        String filePath = pickedFile.path;
+        String fileExtension = filePath.split('.').last.toLowerCase();
+
+        if (['jpeg', 'jpg', 'png', 'gif', 'svg'].contains(fileExtension)) {
+          setState(() {
+            _imageFile = File(pickedFile.path);
+            _checkChanges();
+          });
+        } else {
+          Fluttertoast.showToast(
+            msg:
+                "Invalid file type. Please select an image (jpeg, jpg, png, gif, svg).",
+            toastLength: Toast.LENGTH_SHORT,
+          );
+        }
       } else {
         Fluttertoast.showToast(
-          msg: "Invalid file type. Please select an image (jpeg, jpg, png, gif, svg).",
+          msg: "No image selected",
           toastLength: Toast.LENGTH_SHORT,
         );
       }
-    } else {
+    } catch (e) {
+      print('Error picking image: $e');
       Fluttertoast.showToast(
-        msg: "No image selected",
+        msg: "Failed to pick image. Please try again.",
         toastLength: Toast.LENGTH_SHORT,
       );
     }
-  } catch (e) {
-    print('Error picking image: $e');
-    Fluttertoast.showToast(
-      msg: "Failed to pick image. Please try again.",
-      toastLength: Toast.LENGTH_SHORT,
-    );
   }
-}
+
+  Future<String> uploadImageToServer(String imagePath) async {
+    final url = Uri.parse(ApiUrl.buildUrl(ApiUrl.uploadImage));
+    var request = http.MultipartRequest('POST', url);
+
+    File file = File(imagePath);
+    var stream = http.ByteStream(file.openRead());
+    var length = await file.length();
+
+    var multipartFile = http.MultipartFile('file', stream, length,
+        filename: file.uri.pathSegments.last);
+    request.files.add(multipartFile);
+
+    // Kirim permintaan
+    var response = await request.send();
+    final responseBody = await response.stream.bytesToString();
+    var jsonResponse = jsonDecode(responseBody);
+
+    return jsonResponse['imageUrl'];
+  }
 
   Future<void> _updateUserProfile({String? imagePath}) async {
     try {
       String? token = await _secureStorage.read(key: 'auth_token');
       String updatedName = _nameController.text;
-      print('ini $updatedName');
 
       if (updatedName.isEmpty) {
         Fluttertoast.showToast(
@@ -183,21 +203,29 @@ Future<void> _pickImage(ImageSource source) async {
         return;
       }
 
+      String uploadedImageUrl = '';
+
+      if (imagePath != null) {
+        uploadedImageUrl = await uploadImageToServer(imagePath);
+      }
+      print('ini adalah $uploadedImageUrl');
+
       var response = await _authService.updateUserData(
         token: token,
         name: updatedName,
-        password: null, 
-        imagePath: imagePath,
+        password: null,
+        imagePath: uploadedImageUrl,
       );
+      final baseurl = ApiUrl.baseUrl;
+      print('ini adalah $baseurl $uploadedImageUrl');
 
       if (response != null) {
         setState(() {
           _userData = response;
           _nameController.text = _userData?.name ?? '';
-            Provider.of<UserProvider>(context, listen: false).autoRefreshUserData({
-          'name': updatedName 
-        });
-          _imageFile = null; 
+          Provider.of<UserProvider>(context, listen: false).autoRefreshUserData(
+              {'name': updatedName, 'foto': ApiUrl.baseUrl + uploadedImageUrl});
+          _imageFile = null;
           _hasChanges = false;
         });
 
@@ -297,8 +325,10 @@ Future<void> _pickImage(ImageSource source) async {
           radius: 50,
           backgroundImage: _imageFile != null
               ? FileImage(_imageFile!)
-              : const AssetImage("lib/assets/imgs/profile_placeholder.jpg")
-                  as ImageProvider,
+              : (_userData?.fotoProfil != null
+                  ? NetworkImage(_userData!.fotoProfil!)
+                  : const AssetImage("lib/assets/imgs/profile_placeholder.jpg")
+                      as ImageProvider),
         ),
         InkWell(
           onTap: _showImagePickerBottomSheet,
@@ -340,13 +370,12 @@ Future<void> _pickImage(ImageSource source) async {
               ),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: GreenPointColor.abu),
-              )),
+              ),
+              hintText: "Masukkan $label"),
           controller: controller,
           enabled: input,
-          style: GoogleFonts.dmSans(
-              fontSize: 14, fontWeight: FontWeight.normal, color: Colors.black),
-        ),
-        SizedBox(height: 10),
+          style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w500),
+        )
       ],
     );
   }
