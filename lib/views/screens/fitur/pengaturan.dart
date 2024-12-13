@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/providers/user_provider.dart';
+import 'package:greenpoint/views/screens/fitur/ubah_sandi.dart';
 import 'package:greenpoint/views/widget/appbar_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -29,7 +30,12 @@ class _PengaturanPageState extends State<PengaturanPage> {
               "Mengubah Sandi",
               Icons.key,
               Colors.black,
-              () => {},
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UbahSandi()),
+                );
+              },
             ),
             _buildLanguageSwitchOption(),
             const SizedBox(height: 50),
@@ -142,10 +148,8 @@ class _PengaturanPageState extends State<PengaturanPage> {
                   height: 30,
                   width: 60,
                   decoration: BoxDecoration(
-                    color: GreenPointColor.primary, // Warna aktif untuk ID
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(10))
-                  ),
+                      color: GreenPointColor.primary, // Warna aktif untuk ID
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
                   child: TextButton(
                     onPressed: () {},
                     child: Text(
@@ -157,7 +161,6 @@ class _PengaturanPageState extends State<PengaturanPage> {
                     ),
                   ),
                 ),
-              
               ],
             ),
           ],

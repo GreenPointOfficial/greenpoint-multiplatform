@@ -10,93 +10,150 @@ import 'package:google_fonts/google_fonts.dart';
 class NotificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-        double screenHeight = ScreenUtils.screenHeight(context);
-        double screenWidth = ScreenUtils.screenWidth(context);
+    double screenHeight = ScreenUtils.screenHeight(context);
+    double screenWidth = ScreenUtils.screenWidth(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-      backgroundColor: GreenPointColor.secondary,
-      leading: 
-          
-          IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.of(context).pop(),
-              iconSize: screenWidth * 0.06,
-            ),
-      title: Padding(
-        padding: EdgeInsets.only(top: screenHeight * 0.02),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Notifikasi",
-              style: GoogleFonts.dmSans(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
+        backgroundColor: GreenPointColor.secondary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+          iconSize: screenWidth * 0.06,
+        ),
+        title: Padding(
+          padding: EdgeInsets.only(top: screenHeight * 0.02),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Notifikasi",
+                style: GoogleFonts.dmSans(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-           
-          ],
+              const SizedBox(height: 5),
+            ],
+          ),
         ),
-      ),
-      centerTitle: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(30),
+        centerTitle: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
         ),
-      ),
-      actions: [
-        Consumer<NotifikasiProvider>(
-          builder: (context, notifikasiProvider, child) {
-            return notifikasiProvider.notifications.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(Icons.delete_sweep, color: Colors.white),
-                    onPressed: () {
-                      // Konfirmasi sebelum menghapus
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Hapus Semua Notifikasi'),
-                          content: const Text('Apakah Anda yakin ingin menghapus semua notifikasi?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Batal'),
+        actions: [
+          Consumer<NotifikasiProvider>(
+            builder: (context, notifikasiProvider, child) {
+              return notifikasiProvider.notifications.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.delete_sweep, color: Colors.white),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            ElevatedButton(
-                              onPressed: () {
-                                notifikasiProvider.clearAllNotifications();
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Hapus'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  )
-                : const SizedBox.shrink();
-          },
-        ),
-      ],
-      ),
-  
+                            title: Row(children: [
+                              Text(
+                                'Hapus Semua Notifikasi',
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                            ]),
+                            content: Container(
+                                height: 70,
+                                child: Column(
+                                  children: [
+                                    Divider(),
+                                    Text(
+                                      textAlign: TextAlign.center,
+                                      'Apakah anda yakin ingin menghapus semua notifikasi?',
+                                      style: GoogleFonts.dmSans(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                )),
+                            actions: [
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.0,
+                                      vertical: 10.0), // Explicit padding
+                                  maximumSize: Size(100, 42),
+                                  minimumSize: Size(100,
+                                      42), // Ensure both buttons have the same size
+                                  backgroundColor: GreenPointColor.secondary,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                                child: Text(
+                                  'Tidak',
+                                  style: GoogleFonts.dmSans(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    side: BorderSide(
+                                      // width: 3.0,
+                                      color: Colors.red,
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 16.0,
+                                        vertical: 10.0), // Explicit padding
+                                    // backgroundColor: Colors.red,
 
+                                    maximumSize: Size(100, 42),
+                                    minimumSize: Size(100,
+                                        42), // Ensure both buttons have the same size
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    notifikasiProvider.clearAllNotifications();
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    'Ya',
+                                    style: GoogleFonts.dmSans(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.normal,
+                                        color: Colors.red),
+                                  )),
+                            ],
+                          ),
+                        );
+                      },
+                    )
+                  : const SizedBox.shrink();
+            },
+          ),
+        ],
+      ),
       body: Consumer<NotifikasiProvider>(
         builder: (context, NotifikasiProvider, child) {
           final notifications = NotifikasiProvider.notifications;
-          
+
           if (notifications.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.notifications_off_outlined, 
-                    size: 50, 
+                    Icons.notifications_off_outlined,
+                    size: 50,
                     color: Colors.grey,
                   ),
                   SizedBox(height: 16),
@@ -111,7 +168,7 @@ class NotificationPage extends StatelessWidget {
               ),
             );
           }
-          
+
           return ListView.builder(
             itemCount: notifications.length,
             itemBuilder: (context, index) {
@@ -119,7 +176,7 @@ class NotificationPage extends StatelessWidget {
               return Dismissible(
                 key: Key(notification.id),
                 background: Container(
-                  color: Colors.red,
+                  color: GreenPointColor.secondary,
                   alignment: Alignment.centerRight,
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Icon(
@@ -136,18 +193,20 @@ class NotificationPage extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: !notification.isRead ? GreenPointColor.abu : GreenPointColor.secondary,
-                      ), borderRadius: BorderRadius.circular(10)
-                    ),
+                        border: Border.all(
+                          color: !notification.isRead
+                              ? GreenPointColor.secondary
+                              : GreenPointColor.abu,
+                        ),
+                        borderRadius: BorderRadius.circular(10)),
                     child: ListTile(
-                  
                       leading: _getNotificationIcon(notification.type),
                       title: Text(
                         notification.title,
                         style: GoogleFonts.dmSans(
-                          fontWeight: 
-                            notification.isRead ? FontWeight.normal : FontWeight.bold,
+                          fontWeight: notification.isRead
+                              ? FontWeight.normal
+                              : FontWeight.bold,
                         ),
                       ),
                       subtitle: Column(
@@ -161,14 +220,15 @@ class NotificationPage extends StatelessWidget {
                           Text(
                             _formatTimestamp(notification.timestamp),
                             style: GoogleFonts.dmSans(
-                              color: Colors.grey, 
+                              color: Colors.grey,
                               fontSize: 12,
                             ),
                           ),
                         ],
                       ),
                       trailing: !notification.isRead
-                          ? Icon(Icons.circle, color: GreenPointColor.secondary, size: 10)
+                          ? Icon(Icons.circle,
+                              color: GreenPointColor.secondary, size: 10)
                           : null,
                       onTap: () {
                         // Tandai sebagai sudah dibaca

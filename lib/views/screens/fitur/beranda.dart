@@ -1,10 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/controllers/artikel_controller.dart';
 import 'package:greenpoint/controllers/penjualan_controller.dart';
 import 'package:greenpoint/models/top_penjualan_model.dart';
+import 'package:greenpoint/providers/notifikasi_provider.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/views/screens/fitur/notifikasi.dart';
 import 'package:greenpoint/views/widget/notifikasi_widget.dart';
@@ -155,25 +155,60 @@ class _BerandaState extends State<Beranda> {
     );
   }
 
-  Widget _buildHeader() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Image.asset(
-          "lib/assets/imgs/logo.png",
-          width: screenWidth * 0.15,
-          height: screenWidth * 0.1,
-        ),
-        IconButton(
-          icon: const Icon(Icons.notifications),
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> NotificationPage()));
-          },
-        ),
-      ],
-    );
-  }
+ Widget _buildHeader() {
+  final screenWidth = MediaQuery.of(context).size.width;
+  // Akses unreadCount dari provider
+  final int unreadCount = context.watch<NotifikasiProvider>().unreadCount;
+
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Image.asset(
+        "lib/assets/imgs/logo.png",
+        width: screenWidth * 0.15,
+        height: screenWidth * 0.1,
+      ),
+      Stack(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => NotificationPage()));
+            },
+          ),
+          if (unreadCount > 0)
+            Positioned(
+              right: 8,
+              top: 8,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                constraints: const BoxConstraints(
+                  minWidth: 18,
+                  minHeight: 18,
+                ),
+                child: Text(
+                  '$unreadCount', // Menampilkan jumlah notifikasi
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
+      ),
+    ],
+  );
+}
+
+
 
   Widget _buildPointsSection() {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -582,31 +617,23 @@ class _BerandaState extends State<Beranda> {
           return Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              // Podium untuk 2nd Place (Kiri)
               if (topThree.length > 1)
                 Positioned(
-                  left: constraints.maxWidth *
-                      0.1, // Relatif terhadap lebar kontainer
+                  left: constraints.maxWidth * 0.1,
                   bottom: 0,
                   child: _buildPodiumItem(topThree[1], 2,
                       height: 150, color: Colors.grey[300]!),
                 ),
-
-              // Podium untuk 1st Place (Tengah)
               if (topThree.isNotEmpty)
                 Positioned(
-                  left: constraints.maxWidth *
-                      0.365, // Relatif terhadap lebar kontainer
+                  left: constraints.maxWidth * 0.365,
                   bottom: 0,
                   child: _buildPodiumItem(topThree[0], 1,
                       height: 200, color: Colors.amber[200]!),
                 ),
-
-              // Podium untuk 3rd Place (Kanan)
               if (topThree.length > 2)
                 Positioned(
-                  right: constraints.maxWidth *
-                      0.1, // Relatif terhadap lebar kontainer
+                  right: constraints.maxWidth * 0.1,
                   bottom: 0,
                   child: _buildPodiumItem(topThree[2], 3,
                       height: 100, color: Colors.green[400]!),
