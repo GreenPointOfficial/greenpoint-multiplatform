@@ -59,7 +59,9 @@ class UserProvider with ChangeNotifier {
   Future<void> _deleteFromStorage(String key) async {
     try {
       await _secureStorage.delete(key: key);
-    } catch (e) {}
+    } catch (e) {
+      
+    }
   }
 
   Future<void> fetchUserData() async {
@@ -69,7 +71,6 @@ class UserProvider with ChangeNotifier {
     if (userDataString != null && userDataString.isNotEmpty) {
       _user = json.decode(userDataString);
 
-      // Assign user fields
       userName = _user?['name'] ?? '';
       email = _user?['email'] ?? '';
       poin = _user?['poin'] ?? 0;
@@ -90,15 +91,13 @@ class UserProvider with ChangeNotifier {
       bergabungSejak = '';
     }
 
-    // Notify listeners to update the UI with the new data
     notifyListeners();
   } catch (e) {
-    // Handle any errors that occur during the process
     print('Error fetching user data: $e');
     userName = '';
     email = '';
     bergabungSejak = '';
-    poin = 0;  // Reset poin or any other default values as necessary
+    poin = 0;  
   }
 }
 
@@ -108,7 +107,6 @@ class UserProvider with ChangeNotifier {
     try {
       return false;
     } catch (e) {
-      // print('Token refresh error: $e');
       return false;
     }
   }

@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -51,7 +50,6 @@ class _BerandaState extends State<Beranda> {
 
   void _fetchInitialData() async {
     try {
-      // Mengambil data JenisSampah dan Artikel setelah build selesai
       await context.read<JenisSampahController>().fetchJenisSampah();
       await context.read<ArtikelController>().fetchAllArtikel();
       await context.read<PenjualanController>().getTopPenjualan();
@@ -117,7 +115,7 @@ class _BerandaState extends State<Beranda> {
           const SizedBox(height: 20),
           _buildSectionWithTitle(
             "Peringkat Penjualan",
-            _buildPenjualanTerbanyakSection(), // Tambahkan section penjualan terbanyak
+            _buildPenjualanTerbanyakSection(),
             true,
             () => Navigator.push(
               context,
@@ -127,6 +125,31 @@ class _BerandaState extends State<Beranda> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPenjualanTerbanyakSection() {
+    return Consumer<PenjualanController>(
+      builder: (context, penjualanController, _) {
+        if (penjualanController.isLoading) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: GreenPointColor.secondary,
+            ),
+          );
+        }
+
+        if (penjualanController.topPenjualanList.isEmpty) {
+          return const Center(child: Text("Belum ada data penjualan."));
+        }
+        return Column(
+          children: [
+            _buildPodiumPenjualan(
+                context, penjualanController.topPenjualanList),
+            // _buildSisaPenjualanList(penjualanController.topPenjualanList),
+          ],
+        );
+      },
     );
   }
 
@@ -544,77 +567,96 @@ class _BerandaState extends State<Beranda> {
     );
   }
 
-  Widget _buildPenjualanTerbanyakSection() {
-    return Consumer<PenjualanController>(
-      builder: (context, penjualanController, _) {
-        if (penjualanController.isLoading) {
-          return Center(
-              child: CircularProgressIndicator(
-            color: GreenPointColor.secondary,
-          ));
-        }
+  Widget _buildPodiumPenjualan(
+      BuildContext context, List<TopPenjualan> penjualanList) {
+    // Batasi hanya 3 peringkat teratas
+    final topThree = penjualanList.take(3).toList();
 
-        if (penjualanController.topPenjualanList.isEmpty) {
-          return const Center(child: Text("Belum ada data penjualan."));
-        }
-        return Column(
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildPenjualanTerbanyakList(penjualanController.topPenjualanList),
-          ],
-        );
-      },
+    return Container(
+      height: 250,
+      margin: EdgeInsets.only(bottom: 20),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              // Podium untuk 2nd Place (Kiri)
+              if (topThree.length > 1)
+                Positioned(
+                  left: constraints.maxWidth *
+                      0.1, // Relatif terhadap lebar kontainer
+                  bottom: 0,
+                  child: _buildPodiumItem(topThree[1], 2,
+                      height: 150, color: Colors.grey[300]!),
+                ),
+
+              // Podium untuk 1st Place (Tengah)
+              if (topThree.isNotEmpty)
+                Positioned(
+                  left: constraints.maxWidth *
+                      0.35, // Relatif terhadap lebar kontainer
+                  bottom: 0,
+                  child: _buildPodiumItem(topThree[0], 1,
+                      height: 200, color: Colors.amber[200]!),
+                ),
+
+              // Podium untuk 3rd Place (Kanan)
+              if (topThree.length > 2)
+                Positioned(
+                  right: constraints.maxWidth *
+                      0.1, // Relatif terhadap lebar kontainer
+                  bottom: 0,
+                  child: _buildPodiumItem(topThree[2], 3,
+                      height: 100, color: Colors.brown[200]!),
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildPenjualanTerbanyakList(List<TopPenjualan> penjualanList) {
-    final int itemCount = min(penjualanList.length, 5);
-
-    return ListView.builder(
-      shrinkWrap: true,
-      padding: EdgeInsets.only(top: 0),
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: itemCount, // Hanya menampilkan maksimal 5 item
-      itemBuilder: (context, index) {
-        final penjualan = penjualanList[index];
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      text: "${index + 1}. ",
-                      style: GoogleFonts.dmSans(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black),
-                      children: [
-                        TextSpan(
-                          text: penjualan.userName,
-                          style: GoogleFonts.dmSans(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                              color: Colors.black),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    "${penjualan.totalBerat} Kg",
-                    style: GoogleFonts.dmSans(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: GreenPointColor.primary),
-                  ),
-                ],
+  Widget _buildPodiumItem(TopPenjualan penjualan, int ranking,
+      {required double height, required Color color}) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 100,
+          height: height,
+          color: color,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                penjualan.totalBerat.toString() + "Kg",
+                style: GoogleFonts.dmSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-          ],
-        );
-      },
+              SizedBox(height: 10),
+              Text(
+                penjualan.userName,
+                style: GoogleFonts.dmSans(
+                  fontSize: 14,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        Text(
+          "Peringkat $ranking",
+          style: GoogleFonts.dmSans(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }
