@@ -13,7 +13,7 @@ class PengaturanPage extends StatefulWidget {
 }
 
 class _PengaturanPageState extends State<PengaturanPage> {
-  String _selectedLanguage = 'id'; // Default language is 'id'
+  String _selectedLanguage = 'id';
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +105,6 @@ class _PengaturanPageState extends State<PengaturanPage> {
     );
   }
 
-  // Widget untuk opsi beralih bahasa
   Widget _buildLanguageSwitchOption() {
     return Padding(
       padding:
@@ -126,7 +125,7 @@ class _PengaturanPageState extends State<PengaturanPage> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  "Beralih bahasa",
+                  "Bahasa",
                   style: GoogleFonts.dmSans(
                     fontSize: 14,
                     color: Colors.black,
@@ -141,44 +140,24 @@ class _PengaturanPageState extends State<PengaturanPage> {
                 // Tombol untuk bahasa Indonesia (ID)
                 Container(
                   height: 30,
-                  width: 40,
+                  width: 60,
                   decoration: BoxDecoration(
                     color: GreenPointColor.primary, // Warna aktif untuk ID
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        bottomLeft: Radius.circular(10)),
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(10))
                   ),
                   child: TextButton(
                     onPressed: () {},
                     child: Text(
                       'ID',
                       style: GoogleFonts.dmSans(
-                        fontSize: 10,
+                        fontSize: 12,
                         color: Colors.white,
                       ),
                     ),
                   ),
                 ),
-                Container(
-                  height: 30,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300], // Warna non-aktif untuk EN
-                    borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(10),
-                        bottomRight: Radius.circular(10)),
-                  ),
-                  child: TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'EN',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 10,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
+              
               ],
             ),
           ],

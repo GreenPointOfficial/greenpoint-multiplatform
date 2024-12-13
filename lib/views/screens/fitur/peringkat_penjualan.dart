@@ -97,10 +97,9 @@ Widget _buildPodiumPenjualan(BuildContext context, List<TopPenjualan> penjualanL
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            // Podium untuk 2nd Place (Kiri)
             if (topThree.length > 1)
               Positioned(
-                left: constraints.maxWidth * 0.1, // Relatif terhadap lebar kontainer
+                left: constraints.maxWidth * 0.1,
                 bottom: 0,
                 child: _buildPodiumItem(
                   topThree[1], 
@@ -110,10 +109,9 @@ Widget _buildPodiumPenjualan(BuildContext context, List<TopPenjualan> penjualanL
                 ),
               ),
             
-            // Podium untuk 1st Place (Tengah)
             if (topThree.isNotEmpty)
               Positioned(
-                left: constraints.maxWidth * 0.35, // Relatif terhadap lebar kontainer
+                left: constraints.maxWidth * 0.365,
                 bottom: 0,
                 child: _buildPodiumItem(
                   topThree[0], 
@@ -123,16 +121,15 @@ Widget _buildPodiumPenjualan(BuildContext context, List<TopPenjualan> penjualanL
                 ),
               ),
             
-            // Podium untuk 3rd Place (Kanan)
             if (topThree.length > 2)
               Positioned(
-                right: constraints.maxWidth * 0.1, // Relatif terhadap lebar kontainer
+                right: constraints.maxWidth * 0.1,
                 bottom: 0,
                 child: _buildPodiumItem(
                   topThree[2], 
                   3, 
                   height: 100, 
-                  color: Colors.brown[200]!
+                  color: Colors.green[400]!
                 ),
               ),
           ],

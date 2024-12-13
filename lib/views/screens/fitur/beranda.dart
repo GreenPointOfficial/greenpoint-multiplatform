@@ -596,7 +596,7 @@ class _BerandaState extends State<Beranda> {
               if (topThree.isNotEmpty)
                 Positioned(
                   left: constraints.maxWidth *
-                      0.35, // Relatif terhadap lebar kontainer
+                      0.365, // Relatif terhadap lebar kontainer
                   bottom: 0,
                   child: _buildPodiumItem(topThree[0], 1,
                       height: 200, color: Colors.amber[200]!),
@@ -609,7 +609,7 @@ class _BerandaState extends State<Beranda> {
                       0.1, // Relatif terhadap lebar kontainer
                   bottom: 0,
                   child: _buildPodiumItem(topThree[2], 3,
-                      height: 100, color: Colors.brown[200]!),
+                      height: 100, color: Colors.green[400]!),
                 ),
             ],
           );

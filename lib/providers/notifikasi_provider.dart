@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:greenpoint/main.dart';
 import 'package:greenpoint/models/notifikasi_model.dart';
 import 'dart:convert';
 
@@ -22,6 +24,7 @@ class NotifikasiProvider extends ChangeNotifier {
   // Tambah notifikasi baru
   void addNotification(NotifikasiModel notification) async {
     _notifications.insert(0, notification);
+    showNotification(notification);
 
     // Simpan ke penyimpanan aman
     await _saveNotifications();
@@ -81,5 +84,27 @@ class NotifikasiProvider extends ChangeNotifier {
     _notifications.clear();
     await _storage.delete(key: 'notifications');
     notifyListeners();
+  }
+
+  void showNotification(NotifikasiModel notification) async {
+    const AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+      'channel_id', // ID channel unik
+      'General Notifications', // Nama channel
+      channelDescription: 'Notifications for the app',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+
+    const NotificationDetails notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0, // ID notifikasi
+      notification.title, // Judul notifikasi
+      notification.message, // Pesan notifikasi
+      notificationDetails,
+    );
   }
 }

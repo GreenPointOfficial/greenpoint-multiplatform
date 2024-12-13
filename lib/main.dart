@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:greenpoint/controllers/artikel_controller.dart';
 import 'package:greenpoint/controllers/dampak_controller.dart';
@@ -12,9 +13,23 @@ import 'package:provider/provider.dart';
 import 'package:greenpoint/controllers/jenis_sampah_controller.dart';
 import 'package:greenpoint/views/screens/fitur/splash.dart';
 
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await GoogleSignIn().isSignedIn();
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher'); 
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+  );
+
   runApp(
     MultiProvider(
       providers: [

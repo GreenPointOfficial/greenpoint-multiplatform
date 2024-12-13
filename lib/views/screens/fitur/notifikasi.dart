@@ -96,14 +96,14 @@ class NotificationPage extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.notifications_off_outlined, 
-                    size: 100, 
+                    size: 50, 
                     color: Colors.grey,
                   ),
                   SizedBox(height: 16),
                   Text(
                     'Tidak ada notifikasi',
                     style: GoogleFonts.dmSans(
-                      fontSize: 18,
+                      fontSize: 14,
                       color: Colors.grey,
                     ),
                   ),
@@ -168,7 +168,7 @@ class NotificationPage extends StatelessWidget {
                         ],
                       ),
                       trailing: !notification.isRead
-                          ? Icon(Icons.circle, color: Colors.blue, size: 10)
+                          ? Icon(Icons.circle, color: GreenPointColor.secondary, size: 10)
                           : null,
                       onTap: () {
                         // Tandai sebagai sudah dibaca
