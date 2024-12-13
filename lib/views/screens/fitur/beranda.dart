@@ -155,60 +155,60 @@ class _BerandaState extends State<Beranda> {
     );
   }
 
- Widget _buildHeader() {
-  final screenWidth = MediaQuery.of(context).size.width;
-  // Akses unreadCount dari provider
-  final int unreadCount = context.watch<NotifikasiProvider>().unreadCount;
+  Widget _buildHeader() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Akses unreadCount dari provider
+    final int unreadCount = context.watch<NotifikasiProvider>().unreadCount;
 
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Image.asset(
-        "lib/assets/imgs/logo.png",
-        width: screenWidth * 0.15,
-        height: screenWidth * 0.1,
-      ),
-      Stack(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => NotificationPage()));
-            },
-          ),
-          if (unreadCount > 0)
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                constraints: const BoxConstraints(
-                  minWidth: 18,
-                  minHeight: 18,
-                ),
-                child: Text(
-                  '$unreadCount', // Menampilkan jumlah notifikasi
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Image.asset(
+          "lib/assets/imgs/logo.png",
+          width: screenWidth * 0.15,
+          height: screenWidth * 0.1,
+        ),
+        Stack(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => NotificationPage()));
+              },
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
                   ),
-                  textAlign: TextAlign.center,
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Text(
+                    '$unreadCount', // Menampilkan jumlah notifikasi
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
-    ],
-  );
-}
-
-
+          ],
+        ),
+      ],
+    );
+  }
 
   Widget _buildPointsSection() {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -219,7 +219,7 @@ class _BerandaState extends State<Beranda> {
 
     String addEllipsis(String text) {
       if (text.length > 8) {
-        return text.substring(0, 12) + '...';
+        return text.substring(0, 9) + '...'; // Truncate to 8 characters
       }
       return text;
     }
