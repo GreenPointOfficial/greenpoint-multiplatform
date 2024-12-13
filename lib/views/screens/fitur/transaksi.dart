@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:greenpoint/models/notifikasi_model.dart';
+import 'package:greenpoint/providers/notifikasi_provider.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
 import 'package:intl/intl.dart';
@@ -192,6 +194,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Poin berhasil ditukar")),
                       );
+                      _createNotificationAfterPayout(context, amount, ewalletChannel);
                     } else {
                       showDialog(
                         context: context,
@@ -578,4 +581,20 @@ class _TransaksiPageState extends State<TransaksiPage> {
       ),
     );
   }
+
+  void _createNotificationAfterPayout(BuildContext context, double amount, String ewalletChannel) {
+  final notificationProvider = Provider.of<NotifikasiProvider>(context, listen: false);
+  
+  final notification = NotifikasiModel(
+    id: DateTime.now().toString(),
+    title: 'Penukaran Poin Berhasil',
+    message: 'Anda berhasil menukar Rp${amount.toStringAsFixed(2)} ke $ewalletChannel',
+    timestamp: DateTime.now(),
+    type: 'payout',
+  );
+
+  // Tambahkan notifikasi
+  notificationProvider.addNotification(notification);
+}
+
 }

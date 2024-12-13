@@ -6,6 +6,8 @@ import 'package:greenpoint/controllers/artikel_controller.dart';
 import 'package:greenpoint/controllers/penjualan_controller.dart';
 import 'package:greenpoint/models/top_penjualan_model.dart';
 import 'package:greenpoint/providers/user_provider.dart';
+import 'package:greenpoint/views/screens/fitur/notifikasi.dart';
+import 'package:greenpoint/views/widget/notifikasi_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
@@ -166,7 +168,7 @@ class _BerandaState extends State<Beranda> {
         IconButton(
           icon: const Icon(Icons.notifications),
           onPressed: () {
-            // Handle notifications
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> NotificationPage()));
           },
         ),
       ],

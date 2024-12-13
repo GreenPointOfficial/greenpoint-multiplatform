@@ -6,6 +6,7 @@ import 'package:greenpoint/controllers/daur_ulang_controller.dart';
 import 'package:greenpoint/controllers/lokasi_controller.dart';
 import 'package:greenpoint/controllers/payout_controller.dart';
 import 'package:greenpoint/controllers/penjualan_controller.dart';
+import 'package:greenpoint/providers/notifikasi_provider.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:greenpoint/controllers/jenis_sampah_controller.dart';
@@ -17,6 +18,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => NotifikasiProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => PayoutController()),
         ChangeNotifierProvider(create: (_) => JenisSampahController()),
