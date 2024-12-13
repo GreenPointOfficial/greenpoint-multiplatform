@@ -4,7 +4,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/controllers/auth_controller.dart';
 import 'package:greenpoint/providers/user_provider.dart';
-import 'package:greenpoint/service/auth_service.dart';
 import 'package:greenpoint/views/screens/auth/daftar_page.dart';
 import 'package:greenpoint/views/screens/fitur/beranda.dart';
 import 'package:greenpoint/views/widget/input_widget.dart';

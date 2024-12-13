@@ -4,12 +4,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/models/user_model.dart';
+import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/service/auth_service.dart';
 import 'package:greenpoint/views/widget/appbar_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 class KelolaProfilePage extends StatefulWidget {
   const KelolaProfilePage({Key? key}) : super(key: key);
@@ -121,27 +123,35 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
       },
     );
   }
-
-  Future<void> _pickImage(ImageSource source) async {
+Future<void> _pickImage(ImageSource source) async {
   try {
     // Pick an image from the gallery or camera
     final pickedFile = await _imagePicker.pickImage(source: source);
 
-    // Check if an image is picked
     if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);  // Save the picked image to _imageFile
-        _checkChanges();  // Your function to handle any logic after the image is picked
-      });
+      // Check if the selected file is an image
+      String filePath = pickedFile.path;
+      String fileExtension = filePath.split('.').last.toLowerCase();
+
+      // Validate file extension
+      if (['jpeg', 'jpg', 'png', 'gif', 'svg'].contains(fileExtension)) {
+        setState(() {
+          _imageFile = File(pickedFile.path);  // Save the picked image to _imageFile
+          _checkChanges();  // Your function to handle any logic after the image is picked
+        });
+      } else {
+        Fluttertoast.showToast(
+          msg: "Invalid file type. Please select an image (jpeg, jpg, png, gif, svg).",
+          toastLength: Toast.LENGTH_SHORT,
+        );
+      }
     } else {
-      // Toast message if no image is selected
       Fluttertoast.showToast(
         msg: "No image selected",
         toastLength: Toast.LENGTH_SHORT,
       );
     }
   } catch (e) {
-    // Catch any errors during image picking
     print('Error picking image: $e');
     Fluttertoast.showToast(
       msg: "Failed to pick image. Please try again.",
@@ -184,7 +194,9 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
         setState(() {
           _userData = response;
           _nameController.text = _userData?.name ?? '';
-          
+            Provider.of<UserProvider>(context, listen: false).autoRefreshUserData({
+          'name': updatedName 
+        });
           _imageFile = null; 
           _hasChanges = false;
         });

@@ -156,6 +156,14 @@ class _BerandaState extends State<Beranda> {
       fontWeight: FontWeight.bold,
       fontSize: screenWidth * 0.045,
     );
+
+    String addEllipsis(String text) {
+      if (text.length > 8) {
+        return text.substring(0, 12) + '...';
+      }
+      return text;
+    }
+
     final TextStyle subtitleStyle = GoogleFonts.dmSans(
       fontSize: screenWidth * 0.035,
       color: GreenPointColor.abu,
@@ -172,7 +180,7 @@ class _BerandaState extends State<Beranda> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Hello, $userName", style: titleStyle),
+            Text(addEllipsis("Hello, $userName"), style: titleStyle),
             Text("Poin kamu saat ini", style: subtitleStyle),
           ],
         ),
