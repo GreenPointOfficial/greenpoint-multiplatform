@@ -62,43 +62,45 @@ class UserProvider with ChangeNotifier {
       await _secureStorage.delete(key: key);
     } catch (e) {}
   }
-Future<void> fetchUserData() async {
-  try {
-    final userDataString = await _secureStorage.read(key: 'user_data');
 
-    if (userDataString != null && userDataString.isNotEmpty) {
-      _user = json.decode(userDataString);
+  Future<void> fetchUserData() async {
+    try {
+      final userDataString = await _secureStorage.read(key: 'user_data');
 
-      userName = _user?['name'] ?? '';
-      email = _user?['email'] ?? '';
-      poin = _user?['poin'] ?? 0;
-      foto = _user?['foto'] ?? ''; 
-      bergabungSejak = _user?['created_at'] ?? '';
+      if (userDataString != null && userDataString.isNotEmpty) {
+        _user = json.decode(userDataString);
+        print(_user.toString());
 
-      if (bergabungSejak.isNotEmpty) {
-        DateTime? joinDate = DateTime.tryParse(bergabungSejak);
-        if (joinDate != null) {
-          bergabungSejak = DateFormat('yyyy-MM-dd').format(joinDate);
+        userName = _user?['name'] ?? '';
+        email = _user?['email'] ?? '';
+        poin = _user?['poin'] ?? 0;
+        foto = _user?['foto'] ?? '';
+        bergabungSejak = _user?['created_at'] ?? '';
+
+        if (bergabungSejak.isNotEmpty) {
+          DateTime? joinDate = DateTime.tryParse(bergabungSejak);
+          if (joinDate != null) {
+            bergabungSejak = DateFormat('yyyy-MM-dd').format(joinDate);
+          }
         }
-      }
 
-      notifyListeners(); 
-    } else {
-      _user = {};
+        notifyListeners();
+      } else {
+        _user = {};
+        userName = '';
+        email = '';
+        bergabungSejak = '';
+        foto = ''; // Reset the photo if data not found
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
       userName = '';
       email = '';
       bergabungSejak = '';
-      foto = ''; // Reset the photo if data not found
+      poin = 0;
+      foto = ''; // Reset photo on error
     }
-  } catch (e) {
-    print('Error fetching user data: $e');
-    userName = '';
-    email = '';
-    bergabungSejak = '';
-    poin = 0;
-    foto = ''; // Reset photo on error
   }
-}
 
   bool isTokenValid() => _token != null && _token!.isNotEmpty;
 

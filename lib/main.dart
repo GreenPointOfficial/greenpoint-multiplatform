@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:greenpoint/controllers/artikel_controller.dart';
 import 'package:greenpoint/controllers/dampak_controller.dart';
 import 'package:greenpoint/controllers/daur_ulang_controller.dart';

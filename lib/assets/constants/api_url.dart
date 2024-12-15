@@ -6,6 +6,7 @@ class ApiUrl {
   // Full Base API URL
   static String get baseApiUrl => "$baseUrl/api/$apiVersion";
   static String get baseImageUrl => "$baseUrl/storage/";
+  static String get baseImageUrlProfile => "$baseUrl/storage";
 
   // Authentication
   static const String register = "/register";

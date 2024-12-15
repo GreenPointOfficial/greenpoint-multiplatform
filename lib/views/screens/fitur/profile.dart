@@ -22,7 +22,10 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    Provider.of<UserProvider>(context, listen: false).fetchUserData();
+    // Fetch user data only if it's not already loaded
+    if (Provider.of<UserProvider>(context, listen: false).userName.isEmpty) {
+      Provider.of<UserProvider>(context, listen: false).fetchUserData();
+    }
   }
 
   @override
@@ -89,6 +92,8 @@ class _ProfilePageState extends State<ProfilePage> {
   final userName = Provider.of<UserProvider>(context).userName;
   final email = Provider.of<UserProvider>(context).email;
   final foto = Provider.of<UserProvider>(context).foto;
+  print("User profile image URL: $foto");
+
 
   return Row(
     children: [

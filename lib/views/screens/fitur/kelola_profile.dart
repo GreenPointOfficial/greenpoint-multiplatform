@@ -181,74 +181,89 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
     return jsonResponse['imageUrl'];
   }
 
-  Future<void> _updateUserProfile({String? imagePath}) async {
-    try {
-      String? token = await _secureStorage.read(key: 'auth_token');
-      String updatedName = _nameController.text;
+ Future<void> _updateUserProfile({String? imagePath}) async {
+  try {
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
 
-      if (updatedName.isEmpty) {
-        Fluttertoast.showToast(
-          msg: "Nama tidak boleh kosong",
-          toastLength: Toast.LENGTH_SHORT,
-        );
-        return;
-      }
+    String? token = await _secureStorage.read(key: 'auth_token');
+    String updatedName = _nameController.text;
 
-      // Only proceed if there are changes
-      if (!_hasChanges) {
-        Fluttertoast.showToast(
-          msg: "Tidak ada perubahan untuk disimpan",
-          toastLength: Toast.LENGTH_SHORT,
-        );
-        return;
-      }
-
-      String uploadedImageUrl = '';
-
-      if (imagePath != null) {
-        uploadedImageUrl = await uploadImageToServer(imagePath);
-      }
-      print('ini adalah $uploadedImageUrl');
-
-      var response = await _authService.updateUserData(
-        token: token,
-        name: updatedName,
-        password: null,
-        imagePath: uploadedImageUrl,
-      );
-      final baseurl = ApiUrl.baseUrl;
-      print('ini adalah $baseurl $uploadedImageUrl');
-
-      if (response != null) {
-        setState(() {
-          _userData = response;
-          _nameController.text = _userData?.name ?? '';
-          Provider.of<UserProvider>(context, listen: false).autoRefreshUserData(
-              {'name': updatedName, 'foto': ApiUrl.baseUrl + uploadedImageUrl});
-          _imageFile = null;
-          _hasChanges = false;
-        });
-
-        Fluttertoast.showToast(
-          msg: "Profil berhasil diperbarui",
-          toastLength: Toast.LENGTH_SHORT,
-        );
-      } else {
-        Fluttertoast.showToast(
-          msg: "Gagal memperbarui profil",
-          toastLength: Toast.LENGTH_LONG,
-          backgroundColor: Colors.red,
-        );
-      }
-    } catch (e) {
-      print('Error updating profile: $e');
+    if (updatedName.isEmpty) {
       Fluttertoast.showToast(
-        msg: "Gagal memperbarui profil: $e",
+        msg: "Nama tidak boleh kosong",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+      return;
+    }
+
+    // Only proceed if there are changes
+    if (!_hasChanges) {
+      Fluttertoast.showToast(
+        msg: "Tidak ada perubahan untuk disimpan",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+      return;
+    }
+
+    String uploadedImageUrl = '';
+
+    // Check if an image was selected
+    if (imagePath != null) {
+      uploadedImageUrl = await uploadImageToServer(imagePath);
+      Provider.of<UserProvider>(context, listen: false)
+            .autoRefreshUserData({
+          'foto': ApiUrl.baseUrl + uploadedImageUrl
+        });
+    } 
+
+    var response = await _authService.updateUserData(
+      token: token,
+      name: updatedName,
+      password: null,
+      imagePath: uploadedImageUrl,
+    );
+
+    if (response != null) {
+      setState(() {
+        _userData = response;
+        _nameController.text = _userData?.name ?? '';
+        Provider.of<UserProvider>(context, listen: false)
+            .autoRefreshUserData({
+          'name': updatedName,
+          // 'foto': ApiUrl.baseUrl + uploadedImageUrl
+        });
+        String updatedProfileUrl = ApiUrl.baseUrl + uploadedImageUrl;
+
+        _imageFile = null;
+        _hasChanges = false;
+      });
+
+      Fluttertoast.showToast(
+        msg: "Profil berhasil diperbarui",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: "Gagal memperbarui profil",
         toastLength: Toast.LENGTH_LONG,
         backgroundColor: Colors.red,
       );
     }
+  } catch (e) {
+    print('Error updating profile: $e');
+    Fluttertoast.showToast(
+      msg: "Gagal memperbarui profil: $e",
+      toastLength: Toast.LENGTH_LONG,
+      backgroundColor: Colors.red,
+    );
+  } finally {
+    setState(() {
+      _isLoading = false; // Hide loading indicator
+    });
   }
+}
 
   @override
   void dispose() {
@@ -292,15 +307,24 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
                         ),
-                        onPressed: _hasChanges
+                        onPressed: _hasChanges && !_isLoading
                             ? () {
                                 _updateUserProfile(imagePath: _imageFile?.path);
                               }
                             : null,
-                        child: const Text(
-                          "Simpan perubahan",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        child: _isLoading
+                            ? SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                "Simpan perubahan",
+                                style: TextStyle(fontSize: 16),
+                              ),
                       ),
                       const SizedBox(height: 50),
                       Text(
