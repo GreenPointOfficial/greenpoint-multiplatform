@@ -54,6 +54,7 @@ class _PengaturanPageState extends State<PengaturanPage> {
   Widget _buildProfileHeader() {
     final userName = Provider.of<UserProvider>(context).userName;
     final email = Provider.of<UserProvider>(context).email;
+    final foto = Provider.of<UserProvider>(context).foto;
 
     return Row(
       children: [
@@ -62,8 +63,12 @@ class _PengaturanPageState extends State<PengaturanPage> {
           width: 70,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(50),
-            image: const DecorationImage(
-              image: AssetImage("lib/assets/imgs/profile_placeholder.jpg"),
+            image: DecorationImage(
+              image: foto.isNotEmpty
+                  ? NetworkImage(foto)
+                  : AssetImage("lib/assets/imgs/profile_placeholder.jpg")
+                      as ImageProvider, // Default placeholder if no profile image
+              fit: BoxFit.cover,
             ),
           ),
         ),

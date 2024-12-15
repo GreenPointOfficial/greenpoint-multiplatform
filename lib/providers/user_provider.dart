@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:greenpoint/assets/constants/api_url.dart';
+import 'package:http/http.dart' as http;
+
 import 'dart:convert';
 
 import 'package:intl/intl.dart';
@@ -124,4 +128,52 @@ class UserProvider with ChangeNotifier {
       await fetchUserData();
     } catch (e) {}
   }
+Future<http.Response> updatePassword(
+    String currentPassword, String newPassword) async {
+  try {
+    // Validasi password baru
+    if (newPassword.isEmpty || newPassword.length < 8) {
+      Fluttertoast.showToast(
+        msg: 'Password harus memiliki minimal 8 karakter',
+        toastLength: Toast.LENGTH_SHORT,
+      );
+      throw Exception('Password invalid');
+    }
+
+    // Ambil token autentikasi
+    String? token = await _secureStorage.read(key: 'auth_token');
+    if (token == null || token.isEmpty) {
+      Fluttertoast.showToast(
+        msg: 'Pengguna belum terautentikasi',
+        toastLength: Toast.LENGTH_SHORT,
+      );
+      throw Exception('Tidak terautentikasi');
+    }
+
+    final url = ApiUrl.buildUrl(ApiUrl.changePass);
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'current_password': currentPassword,
+        'new_password': newPassword,
+      }),
+    );
+
+    return response;
+  } catch (e) {
+    print('Error mengubah password: $e');
+    Fluttertoast.showToast(
+      msg: 'Terjadi kesalahan: $e',
+      toastLength: Toast.LENGTH_SHORT,
+    );
+    rethrow;
+  }
+}
+
+  // Implementasi metode fetchUserData
 }

@@ -11,6 +11,7 @@ class ApiUrl {
   // Authentication
   static const String register = "/register";
   static const String login = "/login";
+  static const String changePass = "/change-password";
   static const String loginGoogle = "/auth/google/callback";
   static const String logout = "/logout";
   static const String user = "/user";

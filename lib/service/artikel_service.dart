@@ -22,7 +22,6 @@ class ArtikelService {
     }
   }
 
-  // Fetch a single article by ID
   Future<Artikel> fetchArtikelById(int id) async {
     final response = await http.get(Uri.parse('$url/$id'));
     if (response.statusCode == 200) {
