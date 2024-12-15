@@ -20,7 +20,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
   String? _selectedEwallet;
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  bool _isLoading = false; // Add this variable to track loading state
+  bool _isLoading = false;
 
   void _selectEwallet(String ewallet) {
     setState(() {
@@ -82,8 +82,14 @@ class _TransaksiPageState extends State<TransaksiPage> {
               TombolWidget(
                 warna: GreenPointColor.primary,
                 warnaText: Colors.white,
-                text: "Tukar",
+                text: _isLoading
+                    ? "Proses..."
+                    : "Tukar", // Change text to empty when loading
                 onPressed: () async {
+                  setState(() {
+                    _isLoading = true; // Set loading state to true
+                  });
+
                   double amount =
                       double.tryParse(_amountController.text) ?? 0.0;
                   String phone = _phoneController.text;
@@ -99,6 +105,10 @@ class _TransaksiPageState extends State<TransaksiPage> {
                     );
 
                     if (success) {
+                      setState(() {
+                        _isLoading = false; // Set loading state to true
+                      });
+
                       // Update user data after successful transaction
                       Provider.of<UserProvider>(context, listen: false)
                           .autoRefreshUserData({
@@ -198,6 +208,10 @@ class _TransaksiPageState extends State<TransaksiPage> {
                       _createNotificationAfterPayout(
                           context, amount, ewalletChannel);
                     } else {
+                      setState(() {
+                        _isLoading = false; // Set loading state to true
+                      });
+
                       showDialog(
                         context: context,
                         builder: (_) => AlertDialog(
