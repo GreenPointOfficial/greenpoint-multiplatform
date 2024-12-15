@@ -264,7 +264,6 @@ class _MasukPageState extends State<MasukPage> {
                               });
                             },
                             shape: RoundedRectangleBorder(
-                              
                               borderRadius: BorderRadius.circular(50),
                             ),
                             side: BorderSide(color: Colors.grey),
