@@ -5,14 +5,12 @@ import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/controllers/auth_controller.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/views/screens/auth/daftar_page.dart';
-import 'package:greenpoint/views/screens/fitur/beranda.dart';
 import 'package:greenpoint/views/widget/input_widget.dart';
 import 'package:greenpoint/views/widget/navbar_widget.dart';
 import 'package:greenpoint/views/widget/notifikasi_widget.dart';
 import 'package:greenpoint/views/widget/welcome_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 class MasukPage extends StatefulWidget {
   const MasukPage({super.key});
@@ -56,18 +54,22 @@ class _MasukPageState extends State<MasukPage> {
   }
 
   void showNotification(String message, Color bgColor, Color textColor) {
-    setState(() {
-      notificationMessage = message;
-      notificationColor = bgColor;
-      notificationTextColor = textColor;
-    });
+    if (mounted) {
+      setState(() {
+        notificationMessage = message;
+        notificationColor = bgColor;
+        notificationTextColor = textColor;
+      });
+    }
 
     Future.delayed(const Duration(seconds: 3), () {
-      setState(() {
-        notificationMessage = null;
-        notificationColor = Colors.transparent;
-        notificationTextColor = Colors.black;
-      });
+      if (mounted) {
+        setState(() {
+          notificationMessage = null;
+          notificationColor = Colors.transparent;
+          notificationTextColor = Colors.black;
+        });
+      }
     });
   }
 
@@ -158,44 +160,24 @@ class _MasukPageState extends State<MasukPage> {
     setState(() {
       isLoading = true;
     });
-
-    try {
-      final response = await _authController.handleGoogleLogin();
-
-      if (response['success']) {
-        final userData = response['user_data'];
-        final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.setUser(userData, response['token']);
-
-        await _secureStorage.delete(key: 'remembered_email');
-        await _secureStorage.delete(key: 'remembered_password');
-
-        showNotification(
-          "Google login berhasil!",
-          Colors.white,
-          GreenPointColor.primary,
-        );
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Beranda()),
-        );
-      } else {
-        showNotification(
-          response['message'] ?? "Google login gagal.",
-          Colors.white,
-          Colors.red,
-        );
-      }
-    } catch (e) {
-      print('Google login error: $e');
+    final response = await _authController.handleGoogleLogin();
+    if (response['success']) {
       showNotification(
-        "Google login gagal. Terjadi kesalahan.",
+        "Google login berhasil!",
+        Colors.white,
+        GreenPointColor.primary,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => NavBottom()),
+      );
+    } else {
+      showNotification(
+        response['message'] ?? "Google login gagal.",
         Colors.white,
         Colors.red,
       );
     }
-
     setState(() {
       isLoading = false;
     });
@@ -280,18 +262,18 @@ class _MasukPageState extends State<MasukPage> {
                         ),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        // Aksi ketika teks "Lupa kata sandi?" diklik
-                      },
-                      child: Text(
-                        "Lupa kata sandi?",
-                        style: GoogleFonts.poppins(
-                            color: GreenPointColor.primary,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 12),
-                      ),
-                    ),
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     // Aksi ketika teks "Lupa kata sandi?" diklik
+                    //   },
+                    //   child: Text(
+                    //     "Lupa kata sandi?",
+                    //     style: GoogleFonts.poppins(
+                    //         color: GreenPointColor.primary,
+                    //         fontWeight: FontWeight.w700,
+                    //         fontSize: 12),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

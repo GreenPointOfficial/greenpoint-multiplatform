@@ -77,30 +77,29 @@ class AuthController {
     }
   }
 
-  // Handle Google login
-  Future<Map<String, dynamic>> handleGoogleLogin() async {
-    try {
-      String token = await _authService.signInWithGoogle();
-
-      if (token.isNotEmpty) {
-        return {
-          'success': true,
-          'message': 'Google login successful',
-          'token': token,
-        };
-      } else {
-        return {
-          'success': false,
-          'message': 'Google login failed: Empty token',
-        };
-      }
-    } catch (e) {
+   Future<Map<String, dynamic>> handleGoogleLogin() async {
+  try {
+    String token = await _authService.signInWithGoogle();
+    
+    if (token.isNotEmpty) {
+      return {
+        'success': true,
+        'message': 'Google login successful',
+        'token': token, // Add token to the response
+      };
+    } else {
       return {
         'success': false,
-        'message': 'Google login failed: $e',
+        'message': 'Google login failed: Empty token',
       };
     }
+  } catch (e) {
+    return {
+      'success': false,
+      'message': 'Google login failed: $e',
+    };
   }
+}
 
   Future<bool> isAuthenticated() async {
     final token = await _authService.getToken();

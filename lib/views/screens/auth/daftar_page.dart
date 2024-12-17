@@ -7,6 +7,7 @@ import 'package:greenpoint/controllers/auth_controller.dart';
 import 'package:greenpoint/views/screens/auth/masuk_page.dart';
 import 'package:greenpoint/views/widget/appbar_widget.dart';
 import 'package:greenpoint/views/widget/input_widget.dart';
+import 'package:greenpoint/views/widget/navbar_widget.dart';
 import 'package:greenpoint/views/widget/notifikasi_widget.dart';
 import 'package:greenpoint/views/widget/tombol_widget.dart';
 
@@ -21,7 +22,7 @@ class _DaftarPageState extends State<DaftarPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final AuthController authController = AuthController();
+  final AuthController _authController = AuthController();
   bool isLoading = false;
   String? notificationMessage;
   Color notificationColor = Colors.transparent;
@@ -38,6 +39,33 @@ class _DaftarPageState extends State<DaftarPage> {
         notificationMessage = null;
         notificationColor = Colors.transparent;
       });
+    });
+  }
+
+  Future<void> handleGoogleLogin() async {
+    setState(() {
+      isLoading = true;
+    });
+    final response = await _authController.handleGoogleLogin();
+    if (response['success']) {
+      showNotification(
+        "Google login berhasil!",
+        Colors.white,
+        // GreenPointColor.primary,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => NavBottom()),
+      );
+    } else {
+      showNotification(
+        response['message'] ?? "Google login gagal.",
+        Colors.white,
+        // Colors.red,
+      );
+    }
+    setState(() {
+      isLoading = false;
     });
   }
 
@@ -136,7 +164,7 @@ class _DaftarPageState extends State<DaftarPage> {
 
                             try {
                               // Panggil fungsi register
-                              await authController.registerUser(
+                              await _authController.registerUser(
                                 nameController.text,
                                 emailController.text,
                                 passwordController.text,
@@ -256,9 +284,7 @@ class _DaftarPageState extends State<DaftarPage> {
                   warna: Colors.white,
                   warnaText: Colors.black,
                   text: 'Google',
-                  onPressed: () {
-                    // Your onPressed logic here
-                  },
+                  onPressed: () => handleGoogleLogin(),
                   width: ScreenUtils.screenWidth(context) * 0.85,
                   assetIcon: "lib/assets/imgs/google.png",
                 ),

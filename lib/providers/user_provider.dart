@@ -175,5 +175,4 @@ Future<http.Response> updatePassword(
   }
 }
 
-  // Implementasi metode fetchUserData
 }

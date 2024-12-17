@@ -82,34 +82,22 @@ class AuthService {
   // Login dengan Google
   Future<String> signInWithGoogle() async {
     try {
+      // Start the Google Sign-In process
       GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
       if (googleUser == null) {
+        // The user canceled the sign-in process
         throw Exception("Google sign-in was canceled.");
       }
-
+      // Obtain authentication details
       GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      final url = ApiUrl.buildUrl(ApiUrl.loginGoogle);
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'id_token': googleAuth.idToken}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final token = data['token'];
-        await _saveToken(token);
-        return token;
-      } else {
-        throw Exception('Google login failed: ${response.body}');
-      }
+      // Return the Google ID token
+      return googleAuth.idToken ?? '';
     } catch (e) {
+      // Catch and print the error message
+      print("Google Sign-In error: $e");
       throw Exception("Google Sign-In failed: $e");
     }
   }
-
   // Future<Map<String, dynamic>> fetchProtectedResource(String endpoint) async {
   //   final token = await getToken();
   //   if (token == null) throw Exception('User is not authenticated.');
