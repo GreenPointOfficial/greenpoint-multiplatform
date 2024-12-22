@@ -181,89 +181,85 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
     return jsonResponse['imageUrl'];
   }
 
- Future<void> _updateUserProfile({String? imagePath}) async {
-  try {
-    setState(() {
-      _isLoading = true; // Show loading indicator
-    });
-
-    String? token = await _secureStorage.read(key: 'auth_token');
-    String updatedName = _nameController.text;
-
-    if (updatedName.isEmpty) {
-      Fluttertoast.showToast(
-        msg: "Nama tidak boleh kosong",
-        toastLength: Toast.LENGTH_SHORT,
-      );
-      return;
-    }
-
-    // Only proceed if there are changes
-    if (!_hasChanges) {
-      Fluttertoast.showToast(
-        msg: "Tidak ada perubahan untuk disimpan",
-        toastLength: Toast.LENGTH_SHORT,
-      );
-      return;
-    }
-
-    String uploadedImageUrl = '';
-
-    // Check if an image was selected
-    if (imagePath != null) {
-      uploadedImageUrl = await uploadImageToServer(imagePath);
-      Provider.of<UserProvider>(context, listen: false)
-            .autoRefreshUserData({
-          'foto': ApiUrl.baseUrl + uploadedImageUrl
-        });
-    } 
-
-    var response = await _authService.updateUserData(
-      token: token,
-      name: updatedName,
-      password: null,
-      imagePath: uploadedImageUrl,
-    );
-
-    if (response != null) {
+  Future<void> _updateUserProfile({String? imagePath}) async {
+    try {
       setState(() {
-        _userData = response;
-        _nameController.text = _userData?.name ?? '';
-        Provider.of<UserProvider>(context, listen: false)
-            .autoRefreshUserData({
-          'name': updatedName,
-          // 'foto': ApiUrl.baseUrl + uploadedImageUrl
-        });
-        String updatedProfileUrl = ApiUrl.baseUrl + uploadedImageUrl;
-
-        _imageFile = null;
-        _hasChanges = false;
+        _isLoading = true;
       });
 
-      Fluttertoast.showToast(
-        msg: "Profil berhasil diperbarui",
-        toastLength: Toast.LENGTH_SHORT,
+      String? token = await _secureStorage.read(key: 'auth_token');
+      String updatedName = _nameController.text;
+
+      if (updatedName.isEmpty) {
+        Fluttertoast.showToast(
+          msg: "Nama tidak boleh kosong",
+          toastLength: Toast.LENGTH_SHORT,
+        );
+        return;
+      }
+
+      if (!_hasChanges) {
+        Fluttertoast.showToast(
+          msg: "Tidak ada perubahan untuk disimpan",
+          toastLength: Toast.LENGTH_SHORT,
+        );
+        return;
+      }
+
+      String uploadedImageUrl = '';
+
+      if (imagePath != null) {
+        uploadedImageUrl = await uploadImageToServer(imagePath);
+        Provider.of<UserProvider>(context, listen: false)
+            .autoRefreshUserData({'foto': ApiUrl.baseUrl + uploadedImageUrl});
+      }
+
+      var response = await _authService.updateUserData(
+        token: token,
+        name: updatedName,
+        password: null,
+        imagePath: uploadedImageUrl,
       );
-    } else {
+
+      if (response != null) {
+        setState(() {
+          _userData = response;
+          _nameController.text = _userData?.name ?? '';
+          Provider.of<UserProvider>(context, listen: false)
+              .autoRefreshUserData({
+            'name': updatedName,
+            // 'foto': ApiUrl.baseUrl + uploadedImageUrl
+          });
+          String updatedProfileUrl = ApiUrl.baseUrl + uploadedImageUrl;
+
+          _imageFile = null;
+          _hasChanges = false;
+        });
+
+        Fluttertoast.showToast(
+          msg: "Profil berhasil diperbarui",
+          toastLength: Toast.LENGTH_SHORT,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: "Gagal memperbarui profil",
+          toastLength: Toast.LENGTH_LONG,
+          backgroundColor: Colors.red,
+        );
+      }
+    } catch (e) {
+      print('Error updating profile: $e');
       Fluttertoast.showToast(
-        msg: "Gagal memperbarui profil",
+        msg: "Gagal memperbarui profil: $e",
         toastLength: Toast.LENGTH_LONG,
         backgroundColor: Colors.red,
       );
+    } finally {
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      });
     }
-  } catch (e) {
-    print('Error updating profile: $e');
-    Fluttertoast.showToast(
-      msg: "Gagal memperbarui profil: $e",
-      toastLength: Toast.LENGTH_LONG,
-      backgroundColor: Colors.red,
-    );
-  } finally {
-    setState(() {
-      _isLoading = false; // Hide loading indicator
-    });
   }
-}
 
   @override
   void dispose() {

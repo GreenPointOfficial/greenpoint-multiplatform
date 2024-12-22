@@ -1,7 +1,12 @@
+// import 'dart:ffi' as ffi;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
+import 'package:greenpoint/models/user_model.dart';
 import 'package:greenpoint/providers/user_provider.dart';
+import 'package:greenpoint/service/auth_service.dart';
 import 'package:greenpoint/views/screens/auth/masuk_page.dart';
 import 'package:greenpoint/views/screens/fitur/kelola_profile.dart';
 import 'package:greenpoint/views/screens/fitur/pengaturan.dart';
@@ -18,13 +23,34 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   bool isAboutExpanded = false;
   bool isFAQExpanded = false;
+  UserModel? _userData;
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
     super.initState();
-    // Fetch user data only if it's not already loaded
     if (Provider.of<UserProvider>(context, listen: false).userName.isEmpty) {
       Provider.of<UserProvider>(context, listen: false).fetchUserData();
+    }
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      final token = await _secureStorage.read(key: 'auth_token');
+      if (token != null) {
+        final userData = await _authService.userData(token);
+        setState(() {
+          _userData = userData;
+        });
+      } else {
+        throw Exception('Token not found');
+      }
+    } catch (e) {
+      // Show error or handle appropriately
+      print('Error fetching user data: $e');
     }
   }
 
@@ -89,41 +115,38 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileHeader() {
-  final userName = Provider.of<UserProvider>(context).userName;
-  final email = Provider.of<UserProvider>(context).email;
-  final foto = Provider.of<UserProvider>(context).foto;
-  print("User profile image URL: $foto");
+    final userName = Provider.of<UserProvider>(context).userName;
+    final email = Provider.of<UserProvider>(context).email;
 
-
-  return Row(
-    children: [
-      Container(
-        height: 70,
-        width: 70,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(50),
-          image: DecorationImage(
-            image: foto.isNotEmpty
-                ? NetworkImage(foto) 
-                : AssetImage("lib/assets/imgs/profile_placeholder.jpg") as ImageProvider, // Default placeholder if no profile image
-            fit: BoxFit.cover,
+    return Row(
+      children: [
+        Container(
+          height: 70,
+          width: 70,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: CircleAvatar(
+            radius: 30,
+            backgroundImage: (_userData?.fotoProfil != null
+                ? NetworkImage(_userData!.fotoProfil!)
+                : const AssetImage("lib/assets/imgs/profile_placeholder.jpg")
+                    as ImageProvider),
           ),
         ),
-      ),
-      const SizedBox(width: 10),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(userName,
-              style: GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 16)),
-          Text(email, style: GoogleFonts.dmSans(fontWeight: FontWeight.w300)),
-        ],
-      )
-    ],
-  );
-}
-
-
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(userName,
+                style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.w500, fontSize: 16)),
+            Text(email, style: GoogleFonts.dmSans(fontWeight: FontWeight.w300)),
+          ],
+        )
+      ],
+    );
+  }
 
   Widget _buildProfileOption(
       String title, IconData icon, Color color, VoidCallback callback) {
