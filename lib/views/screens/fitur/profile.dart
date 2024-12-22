@@ -37,6 +37,12 @@ class _ProfilePageState extends State<ProfilePage> {
     _fetchUserData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _fetchUserData(); // Muat ulang data ketika kembali ke halaman ini
+  }
+
   Future<void> _fetchUserData() async {
     try {
       final token = await _secureStorage.read(key: 'auth_token');

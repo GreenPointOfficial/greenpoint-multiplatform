@@ -42,7 +42,6 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _joinController = TextEditingController();
-
     _fetchUserData();
   }
 
@@ -304,8 +303,43 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
                               borderRadius: BorderRadius.circular(8)),
                         ),
                         onPressed: _hasChanges && !_isLoading
-                            ? () {
-                                _updateUserProfile(imagePath: _imageFile?.path);
+                            ? () async {
+                                setState(() {
+                                  _isLoading = true;
+                                });
+
+                                try {
+                                  // Panggil fungsi untuk memperbarui profil
+                                  await _updateUserProfile(
+                                      imagePath: _imageFile?.path);
+
+                                  // Fetch data pengguna terbaru
+                                  await _fetchUserData();
+
+                                  // Set ulang loading dan perubahan
+                                  setState(() {
+                                    _isLoading = false;
+                                    _hasChanges = false;
+                                  });
+
+                                  // Tampilkan notifikasi sukses (opsional)
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            "Profil berhasil diperbarui!")),
+                                  );
+                                } catch (error) {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+
+                                  // Tampilkan notifikasi error
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            "Gagal memperbarui profil: $error")),
+                                  );
+                                }
                               }
                             : null,
                         child: _isLoading
