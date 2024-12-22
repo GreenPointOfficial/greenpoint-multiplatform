@@ -65,7 +65,7 @@ class AuthService {
           return {
             'success': true,
             'message': 'Login successful',
-            'token': data['token'], // Ambil token dari token
+            'token': data['token'], 
             'user_data': data['user_data']
           };
         } else {
@@ -79,25 +79,69 @@ class AuthService {
     }
   }
 
-  // Login dengan Google
-  Future<String> signInWithGoogle() async {
-    try {
-      // Start the Google Sign-In process
-      GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        // The user canceled the sign-in process
-        throw Exception("Google sign-in was canceled.");
-      }
-      // Obtain authentication details
-      GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      // Return the Google ID token
-      return googleAuth.idToken ?? '';
-    } catch (e) {
-      // Catch and print the error message
-      print("Google Sign-In error: $e");
-      throw Exception("Google Sign-In failed: $e");
+  Future<UserModel> signInWithGoogle() async {
+  final url = ApiUrl.buildUrl(ApiUrl.loginGoogle);
+
+  try {
+    // Start the Google Sign-In process
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) {
+      throw Exception('Sign in was cancelled by the user.');
     }
+
+    // Authenticate user and get token from Google
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final String? idToken = googleAuth.idToken;
+
+    if (idToken == null) {
+      throw Exception('Unable to retrieve ID token from Google.');
+    }
+
+    // Send POST request to backend Laravel for verification
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({
+        'id_token': idToken, 
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      // Check if token exists
+      if (data.containsKey('token') && data['token'] != null) {
+        // Save the token securely, if needed
+        await _saveToken(data['token']);
+
+        // Save user data securely
+        if (data.containsKey('user')) {
+          final userData = data['user'];
+          
+          // Serialize the user data to JSON and save it securely
+          await _secureStorage.write(key: 'user_data', value: json.encode(userData));
+
+          // Return the UserModel instance
+          return UserModel.fromJson(userData); // Return UserModel instance
+        } else {
+          throw Exception('User data is missing from server response.');
+        }
+      } else {
+        throw Exception('Token is missing from server response.');
+      }
+    } else {
+      throw Exception('Failed to authenticate with the server. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error during Google sign-in: $e');
+    throw Exception('Google Sign-In failed. Reason: $e');
   }
+}
+
+
   // Future<Map<String, dynamic>> fetchProtectedResource(String endpoint) async {
   //   final token = await getToken();
   //   if (token == null) throw Exception('User is not authenticated.');
@@ -156,56 +200,56 @@ class AuthService {
     }
   }
 
-   Future<UserModel?> updateUserData({
+  Future<UserModel?> updateUserData({
     required String? token,
     String? name,
     String? password,
     String? imagePath,
-}) async {
-  final url = ApiUrl.buildUrl(ApiUrl.updateUser);
-  try {
-    print('Update Request:');
-    print('Token: $token');
-    print('Name: $name');
-    print('Image Path: $imagePath');
+  }) async {
+    final url = ApiUrl.buildUrl(ApiUrl.updateUser);
+    try {
+      print('Update Request:');
+      print('Token: $token');
+      print('Name: $name');
+      print('Image Path: $imagePath');
 
-    var headers = {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json', 
-    };
+      var headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
 
-    // Membuat payload JSON
-    var body = jsonEncode({
-      'name': name,
-      // 'password': password,
-    });
-
-    if (imagePath != null && imagePath.isNotEmpty) {
-      
-      body = jsonEncode({
+      // Membuat payload JSON
+      var body = jsonEncode({
         'name': name,
         // 'password': password,
-        'foto_profil': ApiUrl.baseUrl+ imagePath,  // Menambahkan path gambar di JSON
       });
+
+      if (imagePath != null && imagePath.isNotEmpty) {
+        body = jsonEncode({
+          'name': name,
+          // 'password': password,
+          'foto_profil':
+              ApiUrl.baseUrl + imagePath, // Menambahkan path gambar di JSON
+        });
+      }
+
+      var response =
+          await http.put(Uri.parse(url), headers: headers, body: body);
+
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      final jsonResponse = jsonDecode(response.body);
+      if (response.statusCode == 200 &&
+          jsonResponse['success'] == true &&
+          jsonResponse.containsKey('user')) {
+        return UserModel.fromJson(jsonResponse['user']);
+      }
+
+      throw Exception('Update failed: ${jsonResponse['message']}');
+    } catch (e) {
+      print('Update error: $e');
+      rethrow;
     }
-
-    var response = await http.put(Uri.parse(url), headers: headers, body: body);
-
-    print('Response Status Code: ${response.statusCode}');
-    print('Response Body: ${response.body}');
-
-    final jsonResponse = jsonDecode(response.body);
-    if (response.statusCode == 200 &&
-        jsonResponse['success'] == true &&
-        jsonResponse.containsKey('user')) {
-      return UserModel.fromJson(jsonResponse['user']);
-    }
-
-    throw Exception('Update failed: ${jsonResponse['message']}');
-  } catch (e) {
-    print('Update error: $e');
-    rethrow;
   }
-}
-
 }

@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:greenpoint/models/user_model.dart';
 import 'package:greenpoint/service/auth_service.dart';
+import 'package:greenpoint/views/widget/navbar_widget.dart';
 
 class AuthController {
   final AuthService _authService = AuthService();
@@ -77,29 +79,21 @@ class AuthController {
     }
   }
 
-   Future<Map<String, dynamic>> handleGoogleLogin() async {
-  try {
-    String token = await _authService.signInWithGoogle();
-    
-    if (token.isNotEmpty) {
+  Future<Map<String, dynamic>> handleGoogleLogin() async {
+    try {
+      UserModel user = await _authService.signInWithGoogle();
+
       return {
         'success': true,
-        'message': 'Google login successful',
-        'token': token, // Add token to the response
+        'user': user,
       };
-    } else {
+    } catch (e) {
       return {
         'success': false,
-        'message': 'Google login failed: Empty token',
+        'message': e.toString(),
       };
     }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'Google login failed: $e',
-    };
   }
-}
 
   Future<bool> isAuthenticated() async {
     final token = await _authService.getToken();

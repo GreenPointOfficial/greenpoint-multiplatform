@@ -51,18 +51,16 @@ class _DaftarPageState extends State<DaftarPage> {
       showNotification(
         "Google login berhasil!",
         Colors.white,
-        // GreenPointColor.primary,
       );
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => NavBottom()),
       );
     } else {
-      showNotification(
-        response['message'] ?? "Google login gagal.",
-        Colors.white,
-        // Colors.red,
-      );
+      // showNotification(
+      //   response['message'] ?? "Google login gagal.",
+      //   Colors.red,
+      // );
     }
     setState(() {
       isLoading = false;
@@ -170,13 +168,7 @@ class _DaftarPageState extends State<DaftarPage> {
                                 passwordController.text,
                               );
 
-                              // Jika berhasil, tampilkan notifikasi sukses
-                              // showNotification(
-                              //   "Pendaftaran berhasil!",
-                              //   GreenPointColor.primary,
-                              // );
-
-                              // Arahkan ke halaman login
+                              // Jika berhasil, arahkan ke halaman login
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
@@ -191,14 +183,12 @@ class _DaftarPageState extends State<DaftarPage> {
                                   Colors.red,
                                 );
                               } else {
-                                // Kesalahan umum
                                 showNotification(
                                   "Pendaftaran gagal: ${e.toString()}",
                                   Colors.red,
                                 );
                               }
                             } finally {
-                              // Kembalikan loading state
                               setState(() {
                                 isLoading = false;
                               });

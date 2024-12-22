@@ -78,7 +78,6 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
         _isLoading = false;
       });
 
-      // Tambahkan listener untuk mendeteksi perubahan pada nama
       _nameController.addListener(() {
         _checkChanges();
       });
@@ -96,33 +95,7 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
   }
 
   void _showImagePickerBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Wrap(
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.photo_library),
-                title: Text('Pilih dari Galeri'),
-                onTap: () {
-                  _pickImage(ImageSource.gallery);
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.camera_alt),
-                title: Text('Ambil Foto'),
-                onTap: () {
-                  _pickImage(ImageSource.camera);
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    _pickImage(ImageSource.gallery);
   }
 
   Future<void> _pickImage(ImageSource source) async {

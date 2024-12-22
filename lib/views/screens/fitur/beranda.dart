@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
 import 'package:greenpoint/controllers/artikel_controller.dart';
 import 'package:greenpoint/controllers/penjualan_controller.dart';
 import 'package:greenpoint/models/top_penjualan_model.dart';
+import 'package:greenpoint/models/user_model.dart';
 import 'package:greenpoint/providers/notifikasi_provider.dart';
 import 'package:greenpoint/providers/user_provider.dart';
+import 'package:greenpoint/service/auth_service.dart';
 import 'package:greenpoint/views/screens/fitur/notifikasi.dart';
-import 'package:greenpoint/views/widget/notifikasi_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -39,7 +41,12 @@ class Beranda extends StatefulWidget {
 }
 
 class _BerandaState extends State<Beranda> {
+  UserModel? _userData;
+
   final PageController _pageController = PageController();
+  final AuthService _authService = AuthService();
+
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -53,9 +60,15 @@ class _BerandaState extends State<Beranda> {
 
   void _fetchInitialData() async {
     try {
+      final token = await _secureStorage.read(key: 'auth_token');
+
       await context.read<JenisSampahController>().fetchJenisSampah();
       await context.read<ArtikelController>().fetchAllArtikel();
       await context.read<PenjualanController>().getTopPenjualan();
+      final userData = await _authService.userData(token);
+      setState(() {
+        _userData = userData;
+      });
     } catch (e) {
       debugPrint("Error fetching initial data: $e");
     }
@@ -211,70 +224,71 @@ class _BerandaState extends State<Beranda> {
     );
   }
 
-Widget _buildPointsSection() {
-  final screenWidth = MediaQuery.of(context).size.width;
+  Widget _buildPointsSection() {
+    final screenWidth = MediaQuery.of(context).size.width;
 
-  // Gaya teks untuk judul
-  final TextStyle titleStyle = GoogleFonts.dmSans(
-    fontWeight: FontWeight.bold,
-    fontSize: screenWidth * 0.045,
-  );
+    // Gaya teks untuk judul
+    final TextStyle titleStyle = GoogleFonts.dmSans(
+      fontWeight: FontWeight.bold,
+      fontSize: screenWidth * 0.045,
+    );
 
-  // Fungsi untuk memotong teks dan menambahkan elipsis
-  String addEllipsis(String text) {
-    if (text.length > 8) {
-      return text.substring(0, 9) + '...'; // Potong hingga 8 karakter
+    // Fungsi untuk memotong teks dan menambahkan elipsis
+    String addEllipsis(String text) {
+      if (text.length > 8) {
+        return text.substring(0, 9) + '...'; // Potong hingga 8 karakter
+      }
+      return text;
     }
-    return text;
+
+    // Gaya teks untuk subtitle
+    final TextStyle subtitleStyle = GoogleFonts.dmSans(
+      fontSize: screenWidth * 0.035,
+      color: GreenPointColor.abu,
+    );
+
+    // Gaya teks untuk poin
+    final TextStyle pointsStyle = GoogleFonts.dmSans(
+      fontWeight: FontWeight.bold,
+      fontSize: screenWidth * 0.07,
+    );
+
+    // Ambil data pengguna dari provider
+    final userName = Provider.of<UserProvider>(context).userName;
+
+    final poin = Provider.of<UserProvider>(context).poin;
+
+    // Format poin menjadi format mata uang (Rp)
+    final formattedPoin = NumberFormat.currency(
+      locale: 'id',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    ).format(poin);
+
+    return Row(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(addEllipsis("Hello, $userName"), style: titleStyle),
+            Text("Poin kamu saat ini", style: subtitleStyle),
+          ],
+        ),
+        const Spacer(),
+        Row(
+          children: [
+            Image.asset(
+              "lib/assets/imgs/poin.png",
+              height: screenWidth * 0.09,
+              width: screenWidth * 0.09,
+            ),
+            const SizedBox(width: 8),
+            Text(formattedPoin, style: pointsStyle),
+          ],
+        ),
+      ],
+    );
   }
-
-  // Gaya teks untuk subtitle
-  final TextStyle subtitleStyle = GoogleFonts.dmSans(
-    fontSize: screenWidth * 0.035,
-    color: GreenPointColor.abu,
-  );
-
-  // Gaya teks untuk poin
-  final TextStyle pointsStyle = GoogleFonts.dmSans(
-    fontWeight: FontWeight.bold,
-    fontSize: screenWidth * 0.07,
-  );
-
-  // Ambil data pengguna dari provider
-  final userName = Provider.of<UserProvider>(context).userName;
-  final poin = Provider.of<UserProvider>(context).poin;
-
-  // Format poin menjadi format mata uang (Rp)
-  final formattedPoin = NumberFormat.currency(
-    locale: 'id', 
-    symbol: 'Rp', 
-    decimalDigits: 0,
-  ).format(poin);
-
-  return Row(
-    children: [
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(addEllipsis("Hello, $userName"), style: titleStyle),
-          Text("Poin kamu saat ini", style: subtitleStyle),
-        ],
-      ),
-      const Spacer(),
-      Row(
-        children: [
-          Image.asset(
-            "lib/assets/imgs/poin.png",
-            height: screenWidth * 0.09,
-            width: screenWidth * 0.09,
-          ),
-          const SizedBox(width: 8),
-          Text(formattedPoin, style: pointsStyle),
-        ],
-      ),
-    ],
-  );
-}
 
   Widget _buildActionsSection() {
     final screenWidth = MediaQuery.of(context).size.width;
