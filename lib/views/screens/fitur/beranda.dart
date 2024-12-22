@@ -8,6 +8,7 @@ import 'package:greenpoint/providers/notifikasi_provider.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/views/screens/fitur/notifikasi.dart';
 import 'package:greenpoint/views/widget/notifikasi_widget.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
@@ -210,55 +211,70 @@ class _BerandaState extends State<Beranda> {
     );
   }
 
-  Widget _buildPointsSection() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final TextStyle titleStyle = GoogleFonts.dmSans(
-      fontWeight: FontWeight.bold,
-      fontSize: screenWidth * 0.045,
-    );
+Widget _buildPointsSection() {
+  final screenWidth = MediaQuery.of(context).size.width;
 
-    String addEllipsis(String text) {
-      if (text.length > 8) {
-        return text.substring(0, 9) + '...'; // Truncate to 8 characters
-      }
-      return text;
+  // Gaya teks untuk judul
+  final TextStyle titleStyle = GoogleFonts.dmSans(
+    fontWeight: FontWeight.bold,
+    fontSize: screenWidth * 0.045,
+  );
+
+  // Fungsi untuk memotong teks dan menambahkan elipsis
+  String addEllipsis(String text) {
+    if (text.length > 8) {
+      return text.substring(0, 9) + '...'; // Potong hingga 8 karakter
     }
-
-    final TextStyle subtitleStyle = GoogleFonts.dmSans(
-      fontSize: screenWidth * 0.035,
-      color: GreenPointColor.abu,
-    );
-    final TextStyle pointsStyle = GoogleFonts.dmSans(
-      fontWeight: FontWeight.bold,
-      fontSize: screenWidth * 0.07,
-    );
-
-    final userName = Provider.of<UserProvider>(context).userName;
-    final poin = Provider.of<UserProvider>(context).poin;
-    return Row(
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(addEllipsis("Hello, $userName"), style: titleStyle),
-            Text("Poin kamu saat ini", style: subtitleStyle),
-          ],
-        ),
-        const Spacer(),
-        Row(
-          children: [
-            Image.asset(
-              "lib/assets/imgs/poin.png",
-              height: screenWidth * 0.09,
-              width: screenWidth * 0.09,
-            ),
-            const SizedBox(width: 8),
-            Text(poin.toString(), style: pointsStyle),
-          ],
-        ),
-      ],
-    );
+    return text;
   }
+
+  // Gaya teks untuk subtitle
+  final TextStyle subtitleStyle = GoogleFonts.dmSans(
+    fontSize: screenWidth * 0.035,
+    color: GreenPointColor.abu,
+  );
+
+  // Gaya teks untuk poin
+  final TextStyle pointsStyle = GoogleFonts.dmSans(
+    fontWeight: FontWeight.bold,
+    fontSize: screenWidth * 0.07,
+  );
+
+  // Ambil data pengguna dari provider
+  final userName = Provider.of<UserProvider>(context).userName;
+  final poin = Provider.of<UserProvider>(context).poin;
+
+  // Format poin menjadi format mata uang (Rp)
+  final formattedPoin = NumberFormat.currency(
+    locale: 'id', 
+    symbol: 'Rp', 
+    decimalDigits: 0,
+  ).format(poin);
+
+  return Row(
+    children: [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(addEllipsis("Hello, $userName"), style: titleStyle),
+          Text("Poin kamu saat ini", style: subtitleStyle),
+        ],
+      ),
+      const Spacer(),
+      Row(
+        children: [
+          Image.asset(
+            "lib/assets/imgs/poin.png",
+            height: screenWidth * 0.09,
+            width: screenWidth * 0.09,
+          ),
+          const SizedBox(width: 8),
+          Text(formattedPoin, style: pointsStyle),
+        ],
+      ),
+    ],
+  );
+}
 
   Widget _buildActionsSection() {
     final screenWidth = MediaQuery.of(context).size.width;

@@ -115,7 +115,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
                         'poin':
                             Provider.of<UserProvider>(context, listen: false)
                                     .poin -
-                                (amount.toInt() * 10)
+                                (amount.toInt())
                       });
 
                       showDialog(
@@ -369,7 +369,13 @@ class _TransaksiPageState extends State<TransaksiPage> {
   // Section Header
   Widget _buildHeaderSection() {
     final poin = Provider.of<UserProvider>(context).poin;
-    final saldo = poin / 10;
+    final saldo = poin;
+
+ final formattedPoin = NumberFormat.currency(
+    locale: 'id', 
+    symbol: 'Rp', 
+    decimalDigits: 0,
+  ).format(poin);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -416,7 +422,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
             ),
             const SizedBox(width: 8),
             Text(
-              poin.toString(),
+              formattedPoin,
               style: GoogleFonts.dmSans(
                 fontWeight: FontWeight.bold,
                 fontSize: 28,
@@ -425,23 +431,19 @@ class _TransaksiPageState extends State<TransaksiPage> {
             ),
           ],
         ),
-        Text(
-          "${formatter.format(saldo)}", // Format saldo
-          style: GoogleFonts.dmSans(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-            color: Colors.white,
-          ),
-        )
+        // Text(
+        //   "${formatter.format(saldo)}", // Format saldo
+        //   style: GoogleFonts.dmSans(
+        //     fontWeight: FontWeight.bold,
+        //     fontSize: 14,
+        //     color: Colors.white,
+        //   ),
+        // )
       ],
     );
   }
 
-  final NumberFormat formatter = NumberFormat.currency(
-    locale: 'id', // Locale Indonesia
-    symbol: 'Rp', // Simbol mata uang
-    decimalDigits: 0, // Jumlah desimal
-  );
+  
 
   // Ewallet options
   Widget _buildEwalletOptions() {
