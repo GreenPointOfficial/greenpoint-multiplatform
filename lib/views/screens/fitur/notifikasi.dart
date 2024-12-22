@@ -251,7 +251,7 @@ class NotificationPage extends StatelessWidget {
       case 'payout':
         return Image.asset('lib/assets/imgs/poin.png', height: 40, width: 40);
       case 'reward':
-        return Image.asset('lib/assets/imgs/reward.png', height: 40, width: 40);
+        return Image.asset('lib/assets/imgs/reward.png', height: 50, width: 50);
       case 'achievement':
         return Icon(Icons.stars, color: Colors.orange);
       default:

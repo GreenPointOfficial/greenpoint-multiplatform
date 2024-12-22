@@ -26,21 +26,21 @@ class _PencapaianPageState extends State<PencapaianPage> {
     {
       'weight': 10,
       'progres': 20,
-      'bonus': 100000,
+      'bonus': 1000,
       'message':
           'Selamat! Anda mendapatkan bonus karena telah menyelesaikan penjualan 10Kg sampah.'
     },
     {
       'weight': 30,
       'progres': 60,
-      'bonus': 150000,
+      'bonus': 7500,
       'message':
           'Selamat! Anda mendapatkan bonus karena telah menyelesaikan penjualan 30Kg sampah.'
     },
     {
       'weight': 50,
       'progres': 100,
-      'bonus': 200000,
+      'bonus': 10000,
       'message':
           'Selamat! Anda mendapatkan bonus karena telah menyelesaikan penjualan 50Kg sampah.'
     },
@@ -92,7 +92,7 @@ class _PencapaianPageState extends State<PencapaianPage> {
       message:
           "Selamat! Anda telah mengklaim bonus $bonus poin untuk pencapaian $achievedWeight kg sampah.",
       timestamp: DateTime.now(),
-      type: 'Reward',
+      type: 'reward',
     );
 
     // Tambahkan notifikasi
@@ -221,7 +221,7 @@ class _PencapaianPageState extends State<PencapaianPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildRewardText("Ayo selamatkan bumi\ndan dapatkan "),
-            _buildPointRow("450.000"),
+            _buildPointRow("18.500"),
             const Divider(color: Colors.white),
             SizedBox(height: ScreenUtils.screenHeight(context) * 0.01),
             _buildSubTitle("Penjualan anda:"),
@@ -318,9 +318,9 @@ class _PencapaianPageState extends State<PencapaianPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildMilestone("10Kg", "100.000"),
-        _buildMilestone("30Kg", "150.000"),
-        _buildMilestone("50Kg", "200.000"),
+        _buildMilestone("10Kg", "1.000"),
+        _buildMilestone("30Kg", "7.500"),
+        _buildMilestone("50Kg", "10.000"),
       ],
     );
   }
