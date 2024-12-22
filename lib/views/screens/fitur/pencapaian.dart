@@ -3,6 +3,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
+import 'package:greenpoint/models/notifikasi_model.dart';
+import 'package:greenpoint/providers/notifikasi_provider.dart';
 import 'package:greenpoint/providers/user_provider.dart';
 import 'package:greenpoint/views/widget/appbar2_widget.dart';
 import 'package:provider/provider.dart';
@@ -79,6 +81,24 @@ class _PencapaianPageState extends State<PencapaianPage> {
     }
   }
 
+  void _createNotificationAfterClaim(
+      BuildContext context, int bonus, int achievedWeight ) {
+    final notificationProvider =
+        Provider.of<NotifikasiProvider>(context, listen: false);
+
+    final notification = NotifikasiModel(
+      id: DateTime.now().toString(),
+      title: 'Pencapaian',
+      message:
+          "Selamat! Anda telah mengklaim bonus $bonus poin untuk pencapaian $achievedWeight kg sampah.",
+      timestamp: DateTime.now(),
+      type: 'Reward',
+    );
+
+    // Tambahkan notifikasi
+    notificationProvider.addNotification(notification);
+  }
+
   Future<bool> _checkMilestoneEligibility(int weight) async {
     String key = 'milestone_${weight}kg_claimed';
     String? claimedValue = await _storage.read(key: key);
@@ -140,7 +160,8 @@ class _PencapaianPageState extends State<PencapaianPage> {
 
     for (var milestone in _milestones) {
       if (progress >= milestone['progres'] && progress <= 100) {
-        bool isEligible = await _checkMilestoneEligibility(milestone['progres']);
+        bool isEligible =
+            await _checkMilestoneEligibility(milestone['progres']);
 
         if (isEligible) {
           _showDialog(
@@ -462,6 +483,7 @@ class _PencapaianPageState extends State<PencapaianPage> {
                 onPressed: () {
                   Navigator.of(dialogContext).pop();
                   onPressed?.call();
+                  _createNotificationAfterClaim(context, bonus, achievedWeight);
                 },
                 child: Center(
                   child: Padding(

@@ -607,7 +607,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
 
     final notification = NotifikasiModel(
       id: DateTime.now().toString(),
-      title: 'Penukaran Poin Berhasil',
+      title: 'Penukaran Poin',
       message:
           'Anda berhasil menukar Rp${amount.toStringAsFixed(2)} ke $ewalletChannel',
       timestamp: DateTime.now(),

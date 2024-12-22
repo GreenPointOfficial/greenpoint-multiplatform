@@ -5,7 +5,7 @@ class NotifikasiModel {
   final String message;
   final DateTime timestamp;
   final bool isRead;
-  final String? type; // Misalnya: 'payout', 'reward', 'achievement'
+  final String? type; 
 
   NotifikasiModel({
     required this.id,
