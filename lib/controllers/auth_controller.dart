@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:greenpoint/models/user_model.dart';
 import 'package:greenpoint/service/auth_service.dart';
-import 'package:greenpoint/views/widget/navbar_widget.dart';
 
 class AuthController {
   final AuthService _authService = AuthService();
