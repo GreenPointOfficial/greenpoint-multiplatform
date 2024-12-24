@@ -19,8 +19,8 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     String? imageUrl = json['foto_profil'] as String?;
-    if (imageUrl != null && !imageUrl.startsWith('http')) {
-      imageUrl = ApiUrl.baseImageUrl + imageUrl;
+    if (imageUrl != null && !imageUrl.startsWith('https')) {
+      imageUrl = ApiUrl.baseImageUrlProfile + imageUrl;
     }
 
     return UserModel(
