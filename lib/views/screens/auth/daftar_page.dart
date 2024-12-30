@@ -61,6 +61,7 @@ class _DaftarPageState extends State<DaftarPage> {
       //   response['message'] ?? "Google login gagal.",
       //   Colors.red,
       // );
+    
     }
     setState(() {
       isLoading = false;
@@ -103,6 +104,7 @@ class _DaftarPageState extends State<DaftarPage> {
                   ),
                 ),
                 // tambahkan confirm pass 
+                // google regis aktifkan
 
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.85,
