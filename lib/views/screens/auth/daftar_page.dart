@@ -105,6 +105,7 @@ class _DaftarPageState extends State<DaftarPage> {
                 ),
                 // tambahkan confirm pass 
                 // google regis aktifkan
+                // agus
 
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.85,
