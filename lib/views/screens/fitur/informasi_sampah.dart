@@ -62,7 +62,7 @@ class _InformasiSampahState extends State<InformasiSampah> {
                     // Dampak Positif
                     Center(
                       child: Text(
-                        "Dampak Positif Daur Ulang ${widget.jenisSampah.judul}:",
+                        "Dampak ${widget.jenisSampah.judul} Terhadap Lingkungan",
                         textAlign: TextAlign.center,
                         style: GoogleFonts.dmSans(
                           fontSize: 18,

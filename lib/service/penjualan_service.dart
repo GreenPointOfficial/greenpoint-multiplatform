@@ -40,7 +40,7 @@ class PenjualanService {
     }
   }
 
-  Future<Map<String, dynamic>> getUserPercentage(String token) async {
+ Future<Map<String, dynamic>> getUserPercentage(String token) async {
     final url = ApiUrl.buildUrl(ApiUrl.pencapaian);
     print("Hello");
 
@@ -64,22 +64,30 @@ class PenjualanService {
     }
   }
 
-  Future<Map<String, dynamic>> claimBonus(String token) async {
+  Future<Map<String, dynamic>> claimBonus(String token, int weight, int points) async {
     final url = ApiUrl.buildUrl(ApiUrl.klaimBonus);
     print("Hello claim");
+    print("Sending claim bonus request to $url with tier: $weight, points: $points");
 
     try {
-      final response = await http.get(
+      final response = await http.post(
         Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
         },
+        body: jsonEncode({
+          'tier': weight,
+          'points': points,
+        }),
       );
 
       // Memeriksa apakah status code sukses
       if (response.statusCode == 200) {
         print(response.body);
         return jsonDecode(response.body); 
+      } else if(response.statusCode == 400) {
+        throw Exception('Anda sudah mengklaim bonus ini');
       } else {
         throw Exception('Failed to load data');
       }

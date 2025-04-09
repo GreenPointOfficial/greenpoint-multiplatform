@@ -8,13 +8,15 @@ class ArtikelService {
 
   // Fetch all articles
   Future<List<Artikel>> fetchAllArtikel(String? token) async {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
 
-    final response = await http.get(Uri.parse(url),
-     headers: {
-        'Authorization': 'Bearer $token',  
-      },);
-    
     if (response.statusCode == 200) {
+      print(response.body);
       List<dynamic> data = json.decode(response.body);
       return data.map((artikelJson) => Artikel.fromJson(artikelJson)).toList();
     } else {

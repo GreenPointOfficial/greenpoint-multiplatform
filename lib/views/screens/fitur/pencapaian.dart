@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:greenpoint/assets/constants/greenpoint_color.dart';
 import 'package:greenpoint/assets/constants/screen_utils.dart';
@@ -20,26 +19,25 @@ class PencapaianPage extends StatefulWidget {
 class _PencapaianPageState extends State<PencapaianPage> {
   int? currentProgress;
   int? bonus;
-  final _storage = const FlutterSecureStorage();
 
   final List<Map<String, dynamic>> _milestones = [
     {
       'weight': 10,
-      'progres': 20,
+      'progress': 20,
       'bonus': 1000,
       'message':
           'Selamat! Anda mendapatkan bonus karena telah menyelesaikan penjualan 10Kg sampah.'
     },
     {
       'weight': 30,
-      'progres': 60,
+      'progress': 60,
       'bonus': 7500,
       'message':
           'Selamat! Anda mendapatkan bonus karena telah menyelesaikan penjualan 30Kg sampah.'
     },
     {
       'weight': 50,
-      'progres': 100,
+      'progress': 100,
       'bonus': 10000,
       'message':
           'Selamat! Anda mendapatkan bonus karena telah menyelesaikan penjualan 50Kg sampah.'
@@ -49,40 +47,52 @@ class _PencapaianPageState extends State<PencapaianPage> {
   @override
   void initState() {
     super.initState();
-    _checkAndResetMilestones();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final penjualanController =
-          Provider.of<PenjualanController>(context, listen: false);
-      penjualanController.getUserPercentage();
+      _fetchUserPercentageAndClaimBonus();
     });
   }
 
-  Future<void> _checkAndResetMilestones() async {
-    String? lastResetDateString =
-        await _storage.read(key: 'milestones_reset_date');
+  Future<void> _fetchUserPercentageAndClaimBonus() async {
+    final penjualanController =
+        Provider.of<PenjualanController>(context, listen: false);
+    await penjualanController.getUserPercentage();
+    setState(() {
+      currentProgress = penjualanController.userPercentage;
+    });
 
-    if (lastResetDateString != null) {
-      DateTime lastResetDate = DateTime.parse(lastResetDateString);
-      DateTime now = DateTime.now();
+    // Automatically claim the bonus
+    if (currentProgress != null) {
+      for (var milestone in _milestones) {
+        if (currentProgress! >= milestone['progress']) {
+          await penjualanController.autoClaimBonus(
+              milestone['weight'], milestone['bonus']);
+          if (penjualanController.claimMessage != null) {
+            _showDialog(
+              "Selamat!",
+              penjualanController.claimMessage!,
+              achievedWeight: milestone['weight'],
+              bonus: milestone['bonus'],
+              onPressed: () async {
+                // Additional actions after claiming bonus, if any
+              },
+            );
+            int currentPoin =
+                Provider.of<UserProvider>(context, listen: false).poin;
 
-      if (now.difference(lastResetDate).inDays >= 30) {
-        for (var milestone in _milestones) {
-          await _storage.delete(
-              key: 'milestone_${milestone['weight']}kg_claimed');
+            Provider.of<UserProvider>(context, listen: false)
+                .autoRefreshUserData({
+              'poin': currentPoin + milestone['bonus'],
+            });
+
+            break; // Break after the first eligible milestone is found and claimed
+          }
         }
-
-        await _storage.write(
-            key: 'milestones_reset_date', value: now.toIso8601String());
       }
-    } else {
-      await _storage.write(
-          key: 'milestones_reset_date',
-          value: DateTime.now().toIso8601String());
     }
   }
 
   void _createNotificationAfterClaim(
-      BuildContext context, int bonus, int achievedWeight ) {
+      BuildContext context, int bonus, int achievedWeight) {
     final notificationProvider =
         Provider.of<NotifikasiProvider>(context, listen: false);
 
@@ -99,25 +109,11 @@ class _PencapaianPageState extends State<PencapaianPage> {
     notificationProvider.addNotification(notification);
   }
 
-  Future<bool> _checkMilestoneEligibility(int weight) async {
-    String key = 'milestone_${weight}kg_claimed';
-    String? claimedValue = await _storage.read(key: key);
-    return claimedValue == null;
-  }
-
-  Future<void> _markMilestoneClaimed(int weight) async {
-    String key = 'milestone_${weight}kg_claimed';
-    await _storage.write(key: key, value: 'true');
-  }
-
   @override
   Widget build(BuildContext context) {
     final penjualanController = Provider.of<PenjualanController>(context);
     bonus = penjualanController.bonus;
-
     currentProgress = penjualanController.userPercentage;
-
-    _checkMilestones(currentProgress);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -155,42 +151,6 @@ class _PencapaianPageState extends State<PencapaianPage> {
     );
   }
 
-  Future<void> _checkMilestones(int? progress) async {
-    if (progress == null || progress < 10) return;
-
-    for (var milestone in _milestones) {
-      if (progress >= milestone['progres'] && progress <= 100) {
-        bool isEligible =
-            await _checkMilestoneEligibility(milestone['progres']);
-
-        if (isEligible) {
-          _showDialog(
-            "Selamat!",
-            milestone['message'],
-            achievedWeight: milestone['weight'],
-            bonus: milestone['bonus'],
-            onPressed: () async {
-              Provider.of<PenjualanController>(context, listen: false)
-                  .claimBonus();
-
-              int currentPoin =
-                  Provider.of<UserProvider>(context, listen: false).poin;
-
-              Provider.of<UserProvider>(context, listen: false)
-                  .autoRefreshUserData({
-                'poin': currentPoin + milestone['bonus'],
-              });
-
-              // Tandai milestone telah dicapai
-              await _markMilestoneClaimed(milestone['progres']);
-            },
-          );
-          break; // Tambahkan break untuk menghentikan iterasi setelah dialog ditampilkan
-        }
-      }
-    }
-  }
-
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -220,7 +180,7 @@ class _PencapaianPageState extends State<PencapaianPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildRewardText("Ayo selamatkan bumi\ndan dapatkan "),
+            _buildRewardText("Ayo selamatkan bumi\n dan dapatkan "),
             _buildPointRow("18.500"),
             const Divider(color: Colors.white),
             SizedBox(height: ScreenUtils.screenHeight(context) * 0.01),
@@ -368,7 +328,7 @@ class _PencapaianPageState extends State<PencapaianPage> {
         ),
         const Divider(),
         _buildStepRow(
-          "3. Sampah akan ditimbang,\ndan poin akan ditambahkan\nke akun Anda sesuai jumlah\nsampah yang Anda\nserahkan.",
+          "3. Sampah akan ditimbang,\n dan poin akan ditambahkan\n ke akun Anda sesuai jumlah\n sampah yang Anda\n serahkan.",
           "lib/assets/imgs/step3.png",
         ),
         const Divider(),
@@ -399,6 +359,8 @@ class _PencapaianPageState extends State<PencapaianPage> {
       {required int achievedWeight,
       required int bonus,
       VoidCallback? onPressed}) {
+    _createNotificationAfterClaim(context, bonus, achievedWeight);
+
     Future.microtask(() {
       showDialog(
         context: context,
@@ -480,10 +442,9 @@ class _PencapaianPageState extends State<PencapaianPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   Navigator.of(dialogContext).pop();
-                  onPressed?.call();
-                  _createNotificationAfterClaim(context, bonus, achievedWeight);
+                  // await onPressed?.call();
                 },
                 child: Center(
                   child: Padding(

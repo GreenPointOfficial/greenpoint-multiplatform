@@ -22,6 +22,7 @@ class _DaftarPageState extends State<DaftarPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController(); // Added this line
   final AuthController _authController = AuthController();
   bool isLoading = false;
   String? notificationMessage;
@@ -33,7 +34,6 @@ class _DaftarPageState extends State<DaftarPage> {
       notificationColor = color;
     });
 
-    // Hapus pesan setelah beberapa detik
     Future.delayed(const Duration(seconds: 3), () {
       setState(() {
         notificationMessage = null;
@@ -61,7 +61,6 @@ class _DaftarPageState extends State<DaftarPage> {
       //   response['message'] ?? "Google login gagal.",
       //   Colors.red,
       // );
-    
     }
     setState(() {
       isLoading = false;
@@ -76,7 +75,6 @@ class _DaftarPageState extends State<DaftarPage> {
       appBar: const AppbarWidget(title: "Register"),
       body: Stack(
         children: [
-          // Konten utama aplikasi
           Center(
             child: Column(
               children: [
@@ -103,11 +101,6 @@ class _DaftarPageState extends State<DaftarPage> {
                     controller: emailController,
                   ),
                 ),
-                // tambahkan confirm pass 
-                // google regis aktifkan
-                // agus
-                // hellow
-
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.85,
                   child: InputWidget(
@@ -120,6 +113,18 @@ class _DaftarPageState extends State<DaftarPage> {
                     isPassword: true,
                   ),
                 ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.85,
+                  child: InputWidget(
+                    hintText: 'Confirm Password',
+                    hintTextColor: Colors.white,
+                    textColor: Colors.white,
+                    fillColor: GreenPointColor.abu,
+                    icon: Icons.lock,
+                    controller: confirmPasswordController, // Updated this line
+                    isPassword: true,
+                  ),
+                ),
                 isLoading
                     ? CircularProgressIndicator(
                         color: GreenPointColor.primary,
@@ -129,11 +134,12 @@ class _DaftarPageState extends State<DaftarPage> {
                         child: TombolWidget(
                           warna: GreenPointColor.secondary,
                           warnaText: Colors.white,
-                          text: "Daftar", // Tampilkan loading state
+                          text: "Daftar",
                           onPressed: () async {
                             if (nameController.text.isEmpty ||
                                 emailController.text.isEmpty ||
-                                passwordController.text.isEmpty) {
+                                passwordController.text.isEmpty ||
+                                confirmPasswordController.text.isEmpty) { // Added check for confirm password
                               showNotification(
                                 "Semua kolom harus diisi!",
                                 Colors.red,
@@ -161,20 +167,26 @@ class _DaftarPageState extends State<DaftarPage> {
                               return;
                             }
 
-                            // Ubah state menjadi loading
+                            // Validasi kecocokan password
+                            if (passwordController.text != confirmPasswordController.text) {
+                              showNotification(
+                                "Password dan konfirmasi password tidak cocok!",
+                                Colors.red,
+                              );
+                              return;
+                            }
+
                             setState(() {
                               isLoading = true;
                             });
 
                             try {
-                              // Panggil fungsi register
                               await _authController.registerUser(
                                 nameController.text,
                                 emailController.text,
                                 passwordController.text,
                               );
 
-                              // Jika berhasil, arahkan ke halaman login
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
@@ -299,7 +311,6 @@ class _DaftarPageState extends State<DaftarPage> {
               ],
             ),
           ),
-          // Notifikasi yang mengambang
           if (notificationMessage != null)
             NotifikasiWidget(notificationMessage: notificationMessage)
         ],

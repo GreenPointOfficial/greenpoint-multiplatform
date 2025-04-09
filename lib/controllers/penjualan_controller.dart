@@ -14,6 +14,7 @@ class PenjualanController extends ChangeNotifier {
   int? _userPercentage;
   int? get userPercentage => _userPercentage;
   int? _bonus;
+  String? _claimMessage;
   int? get bonus => _bonus;
 
   // Loading state
@@ -23,6 +24,7 @@ class PenjualanController extends ChangeNotifier {
   // Error message state
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
+  String? get claimMessage => _claimMessage;
 
   // Method to fetch top penjualan
   Future<void> getTopPenjualan() async {
@@ -77,7 +79,7 @@ class PenjualanController extends ChangeNotifier {
 
   Future<void> getUserPercentage() async {
     _isLoading = true;
-    _errorMessage = null; // Reset the error message
+    _errorMessage = null;
     notifyListeners();
 
     final token = await _secureStorage.read(key: 'auth_token');
@@ -91,17 +93,17 @@ class PenjualanController extends ChangeNotifier {
     try {
       final data = await _penjualanService.getUserPercentage(token);
       _userPercentage = data['data']['persentase'];
-      print("User Percentage: $_userPercentage"); // Cek nilai yang didapat
+      print("User Percentage: $_userPercentage");
     } catch (e) {
-      _errorMessage = 'Error fetching percentage: $e';
-      print("Error fetching percentage: $e");
+      _errorMessage = 'Error fetching user percentage: $e';
     } finally {
       _isLoading = false;
-      notifyListeners(); // Memastikan UI diberitahu ada perubahan
+      notifyListeners();
     }
   }
 
-  Future<void> claimBonus() async {
+  Future<void> autoClaimBonus(int weight, int points) async {
+    print("ini berat: $weight");
     _isLoading = true;
     _errorMessage = null; // Reset the error message
     notifyListeners();
@@ -115,15 +117,17 @@ class PenjualanController extends ChangeNotifier {
     }
 
     try {
-      final data = await _penjualanService.claimBonus(token);
+      final data = await _penjualanService.claimBonus(token, weight, points);
       _bonus = data['data']['bonus'];
-      print("User Bonus+: $_bonus"); // Cek nilai yang didapat
+      _claimMessage = data['message']; // Save the success message
+      print("User Bonus+: $_bonus"); // Check the value received
     } catch (e) {
-      _errorMessage = 'Error fetching percentage: $e';
-      print("Error fetching percentage: $e");
+      _claimMessage = null; // Reset the claim message
+      _errorMessage = e.toString();
+      print("Error claiming bonus: $e");
     } finally {
       _isLoading = false;
-      notifyListeners(); // Memastikan UI diberitahu ada perubahan
+      notifyListeners(); // Ensure the UI is notified about the changes
     }
   }
 }

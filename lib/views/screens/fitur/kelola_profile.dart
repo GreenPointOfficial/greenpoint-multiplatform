@@ -136,102 +136,119 @@ class _KelolaProfilePageState extends State<KelolaProfilePage> {
   Future<String> uploadImageToServer(String imagePath) async {
     final url = Uri.parse(ApiUrl.buildUrl(ApiUrl.uploadImage));
     var request = http.MultipartRequest('POST', url);
-
     File file = File(imagePath);
     var stream = http.ByteStream(file.openRead());
     var length = await file.length();
-
     var multipartFile = http.MultipartFile('file', stream, length,
         filename: file.uri.pathSegments.last);
     request.files.add(multipartFile);
-
-    // Kirim permintaan
     var response = await request.send();
     final responseBody = await response.stream.bytesToString();
     var jsonResponse = jsonDecode(responseBody);
 
+    print('Response from uploadImageToServer: ${jsonResponse['imageUrl']}');
     return jsonResponse['imageUrl'];
   }
 
   Future<void> _updateUserProfile({String? imagePath}) async {
-    try {
+  try {
+    setState(() {
+      _isLoading = true;
+    });
+    String? token = await _secureStorage.read(key: 'auth_token'); 
+    String updatedName = _nameController.text;
+
+    print('Name: $updatedName'); // Debug print
+
+    if (updatedName.isEmpty) {
+      Fluttertoast.showToast(
+        msg: "Nama tidak boleh kosong",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+      return;
+    }
+
+    if (!_hasChanges) {
+      Fluttertoast.showToast(
+        msg: "Tidak ada perubahan untuk disimpan",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+      return;
+    }
+
+    String uploadedImageUrl = '';
+    if (imagePath != null) {
+      print('Original Image Path: $imagePath'); // Debug print
+
+      // Jika imagePath sudah berupa URL lengkap, gunakan langsung
+      if (imagePath.startsWith('http')) {
+        uploadedImageUrl = imagePath;
+      } else {
+        // Jika bukan URL, lakukan upload
+        uploadedImageUrl = await uploadImageToServer(imagePath);
+      }
+
+      print('Final Image URL to be sent: $uploadedImageUrl'); // Debug print
+      
+      // Pastikan tidak ada duplikasi base URL
+      if (uploadedImageUrl.contains('https://greenpointofficial.comhttps://')) {
+        uploadedImageUrl = uploadedImageUrl.replaceAll(
+          'https://greenpointofficial.comhttps://', 
+          'https://'
+        );
+      }
+    }
+    
+    // Kirim update ke server
+    var response = await _authService.updateUserData(
+      token: token,
+      name: updatedName,
+      password: null,
+      imagePath: uploadedImageUrl,
+    );
+
+    print('Server Response: $response'); // Debug print
+
+    if (response != null) {
       setState(() {
-        _isLoading = true;
+        _userData = response;
+        _nameController.text = _userData?.name ?? '';
+        
+        // Update data di provider
+        Provider.of<UserProvider>(context, listen: false)
+            .autoRefreshUserData({
+          'name': updatedName,
+          if (uploadedImageUrl.isNotEmpty) 'foto_profil': uploadedImageUrl,
+        });
+        
+        _imageFile = null;
+        _hasChanges = false;
       });
 
-      String? token = await _secureStorage.read(key: 'auth_token');
-      String updatedName = _nameController.text;
-
-      if (updatedName.isEmpty) {
-        Fluttertoast.showToast(
-          msg: "Nama tidak boleh kosong",
-          toastLength: Toast.LENGTH_SHORT,
-        );
-        return;
-      }
-
-      if (!_hasChanges) {
-        Fluttertoast.showToast(
-          msg: "Tidak ada perubahan untuk disimpan",
-          toastLength: Toast.LENGTH_SHORT,
-        );
-        return;
-      }
-
-      String uploadedImageUrl = '';
-
-      if (imagePath != null) {
-        uploadedImageUrl = await uploadImageToServer(imagePath);
-        Provider.of<UserProvider>(context, listen: false)
-            .autoRefreshUserData({'foto': ApiUrl.baseUrl + uploadedImageUrl});
-      }
-
-      var response = await _authService.updateUserData(
-        token: token,
-        name: updatedName,
-        password: null,
-        imagePath: uploadedImageUrl,
-      );
-
-      if (response != null) {
-        setState(() {
-          _userData = response;
-          _nameController.text = _userData?.name ?? '';
-          Provider.of<UserProvider>(context, listen: false)
-              .autoRefreshUserData({
-            'name': updatedName,
-            // 'foto': ApiUrl.baseUrl + uploadedImageUrl
-          });
-          String updatedProfileUrl = ApiUrl.baseUrl + uploadedImageUrl;
-
-          _imageFile = null;
-          _hasChanges = false;
-        });
-
-        Fluttertoast.showToast(
-          msg: "Profil berhasil diperbarui",
-          toastLength: Toast.LENGTH_SHORT,
-        );
-      } else {
-        Fluttertoast.showToast(
-          msg: "Gagal memperbarui profil",
-          toastLength: Toast.LENGTH_LONG,
-          backgroundColor: Colors.red,
-        );
-      }
-    } catch (e) {
-      print('Error updating profile: $e');
       Fluttertoast.showToast(
-        msg: "Gagal memperbarui profil: $e",
+        msg: "Profil berhasil diperbarui",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: "Gagal memperbarui profil",
         toastLength: Toast.LENGTH_LONG,
         backgroundColor: Colors.red,
       );
-    } finally {
-      setState(() {
-        _isLoading = false; // Hide loading indicator
-      });
     }
+  } catch (e) {
+    print('Error updating profile: $e');
+    Fluttertoast.showToast(
+      msg: "Gagal memperbarui profil: $e",
+      toastLength: Toast.LENGTH_LONG,
+      backgroundColor: Colors.red,
+    );
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
 
   @override
   void dispose() {

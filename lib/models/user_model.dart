@@ -17,6 +17,7 @@ class UserModel {
     required this.createdAt,
   });
 
+  // Factory method to create a UserModel from a JSON map
   factory UserModel.fromJson(Map<String, dynamic> json) {
     String? imageUrl = json['foto_profil'] as String?;
     if (imageUrl != null && !imageUrl.startsWith('https')) {
@@ -33,12 +34,13 @@ class UserModel {
     );
   }
 
+  // Method to convert a UserModel instance to a JSON map
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
       'email': email,
-      'foto_profil': fotoProfil, 
+      'foto_profil': fotoProfil,
       'poin': poin,
       'created_at': createdAt,
     };
